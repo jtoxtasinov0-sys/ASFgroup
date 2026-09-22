@@ -37,7 +37,7 @@ export default function Home({
         <div className="hero">
           <h2>{t.heroTitle}</h2>
           <p>{t.heroText}</p>
-          <button onClick={goCatalog}>{t.heroBtn}</button>
+          <button onClick={() => goCatalog()}>{t.heroBtn}</button>
         </div>
 
         <div className="section">

@@ -22,6 +22,8 @@ export default function StoryViewer({ stories, startIndex, lang, t, onClose, onS
 
   if (!story) return null;
 
+  const src = imageUrl(story.image);
+
   const prev = () => {
     haptic();
     if (index > 0) setIndex(index - 1);
@@ -53,7 +55,10 @@ export default function StoryViewer({ stories, startIndex, lang, t, onClose, onS
       </div>
 
       <div className="viewer-body">
-        <img src={imageUrl(story.image)} alt={pick(story, 'title', lang)} />
+        {/* Rasm nisbati ekranga to'g'ri kelmasa, bo'sh joyni o'sha rasmning
+            xiralashtirilgan nusxasi to'ldiradi — qora chiziqlar chiqmaydi */}
+        <div className="viewer-bg" style={{ backgroundImage: `url("${src}")` }} />
+        <img className="viewer-img" src={src} alt={pick(story, 'title', lang)} />
         <div className="viewer-zone left" onClick={prev} />
         <div className="viewer-zone right" onClick={next} />
       </div>

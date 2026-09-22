@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { api } from '../lib/api';
 
 export default function Login({ onSuccess }) {
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -12,7 +11,7 @@ export default function Login({ onSuccess }) {
     setBusy(true);
     setError('');
     try {
-      await api.login(username.trim(), password);
+      await api.login(password);
       onSuccess();
     } catch (err) {
       setError(err.message);
@@ -29,16 +28,6 @@ export default function Login({ onSuccess }) {
 
         {error && <div className="alert">{error}</div>}
 
-        <div className="field" style={{ marginBottom: 12 }}>
-          <label>Login</label>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            autoFocus
-          />
-        </div>
-
         <div className="field" style={{ marginBottom: 20 }}>
           <label>Parol</label>
           <input
@@ -46,10 +35,11 @@ export default function Login({ onSuccess }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            autoFocus
           />
         </div>
 
-        <button className="btn btn-full" disabled={busy || !username || !password}>
+        <button className="btn btn-full" disabled={busy || !password}>
           {busy ? 'Tekshirilmoqda...' : 'Kirish'}
         </button>
       </form>

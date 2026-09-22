@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const config = require('../config/default');
 const ProductModel = require('../models/Product');
 const OrderModel = require('../models/Order');
@@ -15,6 +16,13 @@ const toInt = (v, fallback = 0) => {
   if (raw === '') return fallback;
   const n = Number(raw);
   return Number.isFinite(n) ? Math.round(n) : fallback;
+};
+
+/** Parollarni uzunligini ham oshkor qilmaydigan tarzda taqqoslaydi */
+const samePassword = (given, expected) => {
+  const a = crypto.createHash('sha256').update(String(given ?? '')).digest();
+  const b = crypto.createHash('sha256').update(String(expected ?? '')).digest();
+  return crypto.timingSafeEqual(a, b);
 };
 
 const toBool = (v, fallback = true) => {
@@ -76,12 +84,19 @@ function buildProductData(body, uploadedUrls, existing) {
 
 const adminController = {
   /* ===== Kirish ===== */
+  /**
+   * Kirish faqat parol bilan — login so'ralmaydi.
+   * Parol yagona maxfiy ma'lumot bo'lgani uchun taqqoslash vaqt bo'yicha
+   * bir xil davom etadi (parolni belgima-belgi topishning oldini oladi).
+   */
   login(req, res) {
-    const { username, password } = req.body || {};
-    if (username === config.admin.username && password === config.admin.password) {
+    const { password } = req.body || {};
+
+    if (samePassword(password, config.admin.password)) {
+      const { username } = config.admin;
       return res.json({ ok: true, data: { token: signAdminToken(username), username } });
     }
-    return res.status(401).json({ ok: false, message: 'Login yoki parol notogri' });
+    return res.status(401).json({ ok: false, message: 'Parol notogri' });
   },
 
   me(req, res) {

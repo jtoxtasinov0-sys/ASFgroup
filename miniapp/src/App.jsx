@@ -149,8 +149,10 @@ export default function App() {
     notifySuccess();
   };
 
+  // Tugmaga to'g'ridan-to'g'ri ulansa, bu yerga bosish hodisasi tushib qoladi —
+  // shuning uchun faqat matn qabul qilamiz, qolgan hamma holatda "hammasi"
   const goCatalog = (cat) => {
-    setCategory(cat || 'all');
+    setCategory(typeof cat === 'string' ? cat : 'all');
     setView('catalog');
   };
 
