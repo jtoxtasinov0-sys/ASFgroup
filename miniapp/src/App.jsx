@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { api } from './lib/api';
+import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
 import { hasSeenIntro, markIntroSeen, useCart, useLang } from './lib/store';
 import {
@@ -38,6 +38,7 @@ export default function App() {
 
   const [status, setStatus] = useState('loading'); // loading | ready | error
   const [error, setError] = useState('');
+  const [waking, setWaking] = useState(false); // server uyg'onishini kutyapmizmi
 
   const [config, setConfig] = useState(null);
   const [products, setProducts] = useState([]);
@@ -91,6 +92,7 @@ export default function App() {
 
   useEffect(() => {
     initTelegram();
+    onApiWaking(setWaking);
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -187,7 +189,7 @@ export default function App() {
     return (
       <div className="center" style={{ minHeight: '100vh' }}>
         <div className="spinner" />
-        <span className="muted">{t.loading}</span>
+        <span className="muted">{waking ? t.waking : t.loading}</span>
       </div>
     );
   }
@@ -197,7 +199,7 @@ export default function App() {
       <div className="center" style={{ minHeight: '100vh' }}>
         <div className="emoji">📡</div>
         <b>{error}</b>
-        <span className="muted">Serverga ulanib bo'lmadi</span>
+        <span className="muted">{t.connectionHint}</span>
         <button className="btn btn-ghost btn-sm" style={{ marginTop: 12 }} onClick={load}>
           {t.retry}
         </button>

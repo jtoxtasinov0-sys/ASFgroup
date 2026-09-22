@@ -241,6 +241,45 @@ o'chib ketadi.
 
 ---
 
+## 5-QISM: Xatolar va yechimlar
+
+Deploy paytida eng ko'p uchragan xatolar — log matni bo'yicha topiladi.
+
+| Logdagi xato | Sabab | Yechim |
+|---|---|---|
+| `Can't reach database server ...-pooler...` (`P1001`) | `DATABASE_URL` da `-pooler` bor | Neon → **Connect** → **Connection pooling** ni o'chirib, qatorni qayta nusxalang |
+| `Can't reach database server at HOST.neon.tech` | `.env.example` dagi namuna matn ko'chirilgan | Haqiqiy qatorni Neon konsolidan oling |
+| `The table 'public.users' does not exist` | Build Command'da `prisma db push` yo'q | Build Command: `npm install --include=dev && npx prisma db push` |
+| `MINIAPP_URL https emas (http://localhost:5173)` | `MINIAPP_URL` qo'yilmagan | Environment: `MINIAPP_URL=https://asf-miniapp.vercel.app` |
+| Bot `/start` ga umuman javob bermaydi | handler ichida xato (odatda baza) | Logdan `Bot handler xatosi:` qatorini qidiring |
+| `409 Conflict` | bot ikki joyda ishlayapti | Kompyuterdagi `2-BACKEND.bat` oynasini yoping |
+
+### `DATABASE_URL` tekshiruv ro'yxati
+
+| ✅ To'g'ri | ❌ Xato |
+|---|---|
+| `postgresql://neondb_owner:npg_...` | `USER:PASSWORD@HOST` — namuna matn |
+| `:` atrofida bo'shliqsiz | `neondb_owner : npg_...` |
+| `-pooler` yo'q | `...-pooler.c-6...` |
+| qo'shtirnoqsiz | `"postgresql://..."` |
+| oxirida `?sslmode=require` | kesilgan qator |
+
+### Mini App'da "Serverga ulanib bo'lmadi"
+
+Backend manzili (`VITE_API_URL`) build paytida kodga yozilib qoladi. Vercel'da
+build eski bo'lsa, ichida `localhost` qolib ketadi va brauzer so'rovni bloklaydi.
+
+Kod buni o'zi hal qiladi: `VITE_API_URL` berilmagan yoki jonli saytda `localhost`
+bo'lsa, ilova avtomatik `https://asf-group-backend.onrender.com` ga murojaat qiladi
+(`miniapp/src/lib/api.js`, `admin/src/lib/api.js`). Shunga qaramay Vercel'da
+**0-QISM** dagi `Root Directory` sozlamasi qo'yilgani ma'qul — bo'lmasa har push'da
+build yiqiladi va yangi o'zgarishlar jonli saytga chiqmaydi.
+
+Servis uyquda bo'lsa, ilova darrov xato ko'rsatmaydi: ulanish uzilsa 3 marta
+qayta urinadi va ekranda "Server uyg'onmoqda, biroz kuting..." yoziladi.
+
+---
+
 ## Keyingi deploy'lar
 
 Repo'ga push qilsangiz hammasi avtomatik yangilanadi:
