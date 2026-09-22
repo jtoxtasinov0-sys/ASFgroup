@@ -60,9 +60,23 @@ function createBot() {
    https manzil bo'lmasa (kompyuterda ishlash) — polling.
    ---------------------------------------------------------- */
 
+/** PUBLIC_URL Render bergan manzildan farq qilsa — ogohlantiramiz */
+function warnIfPublicUrlMismatch() {
+  const render = process.env.RENDER_EXTERNAL_URL?.replace(/\/$/, '');
+  const manual = process.env.PUBLIC_URL?.replace(/\/$/, '');
+  if (render && manual && render !== manual) {
+    console.warn(
+      `⚠️  PUBLIC_URL (${manual}) Render manzilidan farq qiladi — ${render} ishlatildi.\n` +
+      '   Render → Environment bo\'limida PUBLIC_URL ni tuzating yoki o\'chiring.'
+    );
+  }
+}
+
 /** Botni yangilanishlarni qabul qilishga tayyorlaydi */
 async function startBot() {
   if (!bot) return;
+
+  warnIfPublicUrlMismatch();
 
   if (canUseWebhook()) {
     try {
@@ -70,6 +84,11 @@ async function startBot() {
         secret_token: webhookSecret(),
       });
       console.log(`✅ Bot webhook rejasida: ${config.publicUrl}`);
+
+      const info = await bot.getWebHookInfo().catch(() => null);
+      if (info?.last_error_message) {
+        console.warn(`⚠️  Oxirgi webhook xatosi: ${info.last_error_message}`);
+      }
       return;
     } catch (err) {
       console.error('Webhook o\'rnatilmadi:', err?.message, '— polling rejimiga o\'tamiz');
