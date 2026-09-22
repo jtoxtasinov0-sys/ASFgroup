@@ -89,6 +89,7 @@ img {
 .login-card img {
   width: 70px;
   height: 70px;
+  object-fit: cover;
   border-radius: 50%;
   margin: 0 auto 16px;
 }
