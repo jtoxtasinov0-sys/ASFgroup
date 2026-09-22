@@ -17,13 +17,19 @@ function resolveApiUrl() {
   return raw || LOCAL_API_URL;
 }
 
-export const API_URL = resolveApiUrl();
+/**
+ * Joriy manzil. Sozlangani javob bermasa, `PROD_API_URL` ga o'tib ketadi —
+ * `VITE_API_URL` eskirib qolgan holat uchun (masalan servis nomi o'zgargan).
+ */
+let activeApiUrl = resolveApiUrl();
+
+export const getApiUrl = () => activeApiUrl;
 
 /** Rasm manzilini to'liq URL'ga aylantiradi */
 export function imageUrl(path) {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return `${API_URL}${path}`;
+  return `${activeApiUrl}${path}`;
 }
 
 /* ----------------------------------------------------------
@@ -49,13 +55,23 @@ function setWaking(active) {
   wakingHandler?.(wakingCount > 0);
 }
 
-async function fetchWithRetry(url, options) {
+async function fetchWithRetry(path, options) {
   let waiting = false;
   try {
     for (let attempt = 0; ; attempt += 1) {
       try {
-        return await fetch(url, options);
+        return await fetch(`${activeApiUrl}${path}`, options);
       } catch (_) {
+        // Sozlangan manzil butunlay noto'g'ri bo'lishi mumkin — ma'lum
+        // ishlaydigan manzilni sinab ko'ramiz va ishlasa o'shanga o'tamiz
+        if (activeApiUrl !== PROD_API_URL) {
+          try {
+            const res = await fetch(`${PROD_API_URL}${path}`, options);
+            activeApiUrl = PROD_API_URL;
+            return res;
+          } catch (_) { /* u ham javob bermadi */ }
+        }
+
         if (attempt >= RETRY_DELAYS.length) throw new Error("Serverga ulanib bo'lmadi");
         if (!waiting) {
           waiting = true;
@@ -76,7 +92,7 @@ async function request(method, path, body) {
   };
   if (body) headers['Content-Type'] = 'application/json';
 
-  const res = await fetchWithRetry(`${API_URL}/api${path}`, {
+  const res = await fetchWithRetry(`/api${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
