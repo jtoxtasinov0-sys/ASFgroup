@@ -5,7 +5,7 @@ import { getInitData } from './telegram';
  * Jonli saytda (https) u berilmagan yoki `localhost` bo'lib qolgan bo'lsa,
  * brauzer so'rovni butunlay bloklaydi — shunda ishlab chiqarish manziliga tushamiz.
  */
-const PROD_API_URL = 'https://asf-group-backend.onrender.com';
+const PROD_API_URL = 'https://asfgroup.onrender.com';
 const LOCAL_API_URL = 'http://localhost:5000';
 
 function resolveApiUrl() {
