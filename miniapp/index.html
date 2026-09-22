@@ -9,6 +9,13 @@
     />
     <meta name="theme-color" content="#16243F" />
     <title>ASF GROUP</title>
+    <link rel="preconnect" href="https://asfgroup.onrender.com" crossorigin />
+    <link rel="preconnect" href="https://telegram.org" />
+    <script>
+      // Render'dagi server uxlab qolgan bo'lsa, uni ilova kodi yuklanguncha
+      // uyg'ota boshlaymiz — shu bilan bir necha soniya yutiladi
+      try { fetch('https://asfgroup.onrender.com/api/health', { mode: 'no-cors' }); } catch (_) {}
+    </script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body>
