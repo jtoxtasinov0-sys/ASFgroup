@@ -6,7 +6,7 @@
 |---|---|---|
 | Mini App (mijoz) | Vercel | https://asf-miniapp.vercel.app |
 | Admin panel | Vercel | https://asf-admin-ten.vercel.app |
-| Backend + bot | Render.com | https://asf-group-backend.onrender.com *(siz yaratasiz)* |
+| Backend + bot | Render.com | https://asfgroup.onrender.com *(siz yaratasiz)* |
 | Baza | Neon PostgreSQL | mavjud |
 
 Frontend'lar allaqachon Vercel'da va `VITE_API_URL` backend manziliga yo'naltirilgan.
@@ -61,7 +61,7 @@ Quyidagilarni **aynan shunday** to'ldiring:
 
 | Maydon | Qiymat |
 |---|---|
-| **Name** | `asf-group-backend` ⚠️ **aynan shu nom** |
+| **Name** | `asfgroup` ⚠️ **aynan shu nom** |
 | **Region** | `Frankfurt (EU Central)` |
 | **Branch** | `main` |
 | **Root Directory** | `backend` |
@@ -71,9 +71,9 @@ Quyidagilarni **aynan shunday** to'ldiring:
 | **Instance Type** | `Free` yoki `Starter` (pastdagi ogohlantirishni o'qing) |
 
 > ⚠️ **Nom nega muhim?** Render manzili nomdan yasaladi:
-> `asf-group-backend` → `https://asf-group-backend.onrender.com`
-> Vercel'dagi ikkala ilova aynan shu manzilga murojaat qiladi. Agar boshqa nom
-> tanlasangiz, 3-QISM dagi qadamlarni bajarishingiz kerak bo'ladi.
+> `asfgroup` → `https://asfgroup.onrender.com`
+> Vercel'dagi ikkala ilova va botning webhook'i aynan shu manzilga bog'lanadi.
+> Agar boshqa nom tanlasangiz, 3-QISM dagi qadamlarni bajarishingiz kerak.
 
 ### 4-qadam — Environment Variables
 
@@ -85,7 +85,7 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `DATABASE_URL` | Neon console'dan olinadi — pastdagi izohga qarang |
 | `BOT_TOKEN` | BotFather bergan token — `backend/.env` dan nusxalang |
 | `MINIAPP_URL` | `https://asf-miniapp.vercel.app` |
-| `PUBLIC_URL` | `https://asf-group-backend.onrender.com` |
+| `PUBLIC_URL` | `https://asfgroup.onrender.com` |
 | `ADMIN_USERNAME` | `admin` |
 | `ADMIN_PASSWORD` | 🔴 **YANGI kuchli parol** — `asf2025` EMAS! |
 | `JWT_SECRET` | 🔴 **YANGI uzun tasodifiy matn** (kamida 32 belgi) |
@@ -147,7 +147,7 @@ ASF GROUP  —  SIFAT VA ISHONCH
 
 Brauzerda oching:
 ```
-https://asf-group-backend.onrender.com/api/health
+https://asfgroup.onrender.com/api/health
 ```
 Javob: `{"ok":true,"name":"ASF GROUP API","slogan":"SIFAT VA ISHONCH"}`
 
@@ -177,17 +177,33 @@ npm run db:seed
 
 ## 3-QISM: Agar Render boshqa manzil bergan bo'lsa
 
-Agar `asf-group-backend` nomi band bo'lib, Render sizga boshqa manzil bergan
-bo'lsa (masalan `asf-group-backend-x7k2.onrender.com`), ikkala Vercel loyihasida
-manzilni yangilang:
+Render manzilini servis sahifasining yuqorisidan nusxalab oling. Agar u
+`https://asfgroup.onrender.com` dan farq qilsa, **to'rt joyni** yangilash kerak —
+biri qolib ketsa ilova ulanmaydi:
+
+**1. Render → Environment**
+
+`PUBLIC_URL` ni yangi manzilga o'zgartiring. Bu botning webhook'i uchun —
+noto'g'ri bo'lsa bot umuman javob bermaydi.
+
+**2–3. Vercel (ikkala loyihada)**
 
 1. https://vercel.com/dashboard → **asf-miniapp** → **Settings** → **Environment Variables**
-2. `VITE_API_URL` ni toping → **Edit** → yangi Render manzilini yozing → **Save**
-3. **Deployments** bo'limiga o'ting → eng yuqoridagi deploy → `...` → **Redeploy**
+2. `VITE_API_URL` ni toping → **Edit** → yangi manzilni yozing → **Save**
+   (Type: **Config**, Secret emas — `VITE_` prefiksi baribir brauzerga chiqadi)
+3. **Deployments** → eng yuqoridagi deploy → `⋯` → **Redeploy** (kesh belgisisiz)
 4. Xuddi shuni **asf-admin** loyihasi uchun ham takrorlang
 
-Shuningdek repo'dagi ikkala faylni yangilang va push qiling:
-`miniapp/.env.production` va `admin/.env.production`
+**4. Repo (zaxira manzil)**
+
+Bu fayllarda manzil yozilgan, ularni ham yangilang va push qiling:
+
+| Fayl | Nima uchun |
+|---|---|
+| `miniapp/.env.production` | build paytidagi manzil |
+| `admin/.env.production` | build paytidagi manzil |
+| `miniapp/src/lib/api.js` → `PROD_API_URL` | `VITE_API_URL` ishlamasa ishlatiladigan zaxira |
+| `admin/src/lib/api.js` → `PROD_API_URL` | xuddi shunday |
 
 ---
 
@@ -261,7 +277,7 @@ Deploy paytida eng ko'p uchragan xatolar — log matni bo'yicha topiladi.
 | Bot `/start` ga umuman javob bermaydi | handler ichida xato (odatda baza) | Logdan `Bot handler xatosi:` qatorini qidiring |
 | `409 Conflict` | bot ikki joyda ishlayapti | Kompyuterdagi `2-BACKEND.bat` oynasini yoping |
 | Bot jim, lekin logda xato yo'q | webhook o'chib qolgan (lokal ishlatilgan) | Render → **Manual Deploy** |
-| Logda `Bot polling rejasida` (Render'da) | `PUBLIC_URL` https emas yoki yo'q | Environment: `PUBLIC_URL=https://asf-group-backend.onrender.com` |
+| Logda `Bot polling rejasida` (Render'da) | `PUBLIC_URL` https emas yoki yo'q | Environment: `PUBLIC_URL=https://asfgroup.onrender.com` |
 
 ### `DATABASE_URL` tekshiruv ro'yxati
 
@@ -279,7 +295,7 @@ Backend manzili (`VITE_API_URL`) build paytida kodga yozilib qoladi. Vercel'da
 build eski bo'lsa, ichida `localhost` qolib ketadi va brauzer so'rovni bloklaydi.
 
 Kod buni o'zi hal qiladi: `VITE_API_URL` berilmagan yoki jonli saytda `localhost`
-bo'lsa, ilova avtomatik `https://asf-group-backend.onrender.com` ga murojaat qiladi
+bo'lsa, ilova avtomatik `https://asfgroup.onrender.com` ga murojaat qiladi
 (`miniapp/src/lib/api.js`, `admin/src/lib/api.js`). Shunga qaramay Vercel'da
 **0-QISM** dagi `Root Directory` sozlamasi qo'yilgani ma'qul — bo'lmasa har push'da
 build yiqiladi va yangi o'zgarishlar jonli saytga chiqmaydi.

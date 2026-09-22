@@ -3,7 +3,7 @@
  * Jonli saytda (https) u berilmagan yoki `localhost` bo'lib qolgan bo'lsa,
  * brauzer so'rovni butunlay bloklaydi — shunda ishlab chiqarish manziliga tushamiz.
  */
-const PROD_API_URL = 'https://asf-group-backend.onrender.com';
+const PROD_API_URL = 'https://asfgroup.onrender.com';
 const LOCAL_API_URL = 'http://localhost:5000';
 
 function resolveApiUrl() {
@@ -15,7 +15,13 @@ function resolveApiUrl() {
   return raw || LOCAL_API_URL;
 }
 
-export const API_URL = resolveApiUrl();
+/**
+ * Joriy manzil. Sozlangani javob bermasa, `PROD_API_URL` ga o'tib ketadi —
+ * `VITE_API_URL` eskirib qolgan holat uchun (masalan servis nomi o'zgargan).
+ */
+let activeApiUrl = resolveApiUrl();
+
+export const getApiUrl = () => activeApiUrl;
 
 const TOKEN_KEY = 'asf_admin_token';
 
@@ -26,7 +32,7 @@ export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 export function imageUrl(path) {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return `${API_URL}${path}`;
+  return `${activeApiUrl}${path}`;
 }
 
 /* ----------------------------------------------------------
@@ -38,11 +44,21 @@ const RETRY_DELAYS = [3000, 8000, 15000];
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function apiFetch(url, options) {
+async function apiFetch(path, options) {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      return await fetch(url, options);
+      return await fetch(`${activeApiUrl}${path}`, options);
     } catch (_) {
+      // Sozlangan manzil butunlay noto'g'ri bo'lishi mumkin — ma'lum
+      // ishlaydigan manzilni sinab ko'ramiz va ishlasa o'shanga o'tamiz
+      if (activeApiUrl !== PROD_API_URL) {
+        try {
+          const res = await fetch(`${PROD_API_URL}${path}`, options);
+          activeApiUrl = PROD_API_URL;
+          return res;
+        } catch (_) { /* u ham javob bermadi */ }
+      }
+
       if (attempt >= RETRY_DELAYS.length) throw new Error("Serverga ulanib bo'lmadi");
       await sleep(RETRY_DELAYS[attempt]);
     }
@@ -68,7 +84,7 @@ async function request(method, path, body) {
   const headers = { Authorization: `Bearer ${getToken()}` };
   if (body) headers['Content-Type'] = 'application/json';
 
-  const res = await apiFetch(`${API_URL}/api/admin${path}`, {
+  const res = await apiFetch(`/api/admin${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -78,7 +94,7 @@ async function request(method, path, body) {
 
 /** FormData (rasm yuklash bilan) so'rov */
 async function upload(method, path, formData) {
-  const res = await apiFetch(`${API_URL}/api/admin${path}`, {
+  const res = await apiFetch(`/api/admin${path}`, {
     method,
     headers: { Authorization: `Bearer ${getToken()}` },
     body: formData,
@@ -88,7 +104,7 @@ async function upload(method, path, formData) {
 
 export const api = {
   login: async (username, password) => {
-    const res = await apiFetch(`${API_URL}/api/admin/login`, {
+    const res = await apiFetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -117,7 +133,7 @@ export const api = {
   users: () => request('GET', '/users'),
 
   publicConfig: async () => {
-    const res = await apiFetch(`${API_URL}/api/config`);
+    const res = await apiFetch('/api/config');
     return handle(res);
   },
 };
