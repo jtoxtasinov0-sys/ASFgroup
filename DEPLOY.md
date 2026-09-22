@@ -206,21 +206,28 @@ uchun BotFather'da:
 
 ### 1. Free tier uxlab qoladi
 
-Render'ning bepul rejasida servis **15 daqiqa harakatsizlikdan keyin o'chadi**:
+Render'ning bepul rejasida servis **15 daqiqa harakatsizlikdan keyin o'chadi**.
+Uyg'onishi **~50 soniya** oladi, oyiga esa 750 soat limit bor.
 
-- Telegram bot `polling` rejimida ishlaydi — servis uxlaganda **bot javob bermaydi**
-- Birinchi so'rov servisni uyg'otadi, bu **~50 soniya** kutish demak
-- Bepul rejada oyiga 750 soat limit bor
+Bot bu holatga tayyor: `PUBLIC_URL` https bo'lsa, u **webhook rejasida** ishlaydi
+(`backend/src/core/bot.js`). Telegram xabarni serverga HTTP so'rov qilib yuboradi
+va **o'sha so'rov uxlagan servisni uyg'otadi** — bot javob beradi, faqat birinchi
+xabar kechikadi. Polling rejimida bunday bo'lmasdi: uxlagan servis Telegram'ga
+o'zi murojaat qilmaydi va bot butunlay jim qolardi.
 
-**Yechim variantlari:**
+Mini App ham tayyor: ulanish uzilsa 3 marta qayta urinadi va ekranda
+"Server uyg'onmoqda, biroz kuting..." yoziladi.
 
 | Variant | Narx | Izoh |
 |---|---|---|
-| **Starter reja** | $7/oy | Eng oddiy yo'l — servis hech qachon uxlamaydi |
-| Bot'ni webhook rejasiga o'tkazish | bepul | Kodni o'zgartirish kerak, lekin uyqu muammosi baribir qoladi |
-| Tashqi ping xizmati | bepul | 750 soat limitini tez tugatadi |
+| Hozirgi holat (webhook) | bepul | Bot ishlaydi, birinchi xabar ~50 soniya kechikadi |
+| **Starter reja** | $7/oy | Kechikish ham yo'qoladi — haqiqiy do'kon uchun tavsiya qilaman |
+| Tashqi ping xizmati | bepul | 750 soat limitini tez tugatadi, tavsiya qilmayman |
 
-Haqiqiy do'kon uchun **Starter rejani tavsiya qilaman**.
+> ⚠️ **Kompyuterda ishga tushirganda diqqat.** Lokal ishlaganda `PUBLIC_URL`
+> https bo'lmaydi, shuning uchun bot polling rejimiga tushadi va Render'dagi
+> webhook'ni **o'chirib yuboradi** (ikkalasi bir vaqtda ishlay olmaydi).
+> Tugatgach Render'da **Manual Deploy** qiling — webhook qayta tiklanadi.
 
 ### 2. Yuklangan rasmlar yo'qoladi
 
@@ -238,6 +245,47 @@ o'chib ketadi.
 | Render Persistent Disk | $0.25/GB/oy (Starter kerak) | Eng oddiy — `/opt/render/project/src/uploads` ga mount qilinadi |
 | Cloudinary | bepul reja bor | Kodni o'zgartirish kerak, lekin tezroq va ishonchliroq |
 | Rasmlarni repo'ga qo'yish | bepul | Faqat kam o'zgaradigan rasmlar uchun |
+
+---
+
+## 5-QISM: Xatolar va yechimlar
+
+Deploy paytida eng ko'p uchragan xatolar — log matni bo'yicha topiladi.
+
+| Logdagi xato | Sabab | Yechim |
+|---|---|---|
+| `Can't reach database server ...-pooler...` (`P1001`) | `DATABASE_URL` da `-pooler` bor | Neon → **Connect** → **Connection pooling** ni o'chirib, qatorni qayta nusxalang |
+| `Can't reach database server at HOST.neon.tech` | `.env.example` dagi namuna matn ko'chirilgan | Haqiqiy qatorni Neon konsolidan oling |
+| `The table 'public.users' does not exist` | Build Command'da `prisma db push` yo'q | Build Command: `npm install --include=dev && npx prisma db push` |
+| `MINIAPP_URL https emas (http://localhost:5173)` | `MINIAPP_URL` qo'yilmagan | Environment: `MINIAPP_URL=https://asf-miniapp.vercel.app` |
+| Bot `/start` ga umuman javob bermaydi | handler ichida xato (odatda baza) | Logdan `Bot handler xatosi:` qatorini qidiring |
+| `409 Conflict` | bot ikki joyda ishlayapti | Kompyuterdagi `2-BACKEND.bat` oynasini yoping |
+| Bot jim, lekin logda xato yo'q | webhook o'chib qolgan (lokal ishlatilgan) | Render → **Manual Deploy** |
+| Logda `Bot polling rejasida` (Render'da) | `PUBLIC_URL` https emas yoki yo'q | Environment: `PUBLIC_URL=https://asf-group-backend.onrender.com` |
+
+### `DATABASE_URL` tekshiruv ro'yxati
+
+| ✅ To'g'ri | ❌ Xato |
+|---|---|
+| `postgresql://neondb_owner:npg_...` | `USER:PASSWORD@HOST` — namuna matn |
+| `:` atrofida bo'shliqsiz | `neondb_owner : npg_...` |
+| `-pooler` yo'q | `...-pooler.c-6...` |
+| qo'shtirnoqsiz | `"postgresql://..."` |
+| oxirida `?sslmode=require` | kesilgan qator |
+
+### Mini App'da "Serverga ulanib bo'lmadi"
+
+Backend manzili (`VITE_API_URL`) build paytida kodga yozilib qoladi. Vercel'da
+build eski bo'lsa, ichida `localhost` qolib ketadi va brauzer so'rovni bloklaydi.
+
+Kod buni o'zi hal qiladi: `VITE_API_URL` berilmagan yoki jonli saytda `localhost`
+bo'lsa, ilova avtomatik `https://asf-group-backend.onrender.com` ga murojaat qiladi
+(`miniapp/src/lib/api.js`, `admin/src/lib/api.js`). Shunga qaramay Vercel'da
+**0-QISM** dagi `Root Directory` sozlamasi qo'yilgani ma'qul — bo'lmasa har push'da
+build yiqiladi va yangi o'zgarishlar jonli saytga chiqmaydi.
+
+Servis uyquda bo'lsa, ilova darrov xato ko'rsatmaydi: ulanish uzilsa 3 marta
+qayta urinadi va ekranda "Server uyg'onmoqda, biroz kuting..." yoziladi.
 
 ---
 

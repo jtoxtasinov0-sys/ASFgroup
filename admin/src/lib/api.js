@@ -1,4 +1,21 @@
-export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+/**
+ * Backend manzili build paytida `VITE_API_URL` dan olinadi va kodga yozilib qoladi.
+ * Jonli saytda (https) u berilmagan yoki `localhost` bo'lib qolgan bo'lsa,
+ * brauzer so'rovni butunlay bloklaydi — shunda ishlab chiqarish manziliga tushamiz.
+ */
+const PROD_API_URL = 'https://asf-group-backend.onrender.com';
+const LOCAL_API_URL = 'http://localhost:5000';
+
+function resolveApiUrl() {
+  const raw = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  const onHttps = typeof location !== 'undefined' && location.protocol === 'https:';
+  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(raw);
+
+  if (onHttps && (!raw || isLocal)) return PROD_API_URL;
+  return raw || LOCAL_API_URL;
+}
+
+export const API_URL = resolveApiUrl();
 
 const TOKEN_KEY = 'asf_admin_token';
 
@@ -10,6 +27,26 @@ export function imageUrl(path) {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
   return `${API_URL}${path}`;
+}
+
+/* ----------------------------------------------------------
+   Render'ning bepul rejasida servis harakatsizlikdan keyin
+   uxlaydi va birinchi so'rov uzilib qolishi mumkin. Shuning
+   uchun ulanish xatosida bir necha marta qayta urinamiz.
+   ---------------------------------------------------------- */
+const RETRY_DELAYS = [3000, 8000, 15000];
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function apiFetch(url, options) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await fetch(url, options);
+    } catch (_) {
+      if (attempt >= RETRY_DELAYS.length) throw new Error("Serverga ulanib bo'lmadi");
+      await sleep(RETRY_DELAYS[attempt]);
+    }
+  }
 }
 
 async function handle(res) {
@@ -31,7 +68,7 @@ async function request(method, path, body) {
   const headers = { Authorization: `Bearer ${getToken()}` };
   if (body) headers['Content-Type'] = 'application/json';
 
-  const res = await fetch(`${API_URL}/api/admin${path}`, {
+  const res = await apiFetch(`${API_URL}/api/admin${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -41,7 +78,7 @@ async function request(method, path, body) {
 
 /** FormData (rasm yuklash bilan) so'rov */
 async function upload(method, path, formData) {
-  const res = await fetch(`${API_URL}/api/admin${path}`, {
+  const res = await apiFetch(`${API_URL}/api/admin${path}`, {
     method,
     headers: { Authorization: `Bearer ${getToken()}` },
     body: formData,
@@ -51,7 +88,7 @@ async function upload(method, path, formData) {
 
 export const api = {
   login: async (username, password) => {
-    const res = await fetch(`${API_URL}/api/admin/login`, {
+    const res = await apiFetch(`${API_URL}/api/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -80,7 +117,7 @@ export const api = {
   users: () => request('GET', '/users'),
 
   publicConfig: async () => {
-    const res = await fetch(`${API_URL}/api/config`);
+    const res = await apiFetch(`${API_URL}/api/config`);
     return handle(res);
   },
 };

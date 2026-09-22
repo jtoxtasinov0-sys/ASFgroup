@@ -5,7 +5,13 @@ const cors = require('cors');
 
 const config = require('./config/default');
 const { connectDatabase, disconnectDatabase } = require('./database/connection');
-const { createBot, setMenuButton } = require('./core/bot');
+const {
+  createBot,
+  startBot,
+  setMenuButton,
+  webhookPath,
+  handleWebhookUpdate,
+} = require('./core/bot');
 const registerBotHandlers = require('./routes/bot.routes');
 const clientRoutes = require('./routes/client.routes');
 const adminRoutes = require('./routes/admin.routes');
@@ -25,6 +31,11 @@ app.use(
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, name: 'ASF GROUP API', slogan: config.company.slogan });
 });
+
+// Telegram yangilanishlari shu yo'l orqali keladi (webhook rejasida)
+if (config.bot.token) {
+  app.post(webhookPath(), handleWebhookUpdate);
+}
 
 app.use('/api/admin', adminRoutes);
 app.use('/api', clientRoutes);
@@ -74,15 +85,19 @@ async function start() {
   await connectDatabase();
 
   const bot = createBot();
-  if (bot) {
-    registerBotHandlers(bot);
-    await setMenuButton();
-  }
+  if (bot) registerBotHandlers(bot);
 
+  // Bot server tinglay boshlagandan keyin ulanadi — aks holda webhook
+  // yangilanishlari hali tayyor bo'lmagan serverga kelib qolishi mumkin
   app.listen(config.port, () => {
     console.log(`✅ Server: http://localhost:${config.port}`);
     console.log(`📱 Mini App: ${config.miniappUrl}`);
     console.log(`🛠  Admin API: http://localhost:${config.port}/api/admin\n`);
+
+    if (!bot) return;
+    startBot()
+      .then(setMenuButton)
+      .catch((err) => console.error('Bot ishga tushmadi:', err?.message));
   });
 }
 
