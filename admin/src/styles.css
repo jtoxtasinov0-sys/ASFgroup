@@ -89,6 +89,8 @@ img {
 .login-card img {
   width: 70px;
   height: 70px;
+  /* Logo kvadrat emas — cho'zilib ketmasligi uchun */
+  object-fit: contain;
   border-radius: 50%;
   margin: 0 auto 16px;
 }
