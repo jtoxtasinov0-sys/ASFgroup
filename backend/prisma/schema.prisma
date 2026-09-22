@@ -1,0 +1,96 @@
+// ASF GROUP — ma'lumotlar bazasi sxemasi
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Mijozlar (Telegram foydalanuvchilari)
+model User {
+  id         Int      @id @default(autoincrement())
+  telegramId String   @unique
+  firstName  String?
+  lastName   String?
+  username   String?
+  phone      String?
+  lang       String   @default("uz")
+  seenIntro  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("users")
+}
+
+/// Mahsulotlar — tayyor oyoq kiyim va zagatovka (ustki qism)
+model Product {
+  id            Int      @id @default(autoincrement())
+  article       String   @unique /// Artikul, masalan ASF-101
+  name          String
+  nameRu        String?
+  description   String?
+  descriptionRu String?
+  category      String /// "ready" = tayyor oyoq kiyim | "upper" = zagatovka
+  tag           String? /// "klassik" | "sport" | "mokasin" | "derbi" ...
+  color         String?
+  colorRu       String?
+  material      String?
+  materialRu    String?
+  images        String[] @default([])
+  price         Int /// Dona narxi (so'm)
+  oldPrice      Int? /// Chizib tashlanadigan eski narx
+  wholesalePrice Int /// Optom narxi (so'm)
+  wholesaleMin   Int      @default(10) /// Shu sondan boshlab optom narx
+  sizes         Int[]    @default([39, 40, 41, 42, 43])
+  inStock       Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  stories Story[]
+
+  @@index([category])
+  @@map("products")
+}
+
+/// Buyurtmalar
+model Order {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       Json /// [{ productId, article, name, image, price, sizes: {"40":2,"41":3}, qty, lineTotal }]
+  totalQty    Int      @default(0)
+  total       Int
+  isWholesale Boolean  @default(false)
+  customerName String
+  phone       String
+  region      String
+  address     String
+  comment     String?
+  status      String   @default("new") /// new | confirmed | delivered | cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@map("orders")
+}
+
+/// Storylar (bosh sahifadagi doiralar)
+model Story {
+  id        Int      @id @default(autoincrement())
+  title     String
+  titleRu   String?
+  image     String
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("stories")
+}

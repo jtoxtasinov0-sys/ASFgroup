@@ -1,0 +1,1269 @@
+/* ===========================================================
+   ASF GROUP — Mini App
+   Oq fon, to'q ko'k urg'u, minimalist
+   =========================================================== */
+
+:root {
+  --navy: #16243f;
+  --navy-700: #1e3153;
+  --navy-50: #eef1f7;
+  --red: #e11d2e;
+  --green: #12a150;
+
+  --ink: #0f1522;
+  --muted: #6b7484;
+  --line: #e8eaf0;
+  --bg: #ffffff;
+  --bg-soft: #f6f7fa;
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+
+  --nav-h: 66px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 6px 20px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 -8px 32px rgba(16, 24, 40, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 16px; /* iOS zoom oldini oladi */
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 13px 14px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--navy);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------- Layout ---------- */
+
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(var(--nav-h) + var(--safe-b) + 16px);
+}
+
+.wrap {
+  padding: 0 16px;
+}
+
+.section {
+  margin-top: 26px;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.h2 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.link {
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+}
+
+.header-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.header-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.header-hello {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.header-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lang-pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  background: #fff;
+}
+
+/* ---------- Storylar ---------- */
+
+.stories {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 16px 6px;
+  scrollbar-width: none;
+}
+
+.stories::-webkit-scrollbar {
+  display: none;
+}
+
+.story {
+  flex: 0 0 auto;
+  width: 68px;
+  text-align: center;
+}
+
+.story-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  padding: 2.5px;
+  background: linear-gradient(140deg, var(--navy) 0%, #3b5a92 55%, #9fb4d8 100%);
+}
+
+.story-ring.seen {
+  background: var(--line);
+}
+
+.story-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #fff;
+  background: var(--bg-soft);
+}
+
+.story-title {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink);
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.story-add .story-ring {
+  background: var(--line);
+  display: grid;
+  place-items: center;
+}
+
+.story-add .plus {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2.5px dashed #c4cad6;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  color: var(--muted);
+  background: #fff;
+}
+
+/* ---------- Story ko'ruvchi ---------- */
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #0b0f18;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-bars {
+  display: flex;
+  gap: 4px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 8px;
+}
+
+.viewer-bar {
+  flex: 1;
+  height: 2.5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.viewer-bar span {
+  display: block;
+  height: 100%;
+  background: #fff;
+  width: 0;
+}
+
+.viewer-bar span.run {
+  animation: barFill 5s linear forwards;
+}
+
+.viewer-bar span.done {
+  width: 100%;
+}
+
+@keyframes barFill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.viewer-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 14px 10px;
+  color: #fff;
+}
+
+.viewer-top img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.viewer-top b {
+  font-size: 14px;
+  flex: 1;
+}
+
+.viewer-close {
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.viewer-body {
+  flex: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.viewer-body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.viewer-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+}
+
+.viewer-zone.left { left: 0; }
+.viewer-zone.right { right: 0; }
+
+.viewer-cta {
+  padding: 14px 16px calc(20px + var(--safe-b));
+}
+
+.viewer-cta button {
+  width: 100%;
+  background: #fff;
+  color: var(--navy);
+  font-weight: 700;
+  padding: 15px;
+  border-radius: var(--r-md);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-xl);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  right: -55px;
+  top: -55px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hero h2 {
+  margin: 0 0 6px;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+.hero p {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.72);
+  position: relative;
+  max-width: 85%;
+}
+
+.hero button {
+  background: #fff;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  position: relative;
+}
+
+/* ---------- Kategoriya kartochkalari ---------- */
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cat-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  text-align: left;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.cat-card:active {
+  transform: scale(0.98);
+  border-color: var(--navy);
+}
+
+.cat-emoji {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.cat-card b {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.cat-card span {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* ---------- Teglar (filtr) ---------- */
+
+.tags {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 16px 10px;
+  scrollbar-width: none;
+}
+
+.tags::-webkit-scrollbar {
+  display: none;
+}
+
+.tag {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: #fff;
+  white-space: nowrap;
+}
+
+.tag.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+/* ---------- Mahsulot kartochkasi ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.card {
+  position: relative;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-img {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-add {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  font-size: 19px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-md);
+}
+
+.card-add.added {
+  background: var(--green);
+}
+
+.card-body {
+  padding: 10px 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.card-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.card-art {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+
+/* ---------- Narx yorlig'i ("sikitka") ---------- */
+
+.pricetag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 5px 10px 5px 8px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 4px 9px 9px 4px;
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  align-self: flex-start;
+}
+
+.pricetag::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.pricetag b {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pricetag i {
+  font-size: 10px;
+  font-style: normal;
+  opacity: 0.7;
+}
+
+.pricetag.old {
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  text-decoration: line-through;
+  border-radius: 0;
+}
+
+.pricetag.old::before {
+  display: none;
+}
+
+.pricetag.big b {
+  font-size: 19px;
+}
+
+.pricetag.sale {
+  background: var(--red);
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+/* ---------- Pastdan chiquvchi oyna ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(12, 17, 28, 0.45);
+  animation: fade 0.2s ease;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 91;
+  background: #fff;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--line);
+  margin: 10px auto 2px;
+  flex-shrink: 0;
+}
+
+.sheet-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 18px 12px;
+}
+
+.sheet-photo {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-soft);
+  margin-top: 8px;
+}
+
+.sheet-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sheet-cta {
+  padding: 12px 18px calc(16px + var(--safe-b));
+  border-top: 1px solid var(--line);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+/* ---------- Ro'yxat (bullet) ---------- */
+
+.bullets {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.bullets li {
+  display: flex;
+  gap: 9px;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.bullets li::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--navy);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.bullets li b {
+  color: var(--muted);
+  font-weight: 500;
+  min-width: 68px;
+}
+
+/* ---------- Razmer tanlash ---------- */
+
+.sizes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.size-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 9px 10px 9px 14px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.size-row.on {
+  border-color: var(--navy);
+  background: var(--navy-50);
+}
+
+.size-label {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.size-label span {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.stepper button {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--bg-soft);
+  color: var(--navy);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+}
+
+.stepper b {
+  min-width: 34px;
+  text-align: center;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Tugmalar ---------- */
+
+.btn {
+  width: 100%;
+  background: var(--navy);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 16px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s, transform 0.12s;
+}
+
+.btn:active {
+  transform: scale(0.99);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+}
+
+.btn-ghost {
+  background: var(--bg-soft);
+  color: var(--navy);
+}
+
+.btn-line {
+  background: #fff;
+  color: var(--navy);
+  border: 1px solid var(--line);
+}
+
+.btn-sm {
+  width: auto;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: var(--r-sm);
+}
+
+/* ---------- Savatcha ---------- */
+
+.cart-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cart-thumb {
+  width: 76px;
+  height: 76px;
+  border-radius: var(--r-md);
+  object-fit: cover;
+  background: var(--bg-soft);
+  flex-shrink: 0;
+}
+
+.cart-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-soft);
+  border-radius: 8px;
+  padding: 4px 6px 4px 9px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip button {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: #fff;
+  color: var(--navy);
+  font-size: 13px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.summary {
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  margin-top: 18px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  padding: 5px 0;
+}
+
+.summary-row.total {
+  border-top: 1px dashed #d5d9e2;
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  background: var(--navy-50);
+  color: var(--navy);
+  border-radius: var(--r-md);
+  padding: 11px 13px;
+  font-size: 12.5px;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+.notice.ok {
+  background: #e7f6ee;
+  color: #0b7a3c;
+}
+
+.notice.warn {
+  background: #fff4e5;
+  color: #92400e;
+}
+
+/* ---------- Forma ---------- */
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.field textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+/* ---------- Profil ---------- */
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-xl);
+}
+
+.avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.rows {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+  text-align: left;
+  background: #fff;
+}
+
+.row-item:last-child {
+  border-bottom: none;
+}
+
+.row-item .arrow {
+  color: #c4cad6;
+  font-size: 18px;
+}
+
+/* ---------- Buyurtma tarixi ---------- */
+
+.order-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--muted);
+}
+
+.badge.new { background: var(--navy-50); color: var(--navy); }
+.badge.confirmed { background: #fff4e5; color: #92400e; }
+.badge.delivered { background: #e7f6ee; color: #0b7a3c; }
+.badge.cancelled { background: #fdecec; color: #b42318; }
+
+.order-line {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+  padding: 5px 0;
+}
+
+.order-line img {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--bg-soft);
+}
+
+/* ---------- Pastki navigatsiya ---------- */
+
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  padding-bottom: var(--safe-b);
+}
+
+.nav-btn {
+  height: var(--nav-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  position: relative;
+}
+
+.nav-btn.active {
+  color: var(--navy);
+}
+
+.nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nav-badge {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  margin-left: 4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- Onboarding ---------- */
+
+.onb {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px calc(28px + var(--safe-b));
+  background: #fff;
+}
+
+.onb-skip {
+  align-self: flex-end;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.onb-art {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+}
+
+.onb-circle {
+  width: min(66vw, 260px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--navy);
+  display: grid;
+  place-items: center;
+  font-size: 84px;
+  color: #fff;
+  box-shadow: 0 20px 50px rgba(22, 36, 63, 0.25);
+}
+
+.onb-circle.plain {
+  background: transparent;
+  box-shadow: none;
+}
+
+.onb-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 20px 50px rgba(22, 36, 63, 0.25);
+}
+
+.onb h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 10px;
+}
+
+.onb p {
+  color: var(--muted);
+  font-size: 14.5px;
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: width 0.2s, background 0.2s;
+}
+
+.dot.on {
+  width: 22px;
+  background: var(--navy);
+}
+
+/* ---------- Holatlar ---------- */
+
+.center {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 24px;
+  gap: 8px;
+}
+
+.center .emoji {
+  font-size: 46px;
+  margin-bottom: 4px;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 2.5px solid var(--line);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f2f6 25%, #e6e9ef 50%, #f0f2f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: var(--r-lg);
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ---------- Muvaffaqiyat ekrani ---------- */
+
+.success {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  gap: 10px;
+}
+
+.success .check {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 46px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

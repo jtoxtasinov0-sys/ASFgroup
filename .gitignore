@@ -1,0 +1,77 @@
+# ===== ASF GROUP =====
+
+# --- Bog'liqliklar (dependencies) ---
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# --- Build natijalari ---
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# --- Maxfiy sozlamalar (.env) ---
+# DIQQAT: .env ichida DATABASE_URL, BOT_TOKEN, JWT_SECRET bor — hech qachon yuklanmasin.
+.env
+.env.local
+.env.*.local
+# Bular maxfiy emas (faqat VITE_API_URL) — saqlanadi:
+!.env.example
+!.env.development
+!.env.production
+
+# --- Backend yuklangan fayllar ---
+backend/uploads/products/custom-*
+backend/uploads/stories/*
+!backend/uploads/stories/.gitkeep
+
+# --- Prisma ---
+backend/prisma/*.db
+backend/prisma/*.db-journal
+backend/prisma/migrations/dev.db*
+
+# --- Loglar ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- Test / cache ---
+coverage/
+.nyc_output/
+.cache/
+.temp/
+.tmp/
+*.tgz
+
+# --- Muharrir va IDE ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Claude Code ---
+.claude/settings.local.json
+
+# --- Operatsion tizim fayllari ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+*.lnk
+
+# --- Boshqa ---
+ngrok.exe
+ngrok.yml
+*.zip
+*.rar
+*.bak
