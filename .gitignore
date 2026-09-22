@@ -75,3 +75,6 @@ ngrok.yml
 *.zip
 *.rar
 *.bak
+
+# --- Vercel ---
+.vercel/
