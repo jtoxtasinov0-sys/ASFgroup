@@ -85,7 +85,7 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `DATABASE_URL` | Neon console'dan olinadi — pastdagi izohga qarang |
 | `BOT_TOKEN` | BotFather bergan token — `backend/.env` dan nusxalang |
 | `MINIAPP_URL` | `https://asf-miniapp.vercel.app` |
-| `PUBLIC_URL` | `https://asfgroup.onrender.com` |
+| `PUBLIC_URL` | *shart emas* — Render manzilini o'zi beradi (`RENDER_EXTERNAL_URL`) |
 | `ADMIN_USERNAME` | `admin` |
 | `ADMIN_PASSWORD` | 🔴 **YANGI kuchli parol** — `asf2025` EMAS! |
 | `JWT_SECRET` | 🔴 **YANGI uzun tasodifiy matn** (kamida 32 belgi) |
@@ -183,8 +183,10 @@ biri qolib ketsa ilova ulanmaydi:
 
 **1. Render → Environment**
 
-`PUBLIC_URL` ni yangi manzilga o'zgartiring. Bu botning webhook'i uchun —
-noto'g'ri bo'lsa bot umuman javob bermaydi.
+Odatda hech narsa qilish shart emas: Render o'z manzilini `RENDER_EXTERNAL_URL`
+orqali beradi va bot o'shani ishlatadi. Agar `PUBLIC_URL` qo'lda yozilgan bo'lsa
+va Render manzilidan farq qilsa, logda ogohlantirish chiqadi — o'shani
+o'chirib qo'yganingiz ma'qul.
 
 **2–3. Vercel (ikkala loyihada)**
 
@@ -225,7 +227,7 @@ uchun BotFather'da:
 Render'ning bepul rejasida servis **15 daqiqa harakatsizlikdan keyin o'chadi**.
 Uyg'onishi **~50 soniya** oladi, oyiga esa 750 soat limit bor.
 
-Bot bu holatga tayyor: `PUBLIC_URL` https bo'lsa, u **webhook rejasida** ishlaydi
+Bot bu holatga tayyor: servis manzili https bo'lsa, u **webhook rejasida** ishlaydi
 (`backend/src/core/bot.js`). Telegram xabarni serverga HTTP so'rov qilib yuboradi
 va **o'sha so'rov uxlagan servisni uyg'otadi** — bot javob beradi, faqat birinchi
 xabar kechikadi. Polling rejimida bunday bo'lmasdi: uxlagan servis Telegram'ga
@@ -240,7 +242,7 @@ Mini App ham tayyor: ulanish uzilsa 3 marta qayta urinadi va ekranda
 | **Starter reja** | $7/oy | Kechikish ham yo'qoladi — haqiqiy do'kon uchun tavsiya qilaman |
 | Tashqi ping xizmati | bepul | 750 soat limitini tez tugatadi, tavsiya qilmayman |
 
-> ⚠️ **Kompyuterda ishga tushirganda diqqat.** Lokal ishlaganda `PUBLIC_URL`
+> ⚠️ **Kompyuterda ishga tushirganda diqqat.** Lokal ishlaganda manzil
 > https bo'lmaydi, shuning uchun bot polling rejimiga tushadi va Render'dagi
 > webhook'ni **o'chirib yuboradi** (ikkalasi bir vaqtda ishlay olmaydi).
 > Tugatgach Render'da **Manual Deploy** qiling — webhook qayta tiklanadi.
@@ -277,7 +279,8 @@ Deploy paytida eng ko'p uchragan xatolar — log matni bo'yicha topiladi.
 | Bot `/start` ga umuman javob bermaydi | handler ichida xato (odatda baza) | Logdan `Bot handler xatosi:` qatorini qidiring |
 | `409 Conflict` | bot ikki joyda ishlayapti | Kompyuterdagi `2-BACKEND.bat` oynasini yoping |
 | Bot jim, lekin logda xato yo'q | webhook o'chib qolgan (lokal ishlatilgan) | Render → **Manual Deploy** |
-| Logda `Bot polling rejasida` (Render'da) | `PUBLIC_URL` https emas yoki yo'q | Environment: `PUBLIC_URL=https://asfgroup.onrender.com` |
+| Logda `Bot polling rejasida` (Render'da) | servis manzili aniqlanmadi | Render → **Manual Deploy**; `PUBLIC_URL` qo'lda yozilgan bo'lsa o'chiring |
+| Logda `PUBLIC_URL ... farq qiladi` | qo'lda yozilgan manzil eskirgan | Render → **Environment** → `PUBLIC_URL` ni o'chiring |
 
 ### `DATABASE_URL` tekshiruv ro'yxati
 

@@ -2,7 +2,13 @@ require('dotenv').config();
 
 const config = {
   port: Number(process.env.PORT || 5000),
-  publicUrl: (process.env.PUBLIC_URL || 'http://localhost:5000').replace(/\/$/, ''),
+  // Render servisning haqiqiy manzilini RENDER_EXTERNAL_URL orqali o'zi beradi.
+  // Qo'lda yozilgan PUBLIC_URL xato bo'lsa ham webhook to'g'ri joyga qo'yilsin.
+  publicUrl: (
+    process.env.RENDER_EXTERNAL_URL ||
+    process.env.PUBLIC_URL ||
+    'http://localhost:5000'
+  ).replace(/\/$/, ''),
   miniappUrl: (process.env.MINIAPP_URL || 'http://localhost:5173').replace(/\/$/, ''),
 
   bot: {

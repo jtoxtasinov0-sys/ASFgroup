@@ -103,11 +103,11 @@ async function upload(method, path, formData) {
 }
 
 export const api = {
-  login: async (username, password) => {
+  login: async (password) => {
     const res = await apiFetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ password }),
     });
     const data = await handle(res);
     setToken(data.token);
