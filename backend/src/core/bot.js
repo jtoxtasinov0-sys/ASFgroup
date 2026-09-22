@@ -1,9 +1,27 @@
+const crypto = require('crypto');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('../config/default');
 
 let bot = null;
 
-/** Bot instansiyasini yaratadi (polling rejimida — localhost uchun qulay) */
+/** Webhook'ni Telegram faqat https manzilga yuboradi */
+const canUseWebhook = () => /^https:\/\//.test(config.publicUrl);
+
+/**
+ * Webhook yo'li tokendan hosil qilinadi: tashqaridan topib bo'lmaydi,
+ * lekin tokenning o'zi manzilda ko'rinmaydi (loglarga tushib qolmasin).
+ */
+function webhookPath() {
+  const hash = crypto.createHash('sha256').update(config.bot.token).digest('hex');
+  return `/telegram/${hash.slice(0, 32)}`;
+}
+
+/** So'rovni chindan Telegram yuborganini tekshirish uchun maxfiy kalit */
+function webhookSecret() {
+  return crypto.createHash('sha256').update(`asf:${config.bot.token}`).digest('hex').slice(0, 48);
+}
+
+/** Bot instansiyasini yaratadi (hali yangilanishlarni qabul qilmaydi) */
 function createBot() {
   if (bot) return bot;
 
@@ -12,7 +30,7 @@ function createBot() {
     return null;
   }
 
-  bot = new TelegramBot(config.bot.token, { polling: true });
+  bot = new TelegramBot(config.bot.token, { polling: false });
 
   bot.on('polling_error', (err) => {
     const msg = err?.message || String(err);
@@ -26,6 +44,54 @@ function createBot() {
   });
 
   return bot;
+}
+
+/* ----------------------------------------------------------
+   Nega webhook?
+
+   Render'ning bepul rejasida servis harakatsizlikdan keyin
+   uxlaydi. Polling rejimida bot Telegram'ga o'zi murojaat
+   qiladi — uxlagan servis esa hech qachon murojaat qilmaydi
+   va bot butunlay javob bermay qoladi.
+
+   Webhook'da teskarisi: Telegram xabarni serverga HTTP so'rov
+   qilib yuboradi va o'sha so'rov servisni uyg'otadi.
+
+   https manzil bo'lmasa (kompyuterda ishlash) — polling.
+   ---------------------------------------------------------- */
+
+/** Botni yangilanishlarni qabul qilishga tayyorlaydi */
+async function startBot() {
+  if (!bot) return;
+
+  if (canUseWebhook()) {
+    try {
+      await bot.setWebHook(`${config.publicUrl}${webhookPath()}`, {
+        secret_token: webhookSecret(),
+      });
+      console.log(`✅ Bot webhook rejasida: ${config.publicUrl}`);
+      return;
+    } catch (err) {
+      console.error('Webhook o\'rnatilmadi:', err?.message, '— polling rejimiga o\'tamiz');
+    }
+  }
+
+  // Webhook qo'yilgan bo'lsa, polling 409 beradi — avval uni olib tashlaymiz
+  try {
+    await bot.deleteWebHook();
+  } catch (_) { /* webhook yo'q edi */ }
+
+  await bot.startPolling();
+  console.log('✅ Bot polling rejasida');
+}
+
+/** Telegram yuborgan yangilanishni botga uzatadi (Express handler) */
+function handleWebhookUpdate(req, res) {
+  if (req.get('X-Telegram-Bot-Api-Secret-Token') !== webhookSecret()) {
+    return res.sendStatus(403);
+  }
+  bot?.processUpdate(req.body);
+  return res.sendStatus(200);
 }
 
 function getBot() {
@@ -61,4 +127,12 @@ async function setMenuButton() {
   }
 }
 
-module.exports = { createBot, getBot, safeSend, setMenuButton };
+module.exports = {
+  createBot,
+  startBot,
+  getBot,
+  safeSend,
+  setMenuButton,
+  webhookPath,
+  handleWebhookUpdate,
+};

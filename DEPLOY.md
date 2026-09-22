@@ -206,21 +206,28 @@ uchun BotFather'da:
 
 ### 1. Free tier uxlab qoladi
 
-Render'ning bepul rejasida servis **15 daqiqa harakatsizlikdan keyin o'chadi**:
+Render'ning bepul rejasida servis **15 daqiqa harakatsizlikdan keyin o'chadi**.
+Uyg'onishi **~50 soniya** oladi, oyiga esa 750 soat limit bor.
 
-- Telegram bot `polling` rejimida ishlaydi — servis uxlaganda **bot javob bermaydi**
-- Birinchi so'rov servisni uyg'otadi, bu **~50 soniya** kutish demak
-- Bepul rejada oyiga 750 soat limit bor
+Bot bu holatga tayyor: `PUBLIC_URL` https bo'lsa, u **webhook rejasida** ishlaydi
+(`backend/src/core/bot.js`). Telegram xabarni serverga HTTP so'rov qilib yuboradi
+va **o'sha so'rov uxlagan servisni uyg'otadi** — bot javob beradi, faqat birinchi
+xabar kechikadi. Polling rejimida bunday bo'lmasdi: uxlagan servis Telegram'ga
+o'zi murojaat qilmaydi va bot butunlay jim qolardi.
 
-**Yechim variantlari:**
+Mini App ham tayyor: ulanish uzilsa 3 marta qayta urinadi va ekranda
+"Server uyg'onmoqda, biroz kuting..." yoziladi.
 
 | Variant | Narx | Izoh |
 |---|---|---|
-| **Starter reja** | $7/oy | Eng oddiy yo'l — servis hech qachon uxlamaydi |
-| Bot'ni webhook rejasiga o'tkazish | bepul | Kodni o'zgartirish kerak, lekin uyqu muammosi baribir qoladi |
-| Tashqi ping xizmati | bepul | 750 soat limitini tez tugatadi |
+| Hozirgi holat (webhook) | bepul | Bot ishlaydi, birinchi xabar ~50 soniya kechikadi |
+| **Starter reja** | $7/oy | Kechikish ham yo'qoladi — haqiqiy do'kon uchun tavsiya qilaman |
+| Tashqi ping xizmati | bepul | 750 soat limitini tez tugatadi, tavsiya qilmayman |
 
-Haqiqiy do'kon uchun **Starter rejani tavsiya qilaman**.
+> ⚠️ **Kompyuterda ishga tushirganda diqqat.** Lokal ishlaganda `PUBLIC_URL`
+> https bo'lmaydi, shuning uchun bot polling rejimiga tushadi va Render'dagi
+> webhook'ni **o'chirib yuboradi** (ikkalasi bir vaqtda ishlay olmaydi).
+> Tugatgach Render'da **Manual Deploy** qiling — webhook qayta tiklanadi.
 
 ### 2. Yuklangan rasmlar yo'qoladi
 
@@ -253,6 +260,8 @@ Deploy paytida eng ko'p uchragan xatolar — log matni bo'yicha topiladi.
 | `MINIAPP_URL https emas (http://localhost:5173)` | `MINIAPP_URL` qo'yilmagan | Environment: `MINIAPP_URL=https://asf-miniapp.vercel.app` |
 | Bot `/start` ga umuman javob bermaydi | handler ichida xato (odatda baza) | Logdan `Bot handler xatosi:` qatorini qidiring |
 | `409 Conflict` | bot ikki joyda ishlayapti | Kompyuterdagi `2-BACKEND.bat` oynasini yoping |
+| Bot jim, lekin logda xato yo'q | webhook o'chib qolgan (lokal ishlatilgan) | Render → **Manual Deploy** |
+| Logda `Bot polling rejasida` (Render'da) | `PUBLIC_URL` https emas yoki yo'q | Environment: `PUBLIC_URL=https://asf-group-backend.onrender.com` |
 
 ### `DATABASE_URL` tekshiruv ro'yxati
 
