@@ -82,7 +82,7 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 
 | Key | Value |
 |---|---|
-| `DATABASE_URL` | Neon connection string — `backend/.env` faylingizdan nusxalang |
+| `DATABASE_URL` | Neon console'dan olinadi — pastdagi izohga qarang |
 | `BOT_TOKEN` | BotFather bergan token — `backend/.env` dan nusxalang |
 | `MINIAPP_URL` | `https://asf-miniapp.vercel.app` |
 | `PUBLIC_URL` | `https://asf-group-backend.onrender.com` |
@@ -92,6 +92,21 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `COMPANY_PHONE` | `+998 90 123 45 67` (o'zingiznikini yozing) |
 | `COMPANY_ADDRESS` | `Toshkent sh.` |
 | `NODE_VERSION` | `20` |
+
+> 📌 **`DATABASE_URL` ni qayerdan olish kerak:**
+>
+> 1. https://console.neon.tech/app/projects/dark-hill-03236904 ni oching
+> 2. Dashboard'dagi **Connection string** oynasini toping
+> 3. ⚠️ **Connection pooling** belgisini **olib tashlang** — manzilda `-pooler`
+>    so'zi **bo'lmasligi** kerak. Aks holda build paytidagi `prisma db push`
+>    ishlamaydi.
+> 4. Butun qatorni nusxalang — u shunday ko'rinadi:
+>    `postgresql://neondb_owner:npg_xxxx@ep-xxxx-123456.eu-central-1.aws.neon.tech/neondb?sslmode=require`
+> 5. Xuddi shu qatorni kompyuteringizdagi `backend/.env` fayliga ham yozing —
+>    shunda bazani to'ldirish (`npm run db:seed`) ishlaydi.
+>
+> ❌ `.env.example` dagi `postgresql://USER:PASSWORD@HOST.neon.tech/...` qatorini
+> nusxalamang — bu shunchaki namuna matn, haqiqiy manzil emas.
 
 > 🔴 **`ADMIN_PASSWORD` ni albatta almashtiring.** Eski `asf2025` parol
 > `backend/src/config/default.js` ichida default qiymat sifatida yozilgan va
