@@ -66,7 +66,7 @@ Quyidagilarni **aynan shunday** to'ldiring:
 | **Branch** | `main` |
 | **Root Directory** | `backend` |
 | **Language / Runtime** | `Node` |
-| **Build Command** | `npm install --include=dev && npx prisma db push` |
+| **Build Command** | `npm install --include=dev && npx prisma db push && npm run db:seed` |
 | **Start Command** | `npm start` |
 | **Instance Type** | `Free` yoki `Starter` (pastdagi ogohlantirishni o'qing) |
 
@@ -153,13 +153,23 @@ Javob: `{"ok":true,"name":"ASF GROUP API","slogan":"SIFAT VA ISHONCH"}`
 
 ### Baza to'ldirilganmi?
 
-Agar mahsulotlar ko'rinmasa, bazani to'ldiring. Buni **o'z kompyuteringizdan**
-qilish mumkin, chunki `backend/.env` dagi `DATABASE_URL` xuddi shu Neon bazasiga
-ulanadi:
+Build Command'da `npm run db:seed` bo'lsa, mahsulotlar har deploy'da avtomatik
+tekshiriladi va **yangilari o'zi qo'shiladi**. Bazada bor mahsulotlar tegilmaydi —
+Admin paneldagi narx va nom o'zgarishlaringiz saqlanib qoladi.
+
+Kompyuteringizdan ishga tushirish ham mumkin (`backend/.env` xuddi shu Neon
+bazasiga ulanadi):
 
 ```
 cd backend
 npm run db:seed
+```
+
+Barcha mahsulotlarni boshlang'ich holatga **qaytarish** kerak bo'lsa (Admin
+paneldagi o'zgarishlar yo'qoladi):
+
+```
+SEED_FORCE=1 npm run db:seed
 ```
 
 ### Admin panel
@@ -274,7 +284,8 @@ Deploy paytida eng ko'p uchragan xatolar — log matni bo'yicha topiladi.
 |---|---|---|
 | `Can't reach database server ...-pooler...` (`P1001`) | `DATABASE_URL` da `-pooler` bor | Neon → **Connect** → **Connection pooling** ni o'chirib, qatorni qayta nusxalang |
 | `Can't reach database server at HOST.neon.tech` | `.env.example` dagi namuna matn ko'chirilgan | Haqiqiy qatorni Neon konsolidan oling |
-| `The table 'public.users' does not exist` | Build Command'da `prisma db push` yo'q | Build Command: `npm install --include=dev && npx prisma db push` |
+| `The table 'public.users' does not exist` | Build Command'da `prisma db push` yo'q | Build Command'ni to'liq yozing (3-qadamga qarang) |
+| Yangi mahsulot katalogda ko'rinmayapti | o'zgarish `main` ga merge qilinmagan yoki seed ishlamagan | PR'ni merge qiling; Build Command oxirida `&& npm run db:seed` turganini tekshiring |
 | `MINIAPP_URL https emas (http://localhost:5173)` | `MINIAPP_URL` qo'yilmagan | Environment: `MINIAPP_URL=https://asf-miniapp.vercel.app` |
 | Bot `/start` ga umuman javob bermaydi | handler ichida xato (odatda baza) | Logdan `Bot handler xatosi:` qatorini qidiring |
 | `409 Conflict` | bot ikki joyda ishlayapti | Kompyuterdagi `2-BACKEND.bat` oynasini yoping |

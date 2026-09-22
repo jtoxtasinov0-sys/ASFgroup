@@ -319,17 +319,6 @@ const upperProducts = [
     description: "To'q ko'k zamsha derbi zagatovkasi, metall halqa va belgi bilan.",
     descriptionRu: 'Тёмно-синяя замшевая заготовка дерби с металлическими люверсами и логотипом.',
   },
-  {
-    article: 'ASF-Z-15',
-    name: 'Zagatovka Bandli',
-    nameRu: 'Заготовка с ремешком',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-15.jpg'),
-    description: 'Ko\'ndalang bandli zagatovka, matt qora yuza. Klassik shakl.',
-    descriptionRu: 'Заготовка с поперечным ремешком, матовая чёрная поверхность. Классическая форма.',
-  },
 ];
 
 /* ---------- Storylar ---------- */
@@ -362,15 +351,36 @@ async function main() {
     ...expand(upperProducts, 'upper', UPPER_PRICE),
   ];
 
-  console.log('🌱 Mahsulotlar yozilmoqda...');
+  /* Bazada bor mahsulot qayta yozilmaydi — Admin paneldagi o'zgarishlaringiz
+     (narx, optom narx, nom, tavsif) saqlanib qoladi. Shu sababli bu skriptni
+     har deploy'da xavfsiz ishlatish mumkin: faqat yangi mahsulotlar qo'shiladi.
+     Hammasini boshlang'ich holatga qaytarish kerak bo'lsa:
+       SEED_FORCE=1 npm run db:seed                                          */
+  const force = process.env.SEED_FORCE === '1';
+
+  console.log(force ? '🌱 Mahsulotlar QAYTA yozilmoqda...' : '🌱 Mahsulotlar tekshirilmoqda...');
+  let created = 0;
+  let kept = 0;
+
   for (const product of products) {
+    const existing = await prisma.product.findUnique({ where: { article: product.article } });
+
+    if (existing && !force) {
+      kept += 1;
+      continue;
+    }
+
     await prisma.product.upsert({
       where: { article: product.article },
       update: product,
       create: product,
     });
+    created += 1;
     console.log(`   ✓ ${product.article} — ${product.name}`);
   }
+
+  if (kept) console.log(`   (${kept} ta mahsulot allaqachon bor — tegilmadi)`);
+  if (!created) console.log('   Yangi mahsulot yo\'q.');
 
   console.log('\n🌱 Storylar yozilmoqda...');
   const existingStories = await prisma.story.count();
