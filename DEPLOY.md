@@ -14,6 +14,33 @@ Backendni Render'ga qo'yishingiz bilan hammasi ulanadi.
 
 ---
 
+---
+
+## 0-QISM: Vercel'da bitta sozlama (2 daqiqa)
+
+Ikkala ilova ham Vercel'da ishlab turibdi, lekin **avtomatik qayta deploy**
+ishlashi uchun har bir loyihada `Root Directory` ni ko'rsatish kerak. Sababi —
+repo'da uchta papka bor (`miniapp`, `admin`, `backend`), Vercel esa qaysi birini
+build qilishni bilmaydi.
+
+**asf-miniapp uchun:**
+
+1. https://vercel.com/dashboard → **asf-miniapp** loyihasini oching
+2. **Settings** → **Build and Deployment**
+3. **Root Directory** bo'limida **Edit** → `miniapp` deb yozing → **Save**
+
+**asf-admin uchun:**
+
+1. Dashboard → **asf-admin** → **Settings** → **Build and Deployment**
+2. **Root Directory** → **Edit** → `admin` deb yozing → **Save**
+
+Shundan keyin **Deployments** → eng yuqoridagi deploy → `...` → **Redeploy**
+qilib tekshiring. Build muvaffaqiyatli o'tishi kerak.
+
+> Bu sozlama qo'yilmaguncha `git push` qilganda Vercel build'i xato beradi,
+> lekin jonli saytlar ishlashda davom etadi (oxirgi muvaffaqiyatli deploy
+> saqlanib turadi).
+
 ## 1-QISM: Render.com'ga backend joylash
 
 ### 1-qadam — Render'ga kirish
@@ -39,7 +66,7 @@ Quyidagilarni **aynan shunday** to'ldiring:
 | **Branch** | `main` |
 | **Root Directory** | `backend` |
 | **Language / Runtime** | `Node` |
-| **Build Command** | `npm install && npx prisma db push` |
+| **Build Command** | `npm install --include=dev && npx prisma db push` |
 | **Start Command** | `npm start` |
 | **Instance Type** | `Free` yoki `Starter` (pastdagi ogohlantirishni o'qing) |
 
@@ -209,5 +236,5 @@ git commit -m "o'zgarishlar"
 git push
 ```
 
-- Vercel → `miniapp` va `admin` ni qayta build qiladi
+- Vercel → `miniapp` va `admin` ni qayta build qiladi *(0-QISM dagi Root Directory sozlangandan keyin)*
 - Render → `backend` ni qayta build qiladi
