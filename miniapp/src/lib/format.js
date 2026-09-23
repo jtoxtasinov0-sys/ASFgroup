@@ -40,3 +40,10 @@ export function discountPercent(product) {
   if (!old || !price || old <= price) return 0;
   return Math.max(1, Math.round((1 - price / old) * 100));
 }
+
+/** Optom narx — faqat dona narxidan arzon bo'lsa, aks holda dona narxi */
+export function wholesaleUnit(product) {
+  const price = Number(product?.price) || 0;
+  const wholesale = Number(product?.wholesalePrice) || 0;
+  return wholesale > 0 && wholesale < price ? wholesale : price;
+}

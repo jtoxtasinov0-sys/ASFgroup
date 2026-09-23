@@ -768,3 +768,18 @@ div.item-preview-img {
     grid-template-columns: 1fr;
   }
 }
+
+/* Buyurtma qatori: optom (komplekt) / dona */
+.pack-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: #e7f6ee;
+  color: #0b7a3c;
+}
+
+.pack-badge.retail {
+  background: #f1f2f5;
+  color: var(--muted);
+}

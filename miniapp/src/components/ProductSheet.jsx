@@ -1,26 +1,58 @@
 import { useEffect, useMemo, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { pick } from '../lib/i18n';
-import { discountPercent, money } from '../lib/format';
+import { discountPercent, money, wholesaleUnit } from '../lib/format';
+import { MAX_PACKS } from '../lib/store';
 import { haptic, notifySuccess } from '../lib/telegram';
 import PriceTag, { OldPrice } from './PriceTag';
 
-export default function ProductSheet({ product, lang, t, initialSizes, onClose, onAdd }) {
+const PACK_PRESETS = [1, 2, 3, 5, 10, 20, 50, 100];
+
+export default function ProductSheet({
+  product,
+  lang,
+  t,
+  mode,
+  initialSizes,
+  initialPacks,
+  onClose,
+  onAdd,
+  onSetPacks,
+}) {
+  const isWholesale = mode === 'wholesale';
   const [sizes, setSizes] = useState(initialSizes || {});
+  // Maydon vaqtincha bo'sh bo'lishi mumkin (yangi son yozilayotganda)
+  const [packInput, setPackInput] = useState(String(initialPacks || 1));
+  const packs = Math.min(MAX_PACKS, Math.max(0, Math.floor(Number(packInput) || 0)));
   const [photo, setPhoto] = useState(0);
-  const discount = discountPercent(product);
+  const discount = isWholesale ? 0 : discountPercent(product);
+  const unitPrice = isWholesale ? wholesaleUnit(product) : product.price;
 
   useEffect(() => {
     setSizes(initialSizes || {});
+    setPackInput(String(initialPacks || 1));
     setPhoto(0);
-  }, [product.id, initialSizes]);
+  }, [product.id, initialSizes, initialPacks]);
 
   const qty = useMemo(
-    () => Object.values(sizes).reduce((sum, n) => sum + Number(n || 0), 0),
-    [sizes]
+    () =>
+      isWholesale
+        ? packs * product.sizes.length
+        : Object.values(sizes).reduce((sum, n) => sum + Number(n || 0), 0),
+    [isWholesale, packs, sizes, product.sizes.length]
   );
 
-  const total = qty * product.price;
+  const total = qty * unitPrice;
+
+  const changePacks = (value) => {
+    haptic();
+    setPackInput(String(Math.min(MAX_PACKS, Math.max(1, Math.floor(Number(value) || 1)))));
+  };
+
+  const typePacks = (value) => {
+    const digits = String(value).replace(/\D/g, '').slice(0, 3);
+    setPackInput(digits === '' ? '' : String(Math.min(MAX_PACKS, Number(digits))));
+  };
 
   const change = (size, delta) => {
     haptic();
@@ -36,7 +68,8 @@ export default function ProductSheet({ product, lang, t, initialSizes, onClose, 
   const submit = () => {
     if (qty === 0) return;
     notifySuccess();
-    onAdd(product.id, sizes);
+    if (isWholesale) onSetPacks(product.id, packs);
+    else onAdd(product.id, sizes);
     onClose();
   };
 
@@ -91,7 +124,10 @@ export default function ProductSheet({ product, lang, t, initialSizes, onClose, 
           </h2>
 
           <div className="price-row" style={{ marginTop: 8 }}>
-            <PriceTag value={product.price} currency={t.sum} big sale={discount > 0} />
+            <PriceTag value={unitPrice} currency={t.sum} big sale={discount > 0} />
+            <span className="muted" style={{ fontSize: 12 }}>
+              / {t.perPair}
+            </span>
             {discount > 0 && (
               <>
                 <OldPrice value={product.oldPrice} currency={t.sum} />
@@ -105,14 +141,29 @@ export default function ProductSheet({ product, lang, t, initialSizes, onClose, 
             </div>
           )}
 
-          {product.wholesalePrice < product.price && (
+          {isWholesale ? (
             <div className="notice ok" style={{ marginTop: 10 }}>
               <span>📦</span>
               <span>
-                <b>{t.wholesale}:</b> {money(product.wholesalePrice)} {t.sum} —{' '}
-                {t.wholesaleFrom(product.wholesaleMin)}
+                <b>{t.packPrice}:</b> {money(unitPrice * product.sizes.length)} {t.sum}
+                {unitPrice < product.price && (
+                  <>
+                    {' '}
+                    · {t.retailOnly}: <s>{money(product.price)}</s>
+                  </>
+                )}
               </span>
             </div>
+          ) : (
+            wholesaleUnit(product) < product.price && (
+              <div className="notice ok" style={{ marginTop: 10 }}>
+                <span>📦</span>
+                <span>
+                  <b>{t.wholesale}:</b> {money(wholesaleUnit(product))} {t.sum} —{' '}
+                  {t.wholesaleCheaper(money(product.price - wholesaleUnit(product)))}
+                </span>
+              </div>
+            )
           )}
 
           <div className="section" style={{ marginTop: 20 }}>
@@ -132,42 +183,100 @@ export default function ProductSheet({ product, lang, t, initialSizes, onClose, 
             </ul>
           </div>
 
-          <div className="section" style={{ marginTop: 20 }}>
-            <h3 className="h2">{t.chooseSizes}</h3>
-            <p className="muted" style={{ margin: '4px 0 0' }}>
-              {t.sizeHint}
-            </p>
+          {isWholesale ? (
+            <div className="section" style={{ marginTop: 20 }}>
+              <h3 className="h2">{t.choosePacks}</h3>
+              <p className="muted" style={{ margin: '4px 0 0' }}>
+                {t.packOf(product.sizes)}
+              </p>
 
-            <div className="sizes">
-              {product.sizes.map((size) => {
-                const value = Number(sizes[size] || 0);
-                return (
-                  <div key={size} className={`size-row${value > 0 ? ' on' : ''}`}>
-                    <div className="size-label">
-                      {size}
-                      <span>{t.pair}</span>
-                    </div>
-                    <div className="stepper">
-                      <button onClick={() => change(size, -1)} disabled={value === 0}>
-                        −
-                      </button>
-                      <b>{value}</b>
-                      <button onClick={() => change(size, 1)}>+</button>
-                    </div>
-                  </div>
-                );
-              })}
+              <div className="size-row on" style={{ marginTop: 10 }}>
+                <div className="size-label">
+                  {t.perPack}
+                  <span>
+                    = {qty} {t.pair}
+                  </span>
+                </div>
+                <div className="stepper">
+                  <button onClick={() => changePacks(packs - 1)} disabled={packs <= 1}>
+                    −
+                  </button>
+                  <input
+                    className="pack-input"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={MAX_PACKS}
+                    value={packInput}
+                    onChange={(e) => typePacks(e.target.value)}
+                    onBlur={() => packs === 0 && changePacks(1)}
+                  />
+                  <button onClick={() => changePacks(packs + 1)} disabled={packs >= MAX_PACKS}>
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="pack-presets">
+                {PACK_PRESETS.map((n) => (
+                  <button
+                    key={n}
+                    className={`tag${packs === n ? ' active' : ''}`}
+                    onClick={() => changePacks(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+
+              <div className="pack-sizes">
+                {product.sizes.map((size) => (
+                  <span className="chip" key={size}>
+                    <b>{size}</b> × {packs}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="section" style={{ marginTop: 20 }}>
+              <h3 className="h2">{t.chooseSizes}</h3>
+              <p className="muted" style={{ margin: '4px 0 0' }}>
+                {t.sizeHint}
+              </p>
+
+              <div className="sizes">
+                {product.sizes.map((size) => {
+                  const value = Number(sizes[size] || 0);
+                  return (
+                    <div key={size} className={`size-row${value > 0 ? ' on' : ''}`}>
+                      <div className="size-label">
+                        {size}
+                        <span>{t.pair}</span>
+                      </div>
+                      <div className="stepper">
+                        <button onClick={() => change(size, -1)} disabled={value === 0}>
+                          −
+                        </button>
+                        <b>{value}</b>
+                        <button onClick={() => change(size, 1)}>+</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="sheet-cta">
           <button className="btn" onClick={submit} disabled={qty === 0}>
             {qty === 0 ? (
-              t.chooseSizes
+              isWholesale ? t.choosePacks : t.chooseSizes
             ) : (
               <>
-                {t.addToCart} · {qty} {t.pair} — {money(total)} {t.sum}
+                {t.addToCart} ·{' '}
+                {isWholesale ? `${packs} ${t.pack} (${qty} ${t.pair})` : `${qty} ${t.pair}`} —{' '}
+                {money(total)} {t.sum}
               </>
             )}
           </button>

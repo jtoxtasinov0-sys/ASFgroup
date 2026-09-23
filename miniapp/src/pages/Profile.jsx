@@ -69,16 +69,18 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
                     </div>
 
                     {order.items.map((item) => (
-                      <div className="order-line" key={item.productId}>
+                      <div className="order-line" key={`${item.productId}-${item.mode || 'retail'}`}>
                         <img src={imageUrl(item.image)} alt="" />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 600 }}>
                             {lang === 'ru' && item.nameRu ? item.nameRu : item.name}
                           </div>
                           <div className="muted">
-                            {Object.entries(item.sizes)
-                              .map(([size, qty]) => `${size}×${qty}`)
-                              .join(', ')}
+                            {item.packs
+                              ? `📦 ${item.packs} ${t.pack} (${Object.keys(item.sizes).join(', ')})`
+                              : Object.entries(item.sizes)
+                                  .map(([size, qty]) => `${size}×${qty}`)
+                                  .join(', ')}
                           </div>
                         </div>
                       </div>

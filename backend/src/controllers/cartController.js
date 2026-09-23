@@ -8,8 +8,20 @@ const { t, adminNewOrder } = require('../utils/i18n');
 
 /* ---------- Yordamchi funksiyalar ---------- */
 
-/** Savatcha qatorlarini bazadagi haqiqiy narxlar bilan qayta hisoblaydi */
-function buildOrderItems(cartItems, products, totalQty) {
+const MAX_PACKS = 100;
+
+/** Optom narx faqat u haqiqatan arzonroq bo'lsa */
+const wholesaleUnit = (product) =>
+  product.wholesalePrice > 0 && product.wholesalePrice < product.price
+    ? product.wholesalePrice
+    : product.price;
+
+/**
+ * Savatcha qatorlarini bazadagi haqiqiy narxlar bilan qayta hisoblaydi.
+ *  - Optom: { productId, packs } — 1 komplekt = har bir razmerdan 1 juft, optom narxda
+ *  - Dona:  { productId, sizes: { "40": 2 } } — dona narxda
+ */
+function buildOrderItems(cartItems, products) {
   const byId = new Map(products.map((p) => [p.id, p]));
   const items = [];
   let total = 0;
@@ -19,21 +31,29 @@ function buildOrderItems(cartItems, products, totalQty) {
     const product = byId.get(Number(raw.productId));
     if (!product || !product.isActive) continue;
 
-    // Razmerlar: { "40": 2, "41": 3 } — faqat mahsulotda mavjud razmerlar
     const sizes = {};
     let qty = 0;
-    for (const [size, count] of Object.entries(raw.sizes || {})) {
-      const s = Number(size);
-      const c = Math.floor(Number(count));
-      if (!product.sizes.includes(s) || !Number.isFinite(c) || c <= 0) continue;
-      sizes[s] = c;
-      qty += c;
-    }
-    if (qty === 0) continue;
+    let packs = 0;
 
-    // Optom narx: buyurtmadagi umumiy juft soni shu mahsulot minimumidan oshsa
-    const wholesale = totalQty >= product.wholesaleMin && product.wholesalePrice < product.price;
-    const unitPrice = wholesale ? product.wholesalePrice : product.price;
+    if (raw.packs !== undefined && raw.packs !== null) {
+      packs = Math.min(MAX_PACKS, Math.floor(Number(raw.packs)));
+      if (!Number.isFinite(packs) || packs <= 0 || !product.sizes.length) continue;
+      for (const s of product.sizes) sizes[s] = packs;
+      qty = packs * product.sizes.length;
+    } else {
+      // Razmerlar: faqat mahsulotda mavjud razmerlar
+      for (const [size, count] of Object.entries(raw.sizes || {})) {
+        const s = Number(size);
+        const c = Math.floor(Number(count));
+        if (!product.sizes.includes(s) || !Number.isFinite(c) || c <= 0) continue;
+        sizes[s] = c;
+        qty += c;
+      }
+      if (qty === 0) continue;
+    }
+
+    const wholesale = packs > 0;
+    const unitPrice = wholesale ? wholesaleUnit(product) : product.price;
     if (wholesale) isWholesale = true;
 
     const lineTotal = unitPrice * qty;
@@ -46,28 +66,24 @@ function buildOrderItems(cartItems, products, totalQty) {
       nameRu: product.nameRu,
       image: product.images[0] || null,
       category: product.category,
+      mode: wholesale ? 'wholesale' : 'retail',
+      ...(wholesale ? { packs } : {}),
       unitPrice,
       basePrice: product.price,
-      wholesaleApplied: wholesale,
+      wholesaleApplied: wholesale && unitPrice < product.price,
       sizes,
       qty,
       lineTotal,
     });
   }
 
-  return { items, total, isWholesale };
+  const totalQty = items.reduce((sum, i) => sum + i.qty, 0);
+  return { items, total, totalQty, isWholesale };
 }
 
-/** Savatchadagi umumiy juft sonini sanaydi */
-function countTotalQty(cartItems) {
-  let total = 0;
-  for (const raw of cartItems || []) {
-    for (const count of Object.values(raw.sizes || {})) {
-      const c = Math.floor(Number(count));
-      if (Number.isFinite(c) && c > 0) total += c;
-    }
-  }
-  return total;
+async function priceCart(cartItems) {
+  const products = await ProductModel.findManyByIds(cartItems.map((i) => i.productId));
+  return buildOrderItems(cartItems, products);
 }
 
 /* ---------- Controllerlar ---------- */
@@ -159,11 +175,8 @@ const cartController = {
         });
       }
 
-      const products = await ProductModel.findManyByIds(cartItems.map((i) => i.productId));
-      const totalQty = countTotalQty(cartItems);
-      const result = buildOrderItems(cartItems, products, totalQty);
-
-      res.json({ ok: true, data: { ...result, totalQty } });
+      const result = await priceCart(cartItems);
+      res.json({ ok: true, data: result });
     } catch (err) {
       next(err);
     }
@@ -198,15 +211,12 @@ const cartController = {
         });
       }
 
-      const products = await ProductModel.findManyByIds(cartItems.map((i) => i.productId));
-      const totalQty = countTotalQty(cartItems);
-      const { items, total, isWholesale } = buildOrderItems(cartItems, products, totalQty);
+      const { items, total, totalQty: realQty, isWholesale } = await priceCart(cartItems);
 
       if (!items.length) {
         return res.status(400).json({ ok: false, message: 'Savatchadagi mahsulotlar topilmadi' });
       }
 
-      const realQty = items.reduce((sum, i) => sum + i.qty, 0);
       const user = await UserModel.findOrCreate(req.tgUser);
 
       const order = await OrderModel.create({

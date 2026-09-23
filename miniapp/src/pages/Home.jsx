@@ -1,6 +1,7 @@
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
 import { discountPercent } from '../lib/format';
+import { cartKey } from '../lib/store';
 
 export default function Home({
   t,
@@ -11,13 +12,17 @@ export default function Home({
   seenStories,
   onOpenStory,
   products,
+  mode,
+  onSetMode,
   cart,
   onOpenProduct,
   onQuickAdd,
   goCatalog,
 }) {
   const name = user?.firstName || (lang === 'ru' ? 'Гость' : 'Mehmon');
-  const onSale = products.filter((p) => discountPercent(p) > 0);
+  const isWholesale = mode === 'wholesale';
+  // Chegirmalar dona narxiga tegishli — optomda ko'rsatilmaydi
+  const onSale = isWholesale ? [] : products.filter((p) => discountPercent(p) > 0);
   const popular = products.slice(0, 4);
 
   return (
@@ -36,9 +41,29 @@ export default function Home({
       <Stories stories={stories} lang={lang} seen={seenStories} onOpen={onOpenStory} />
 
       <div className="wrap">
+        {/* Savdo turi — har safar bosh sahifada ko'rinib turadi */}
+        <div className="mode-switch">
+          <button
+            className={`mode-tab${isWholesale ? ' active' : ''}`}
+            onClick={() => onSetMode('wholesale')}
+          >
+            <span className="mode-tab-emoji">📦</span>
+            <b>{t.modeWholesale}</b>
+            <span>{t.modeTabWholesale}</span>
+          </button>
+          <button
+            className={`mode-tab${!isWholesale ? ' active' : ''}`}
+            onClick={() => onSetMode('retail')}
+          >
+            <span className="mode-tab-emoji">🛍</span>
+            <b>{t.modeRetail}</b>
+            <span>{t.modeTabRetail}</span>
+          </button>
+        </div>
+
         <div className="hero">
-          <h2>{t.heroTitle}</h2>
-          <p>{t.heroText}</p>
+          <h2>{isWholesale ? t.wholesaleSection : t.retailSection}</h2>
+          <p>{isWholesale ? t.modeWholesaleText : t.modeRetailText}</p>
           <button onClick={() => goCatalog()}>{t.heroBtn}</button>
         </div>
 
@@ -69,7 +94,8 @@ export default function Home({
                   product={product}
                   lang={lang}
                   t={t}
-                  inCart={Boolean(cart[product.id])}
+                  mode={mode}
+                  inCart={Boolean(cart[cartKey(mode, product.id)])}
                   onOpen={onOpenProduct}
                   onQuickAdd={onQuickAdd}
                 />
@@ -93,7 +119,8 @@ export default function Home({
                   product={product}
                   lang={lang}
                   t={t}
-                  inCart={Boolean(cart[product.id])}
+                  mode={mode}
+                  inCart={Boolean(cart[cartKey(mode, product.id)])}
                   onOpen={onOpenProduct}
                   onQuickAdd={onQuickAdd}
                 />

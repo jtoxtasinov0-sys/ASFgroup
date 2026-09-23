@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
-import { money } from '../lib/format';
+import { money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
+import { itemQty } from '../lib/store';
 import { haptic } from '../lib/telegram';
 import PriceTag, { OldPrice } from '../components/PriceTag';
 
@@ -11,29 +12,42 @@ import PriceTag, { OldPrice } from '../components/PriceTag';
  * Buyurtma narxi baribir serverda qayta tekshiriladi.
  */
 function localCalc(cartItems, productMap) {
-  let totalQty = 0;
-  for (const item of cartItems) {
-    for (const qty of Object.values(item.sizes)) totalQty += Number(qty) || 0;
-  }
-
   const items = [];
   let total = 0;
   let isWholesale = false;
   for (const item of cartItems) {
     const product = productMap.get(item.productId);
     if (!product) continue;
-    const qty = Object.values(item.sizes).reduce((sum, q) => sum + (Number(q) || 0), 0);
+    const qty = itemQty(item, product);
     if (qty === 0) continue;
-    const wholesale = totalQty >= product.wholesaleMin && product.wholesalePrice < product.price;
-    const unitPrice = wholesale ? product.wholesalePrice : product.price;
+    const wholesale = item.mode === 'wholesale';
+    const unitPrice = wholesale ? wholesaleUnit(product) : product.price;
     if (wholesale) isWholesale = true;
     total += unitPrice * qty;
-    items.push({ productId: product.id, unitPrice, qty, lineTotal: unitPrice * qty, wholesaleApplied: wholesale });
+    items.push({
+      productId: product.id,
+      mode: item.mode,
+      unitPrice,
+      qty,
+      lineTotal: unitPrice * qty,
+      wholesaleApplied: wholesale && unitPrice < product.price,
+    });
   }
+  const totalQty = items.reduce((sum, i) => sum + i.qty, 0);
   return { items, total, totalQty, isWholesale };
 }
 
-export default function Cart({ t, lang, cartItems, products, onChangeSize, onRemove, onCheckout, goCatalog }) {
+export default function Cart({
+  t,
+  lang,
+  cartItems,
+  products,
+  onChangeSize,
+  onChangePacks,
+  onRemove,
+  onCheckout,
+  goCatalog,
+}) {
   const [serverCalc, setCalc] = useState(null);
 
   const productMap = useMemo(
@@ -80,96 +94,118 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
   const calc =
     serverCalc?.cartItems === cartItems ? serverCalc.data : localCalc(cartItems, productMap);
   const totalQty = calc.totalQty;
+  const lineOf = (item) =>
+    calc.items.find((i) => i.productId === item.productId && (i.mode || 'retail') === item.mode);
 
-  // Eski narxga nisbatan qancha tejaladi (chegirmadagi mahsulotlar)
+  // Eski narxga nisbatan qancha tejaladi (chegirmadagi dona mahsulotlar)
   const savedOf = (line) => {
+    if (line.mode === 'wholesale') return 0;
     const old = productMap.get(line.productId)?.oldPrice || 0;
     return old > line.unitPrice ? (old - line.unitPrice) * line.qty : 0;
   };
   const saved = calc.items.reduce((sum, line) => sum + savedOf(line), 0);
 
-  // Optom narxgacha yana nechta juft kerak?
-  const nextWholesale = (() => {
-    if (calc?.isWholesale) return 0;
-    const mins = cartItems
-      .map((item) => productMap.get(item.productId))
-      .filter((p) => p && p.wholesalePrice < p.price)
-      .map((p) => p.wholesaleMin);
-    if (!mins.length) return 0;
-    const min = Math.min(...mins);
-    return totalQty >= min ? 0 : min - totalQty;
-  })();
+  const wholesaleItems = cartItems.filter((item) => item.mode === 'wholesale');
+  const retailItems = cartItems.filter((item) => item.mode !== 'wholesale');
+  const totalPacks = wholesaleItems.reduce((sum, item) => sum + item.packs, 0);
+
+  const renderItem = (item) => {
+    const product = productMap.get(item.productId);
+    if (!product) return null;
+    const line = lineOf(item);
+    const isWholesale = item.mode === 'wholesale';
+
+    return (
+      <div className="cart-item" key={item.key}>
+        <img className="cart-thumb" src={imageUrl(product.images[0])} alt="" />
+
+        <div className="cart-info">
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>{pick(product, 'name', lang)}</div>
+              <div className="card-art">{product.article}</div>
+            </div>
+            <button
+              className="muted"
+              style={{ fontSize: 18, lineHeight: 1, padding: '0 2px' }}
+              onClick={() => {
+                haptic();
+                onRemove(item.key);
+              }}
+              aria-label={t.remove}
+            >
+              ×
+            </button>
+          </div>
+
+          {isWholesale ? (
+            <div className="cart-sizes">
+              <span className="chip">
+                <button onClick={() => onChangePacks(item.productId, -1)}>−</button>
+                <b>{item.packs}</b> {t.pack}
+                <button onClick={() => onChangePacks(item.productId, 1)}>+</button>
+              </span>
+              <span className="muted" style={{ fontSize: 11, alignSelf: 'center' }}>
+                {product.sizes.join('·')} × {item.packs} = {itemQty(item, product)} {t.pair}
+              </span>
+            </div>
+          ) : (
+            <div className="cart-sizes">
+              {Object.entries(item.sizes).map(([size, qty]) => (
+                <span className="chip" key={size}>
+                  <b>{size}</b>
+                  <button onClick={() => onChangeSize(item.productId, size, -1)}>−</button>
+                  {qty}
+                  <button onClick={() => onChangeSize(item.productId, size, 1)}>+</button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="price-row">
+            <PriceTag
+              value={line ? line.lineTotal : 0}
+              currency={t.sum}
+              sale={Boolean(line && savedOf(line))}
+            />
+            {line && savedOf(line) > 0 && (
+              <OldPrice value={line.lineTotal + savedOf(line)} currency={t.sum} />
+            )}
+            {line && (
+              <span className="muted" style={{ fontSize: 11 }}>
+                {money(line.unitPrice)} × {line.qty}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="page">
       <div className="wrap" style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}>
         <h1 className="h1">{t.cartTitle}</h1>
 
-        {cartItems.map((item) => {
-          const product = productMap.get(item.productId);
-          if (!product) return null;
-          const line = calc?.items.find((i) => i.productId === item.productId);
+        {wholesaleItems.length > 0 && (
+          <>
+            <h2 className="h2 cart-group">{t.wholesaleSection}</h2>
+            {wholesaleItems.map(renderItem)}
+          </>
+        )}
 
-          return (
-            <div className="cart-item" key={item.productId}>
-              <img className="cart-thumb" src={imageUrl(product.images[0])} alt="" />
-
-              <div className="cart-info">
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>
-                      {pick(product, 'name', lang)}
-                    </div>
-                    <div className="card-art">{product.article}</div>
-                  </div>
-                  <button
-                    className="muted"
-                    style={{ fontSize: 18, lineHeight: 1, padding: '0 2px' }}
-                    onClick={() => {
-                      haptic();
-                      onRemove(item.productId);
-                    }}
-                    aria-label={t.remove}
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="cart-sizes">
-                  {Object.entries(item.sizes).map(([size, qty]) => (
-                    <span className="chip" key={size}>
-                      <b>{size}</b>
-                      <button onClick={() => onChangeSize(item.productId, size, -1)}>−</button>
-                      {qty}
-                      <button onClick={() => onChangeSize(item.productId, size, 1)}>+</button>
-                    </span>
-                  ))}
-                </div>
-
-                <div className="price-row">
-                  <PriceTag
-                    value={line ? line.lineTotal : 0}
-                    currency={t.sum}
-                    sale={Boolean(line && savedOf(line))}
-                  />
-                  {line && savedOf(line) > 0 && (
-                    <OldPrice value={line.lineTotal + savedOf(line)} currency={t.sum} />
-                  )}
-                  {line?.wholesaleApplied && (
-                    <span className="muted" style={{ fontSize: 11 }}>
-                      {money(line.unitPrice)} × {line.qty}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {retailItems.length > 0 && (
+          <>
+            <h2 className="h2 cart-group">{t.retailSection}</h2>
+            {retailItems.map(renderItem)}
+          </>
+        )}
 
         <div className="summary">
           <div className="summary-row">
             <span className="muted">{t.itemsCount}</span>
             <b>
+              {totalPacks > 0 && `${totalPacks} ${t.pack} · `}
               {totalQty} {t.pair}
             </b>
           </div>
@@ -189,13 +225,7 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
           </div>
         </div>
 
-        {calc?.isWholesale && <div className="notice ok">{t.wholesaleOn}</div>}
-        {!calc?.isWholesale && nextWholesale > 0 && (
-          <div className="notice">
-            <span>📦</span>
-            <span>{t.wholesaleHint(nextWholesale)}</span>
-          </div>
-        )}
+        {calc.isWholesale && <div className="notice ok">{t.wholesaleOn}</div>}
 
         <div className="notice warn">
           <span>🇺🇿</span>
