@@ -134,6 +134,16 @@ async function safeSend(chatId, text, options = {}) {
   }
 }
 
+/** Yangi buyurtma xabarini ADMIN_CHAT_IDS dagi barcha chatlarga yuboradi */
+async function notifyAdmins(text, options = {}) {
+  const ids = config.bot.adminChatIds;
+  if (!ids.length) {
+    console.warn('⚠️  ADMIN_CHAT_IDS qo\'yilmagan — yangi buyurtma xabari hech kimga yuborilmadi');
+    return;
+  }
+  await Promise.all(ids.map((id) => safeSend(id, text, options)));
+}
+
 /** Telegramdagi pastki "Menu" tugmasini Mini App'ga ulaydi */
 async function setMenuButton() {
   if (!bot) return;
@@ -157,6 +167,7 @@ module.exports = {
   startBot,
   getBot,
   safeSend,
+  notifyAdmins,
   setMenuButton,
   webhookPath,
   handleWebhookUpdate,

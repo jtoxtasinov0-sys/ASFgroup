@@ -14,6 +14,12 @@ const config = {
   bot: {
     token: process.env.BOT_TOKEN || '',
     polling: true,
+    // Yangi buyurtma xabari boradigan chatlar (vergul bilan bir nechta).
+    // Chat ID'ni botga /id yozib bilib olish mumkin. Guruh ID'si minus bilan boshlanadi.
+    adminChatIds: (process.env.ADMIN_CHAT_IDS || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
   },
 
   admin: {

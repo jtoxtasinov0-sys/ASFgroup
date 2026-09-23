@@ -92,6 +92,7 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `COMPANY_PHONE` | `+998 90 123 45 67` (o'zingiznikini yozing) |
 | `COMPANY_ADDRESS` | `Toshkent sh.` |
 | `NODE_VERSION` | `20` |
+| `ADMIN_CHAT_IDS` | yangi buyurtma xabari boradigan chat ID'lar — 4-QISM ga qarang |
 
 > 📌 **`DATABASE_URL` ni qayerdan olish kerak:**
 >
@@ -227,6 +228,25 @@ uchun BotFather'da:
 1. `/mybots` → botingizni tanlang
 2. **Bot Settings** → **Menu Button** → **Edit menu button URL**
 3. `https://asf-miniapp.vercel.app` ni kiriting
+
+### Yangi buyurtma haqida xabar olish
+
+Mijoz buyurtma bersa, bot `ADMIN_CHAT_IDS` da yozilgan har bir chatga
+buyurtma tafsilotlarini (mahsulotlar, razmerlar, summa, mijoz telefoni,
+manzil) yuboradi.
+
+1. Xabar oladigan odam botga **/start**, keyin **/id** deb yozadi —
+   bot uning Chat ID raqamini ko'rsatadi (masalan `123456789`)
+2. Render → **Environment** → `ADMIN_CHAT_IDS` = shu raqam → **Save**
+   (servis o'zi qayta ishga tushadi)
+3. Bir nechta odam bo'lsa — vergul bilan: `123456789,987654321`
+
+**Guruhga yuborish** (bir nechta menejer bo'lsa qulay): botni Telegram
+guruhga qo'shing, guruhda `/id` yozing va chiqqan raqamni (minus bilan
+boshlanadi, masalan `-1001234567890`) `ADMIN_CHAT_IDS` ga yozing.
+
+> ⚠️ Odam avval botga **/start** bosgan bo'lishi shart — Telegram bot
+> hech qachon o'zi birinchi yozmagan odamga xabar yubora olmaydi.
 
 ---
 
