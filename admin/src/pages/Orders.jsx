@@ -9,6 +9,86 @@ const STATUSES = [
   { key: 'cancelled', label: '❌ Bekor qilingan' },
 ];
 
+const CATEGORY = {
+  ready: 'Tayyor oyoq kiyim',
+  upper: 'Zagatovka',
+};
+
+/** Buyurtmadagi mahsulot rasmini katta qilib, model ma'lumoti bilan ko'rsatadi */
+function ItemPreview({ item, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const sizes = Object.entries(item.sizes || {});
+
+  return (
+    <div className="modal-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal item-preview">
+        <div className="modal-head">
+          <h2>
+            {item.name} <span className="muted">({item.article})</span>
+          </h2>
+          <button onClick={onClose} aria-label="Yopish">
+            ×
+          </button>
+        </div>
+
+        {item.image ? (
+          <img className="item-preview-img" src={imageUrl(item.image)} alt={item.name} />
+        ) : (
+          <div className="item-preview-img center">Rasm yo'q</div>
+        )}
+
+        <div className="modal-body">
+          <dl className="item-preview-info">
+            <dt>Model</dt>
+            <dd>
+              <b>{item.name}</b>
+              {item.nameRu && <div className="muted">{item.nameRu}</div>}
+            </dd>
+            <dt>Artikul</dt>
+            <dd className="mono">
+              <b>{item.article}</b>
+            </dd>
+            {CATEGORY[item.category] && (
+              <>
+                <dt>Turi</dt>
+                <dd>{CATEGORY[item.category]}</dd>
+              </>
+            )}
+            <dt>Razmerlar</dt>
+            <dd>
+              <div className="size-chips">
+                {sizes.map(([size, qty]) => (
+                  <span key={size} className="size-chip">
+                    <b>{size}</b> × {qty}
+                  </span>
+                ))}
+              </div>
+            </dd>
+            <dt>Soni</dt>
+            <dd>
+              <b>{item.qty} juft</b>
+            </dd>
+            <dt>Narxi</dt>
+            <dd className="mono">
+              {money(item.unitPrice)} so'm
+              {item.wholesaleApplied ? ' (optom)' : ''}
+            </dd>
+            <dt>Jami</dt>
+            <dd className="mono">
+              <b>{money(item.lineTotal)} so'm</b>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const LABEL = {
   new: 'Yangi',
   confirmed: 'Tasdiqlandi',
@@ -20,6 +100,8 @@ export default function Orders({ stats, reload }) {
   const [orders, setOrders] = useState(null);
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState('');
+  const [preview, setPreview] = useState(null);
+  const closePreview = useCallback(() => setPreview(null), []);
 
   const load = useCallback(() => {
     setOrders(null);
@@ -152,7 +234,14 @@ export default function Orders({ stats, reload }) {
                       <div className="order-items">
                         {order.items.map((item) => (
                           <div className="order-item" key={item.productId}>
-                            <img src={imageUrl(item.image)} alt="" />
+                            <button
+                              type="button"
+                              className="order-item-img"
+                              onClick={() => setPreview(item)}
+                              title="Kattalashtirish"
+                            >
+                              <img src={imageUrl(item.image)} alt={item.name} />
+                            </button>
                             <div>
                               <b>{item.name}</b>{' '}
                               <span className="muted">({item.article})</span>
@@ -213,6 +302,8 @@ export default function Orders({ stats, reload }) {
           </div>
         )}
       </div>
+
+      {preview && <ItemPreview item={preview} onClose={closePreview} />}
     </>
   );
 }

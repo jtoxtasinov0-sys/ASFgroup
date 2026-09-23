@@ -14,11 +14,13 @@ function registerBotHandlers(bot) {
 
   bot.onText(/^\/start/, guard(botController.onStart));
   bot.onText(/^\/help/, guard(botController.onStart));
+  bot.onText(/^\/id(@\w+)?$/, guard(botController.onId));
   bot.on('callback_query', guard(botController.onCallback));
   bot.on('contact', guard(botController.onContact));
 
   bot.on('message', (msg) => {
     if (!msg.text || msg.text.startsWith('/') || msg.contact) return;
+    if (msg.chat.type !== 'private') return; // guruhdagi yozishmalarga javob bermaymiz
     guard(botController.onFallback)(msg);
   });
 

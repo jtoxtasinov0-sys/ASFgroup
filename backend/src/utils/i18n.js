@@ -83,8 +83,47 @@ function fmt(n) {
   return new Intl.NumberFormat('ru-RU').format(Number(n) || 0);
 }
 
+/** Mijoz yozgan matn HTML xabarni buzmasligi uchun */
+function esc(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/** Egasi/menejerga yangi buyurtma haqida xabar */
+function adminNewOrder(order) {
+  const u = order.user || {};
+  const tgName = [u.firstName, u.lastName].filter(Boolean).join(' ');
+  const tgLink = u.telegramId
+    ? `<a href="tg://user?id=${u.telegramId}">${esc(tgName || u.telegramId)}</a>` +
+      (u.username ? ` (@${esc(u.username)})` : '')
+    : '—';
+
+  const items = (Array.isArray(order.items) ? order.items : [])
+    .map((i, n) => {
+      const sizes = Object.entries(i.sizes || {})
+        .map(([size, count]) => `${size}×${count}`)
+        .join(', ');
+      return (
+        `${n + 1}. <b>${esc(i.name)}</b> (${esc(i.article)})\n` +
+        `   📏 ${sizes} — ${i.qty} juft × ${fmt(i.unitPrice)} = <b>${fmt(i.lineTotal)}</b>`
+      );
+    })
+    .join('\n');
+
+  return (
+    `🆕 <b>Yangi buyurtma #${order.id}</b>\n\n` +
+    `${items}\n\n` +
+    `📦 Jami: <b>${order.totalQty} juft</b>\n` +
+    `💰 Summa: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx)' : ''}\n\n` +
+    `👤 Mijoz: ${esc(order.customerName)}\n` +
+    `📞 Telefon: ${esc(order.phone)}\n` +
+    `📍 Manzil: ${esc(order.region)}, ${esc(order.address)}\n` +
+    (order.comment ? `💬 Izoh: ${esc(order.comment)}\n` : '') +
+    `✈️ Telegram: ${tgLink}`
+  );
+}
+
 function t(lang) {
   return T[lang === 'ru' ? 'ru' : 'uz'];
 }
 
-module.exports = { t, fmt };
+module.exports = { t, fmt, esc, adminNewOrder };

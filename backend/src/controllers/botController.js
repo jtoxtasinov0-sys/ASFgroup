@@ -87,6 +87,20 @@ const botController = {
     );
   },
 
+  /** /id — chat ID'ni ko'rsatadi (ADMIN_CHAT_IDS ga yozish uchun) */
+  async onId(bot, msg) {
+    const isAdmin = config.bot.adminChatIds.includes(String(msg.chat.id));
+    await bot.sendMessage(
+      msg.chat.id,
+      `🆔 Chat ID: <code>${msg.chat.id}</code>\n\n` +
+        (isAdmin
+          ? '✅ Bu chat yangi buyurtmalar haqida xabar oladi.'
+          : 'Yangi buyurtmalar haqida xabar olish uchun shu raqamni serverdagi ' +
+            '<code>ADMIN_CHAT_IDS</code> sozlamasiga yozing.'),
+      { parse_mode: 'HTML' }
+    );
+  },
+
   /** Boshqa har qanday xabar */
   async onFallback(bot, msg) {
     const user = await UserModel.findOrCreate(msg.from);

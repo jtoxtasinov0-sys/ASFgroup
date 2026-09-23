@@ -3,8 +3,8 @@ const UserModel = require('../models/User');
 const ProductModel = require('../models/Product');
 const OrderModel = require('../models/Order');
 const StoryModel = require('../models/Story');
-const { safeSend } = require('../core/bot');
-const { t } = require('../utils/i18n');
+const { safeSend, notifyAdmins } = require('../core/bot');
+const { t, adminNewOrder } = require('../utils/i18n');
 
 /* ---------- Yordamchi funksiyalar ---------- */
 
@@ -230,6 +230,9 @@ const cartController = {
       // Botdan mijozga tasdiq xabari
       const lang = t(user.lang);
       safeSend(user.telegramId, lang.orderOk(order));
+
+      // Egasi/menejerlarga yangi buyurtma haqida xabar
+      notifyAdmins(adminNewOrder(order), { disable_web_page_preview: true });
 
       res.status(201).json({ ok: true, data: order });
     } catch (err) {
