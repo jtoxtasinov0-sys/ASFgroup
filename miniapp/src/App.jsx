@@ -6,6 +6,7 @@ import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from 
 import {
   closeApp,
   getTgUser,
+  haptic,
   initTelegram,
   notifySuccess,
   setBackButton,
@@ -295,7 +296,10 @@ export default function App() {
           onOpenStory={setStoryIndex}
           products={products}
           mode={mode}
-          onChangeMode={() => setModeOpen(true)}
+          onSetMode={(value) => {
+            haptic();
+            setMode(value);
+          }}
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
           onQuickAdd={quickAdd}

@@ -1503,3 +1503,52 @@ img {
 .cart-group {
   margin-top: 18px;
 }
+
+/* Bosh sahifadagi optom / dona almashtirgich */
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 14px;
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+}
+
+.mode-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  text-align: left;
+  color: var(--ink);
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.mode-tab b {
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.mode-tab span:last-child {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.mode-tab-emoji {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.mode-tab.active {
+  background: var(--navy);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.mode-tab.active span:last-child {
+  color: rgba(255, 255, 255, 0.75);
+}

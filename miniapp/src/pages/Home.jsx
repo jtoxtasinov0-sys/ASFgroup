@@ -13,7 +13,7 @@ export default function Home({
   onOpenStory,
   products,
   mode,
-  onChangeMode,
+  onSetMode,
   cart,
   onOpenProduct,
   onQuickAdd,
@@ -33,9 +33,6 @@ export default function Home({
           <div className="header-hello">{t.hello}</div>
           <div className="header-name">{name} 👋</div>
         </div>
-        <button className={`mode-pill${isWholesale ? ' wholesale' : ''}`} onClick={onChangeMode}>
-          {isWholesale ? t.modeBadgeWholesale : t.modeBadgeRetail} ⇄
-        </button>
         <button className="lang-pill" onClick={() => setLang(lang === 'uz' ? 'ru' : 'uz')}>
           {lang === 'uz' ? 'UZ' : 'RU'}
         </button>
@@ -44,6 +41,26 @@ export default function Home({
       <Stories stories={stories} lang={lang} seen={seenStories} onOpen={onOpenStory} />
 
       <div className="wrap">
+        {/* Savdo turi — har safar bosh sahifada ko'rinib turadi */}
+        <div className="mode-switch">
+          <button
+            className={`mode-tab${isWholesale ? ' active' : ''}`}
+            onClick={() => onSetMode('wholesale')}
+          >
+            <span className="mode-tab-emoji">📦</span>
+            <b>{t.modeWholesale}</b>
+            <span>{t.modeTabWholesale}</span>
+          </button>
+          <button
+            className={`mode-tab${!isWholesale ? ' active' : ''}`}
+            onClick={() => onSetMode('retail')}
+          >
+            <span className="mode-tab-emoji">🛍</span>
+            <b>{t.modeRetail}</b>
+            <span>{t.modeTabRetail}</span>
+          </button>
+        </div>
+
         <div className="hero">
           <h2>{isWholesale ? t.wholesaleSection : t.retailSection}</h2>
           <p>{isWholesale ? t.modeWholesaleText : t.modeRetailText}</p>
