@@ -32,3 +32,11 @@ export function phoneMask(raw) {
 export function isPhoneValid(raw) {
   return String(raw || '').replace(/\D/g, '').replace(/^998/, '').length === 9;
 }
+
+/** Chegirma foizi: eski 165 000, yangi 140 000 -> 15. Chegirma yo'q bo'lsa 0 */
+export function discountPercent(product) {
+  const old = Number(product?.oldPrice) || 0;
+  const price = Number(product?.price) || 0;
+  if (!old || !price || old <= price) return 0;
+  return Math.max(1, Math.round((1 - price / old) * 100));
+}

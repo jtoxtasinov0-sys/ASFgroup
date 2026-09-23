@@ -67,7 +67,8 @@ function buildProductData(body, uploadedUrls, existing) {
     materialRu: body.materialRu ? String(body.materialRu).trim() : null,
     images,
     price,
-    oldPrice: body.oldPrice ? toInt(body.oldPrice, 0) || null : null,
+    // Eski narx faqat hozirgi narxdan qimmat bo'lsa ma'noga ega (chegirma)
+    oldPrice: toInt(body.oldPrice, 0) > price ? toInt(body.oldPrice, 0) : null,
     wholesalePrice: wholesaleRaw > 0 ? wholesaleRaw : price,
     wholesaleMin: Math.max(1, toInt(body.wholesaleMin, 10)),
     sizes: toArray(body.sizes).map((s) => toInt(s, 0)).filter((s) => s > 0),

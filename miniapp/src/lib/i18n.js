@@ -39,6 +39,9 @@ export const dict = {
     catReadyText: 'Tayyor holda sotiladi',
     catUpperText: 'Poyabzal ustki qismi',
     popular: 'Ommabop modellar',
+    saleTitle: '🔥 Chegirmalar',
+    youSave: 'Tejaysiz',
+    discount: 'Chegirma',
     seeAll: "Barchasi",
 
     // Katalog
@@ -142,6 +145,9 @@ export const dict = {
     catReadyText: 'Продаётся готовой',
     catUpperText: 'Верх обуви',
     popular: 'Популярные модели',
+    saleTitle: '🔥 Скидки',
+    youSave: 'Экономия',
+    discount: 'Скидка',
     seeAll: 'Все',
 
     search: 'Поиск...',

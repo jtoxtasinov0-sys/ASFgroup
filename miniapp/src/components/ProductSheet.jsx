@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { pick } from '../lib/i18n';
-import { money } from '../lib/format';
+import { discountPercent, money } from '../lib/format';
 import { haptic, notifySuccess } from '../lib/telegram';
 import PriceTag, { OldPrice } from './PriceTag';
 
 export default function ProductSheet({ product, lang, t, initialSizes, onClose, onAdd }) {
   const [sizes, setSizes] = useState(initialSizes || {});
   const [photo, setPhoto] = useState(0);
+  const discount = discountPercent(product);
 
   useEffect(() => {
     setSizes(initialSizes || {});
@@ -90,9 +91,19 @@ export default function ProductSheet({ product, lang, t, initialSizes, onClose, 
           </h2>
 
           <div className="price-row" style={{ marginTop: 8 }}>
-            {product.oldPrice ? <OldPrice value={product.oldPrice} currency={t.sum} /> : null}
-            <PriceTag value={product.price} currency={t.sum} big sale={Boolean(product.oldPrice)} />
+            <PriceTag value={product.price} currency={t.sum} big sale={discount > 0} />
+            {discount > 0 && (
+              <>
+                <OldPrice value={product.oldPrice} currency={t.sum} />
+                <span className="sale-chip">−{discount}%</span>
+              </>
+            )}
           </div>
+          {discount > 0 && (
+            <div className="sale-save">
+              🔥 {t.youSave}: <b>{money(product.oldPrice - product.price)} {t.sum}</b>
+            </div>
+          )}
 
           {product.wholesalePrice < product.price && (
             <div className="notice ok" style={{ marginTop: 10 }}>

@@ -394,6 +394,7 @@ tbody tr:hover {
 .badge.upper { background: #f3e8ff; color: #6b21a8; }
 .badge.off { background: #f1f2f5; color: var(--muted); }
 .badge.on { background: #e7f6ee; color: #0b7a3c; }
+.badge.sale { background: #fdecec; color: #e11d2e; }
 
 .filters {
   display: flex;

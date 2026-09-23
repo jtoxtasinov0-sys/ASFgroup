@@ -656,6 +656,37 @@ img {
   background: var(--red);
 }
 
+/* ---------- Chegirma ---------- */
+
+.sale-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: var(--red);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 0 2px 6px rgba(225, 29, 46, 0.35);
+}
+
+.sale-chip {
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: #fdecec;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sale-save {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--red);
+}
+
 .price-row {
   display: flex;
   align-items: center;

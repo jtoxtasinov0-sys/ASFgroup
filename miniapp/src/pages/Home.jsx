@@ -1,5 +1,6 @@
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
+import { discountPercent } from '../lib/format';
 
 export default function Home({
   t,
@@ -16,6 +17,7 @@ export default function Home({
   goCatalog,
 }) {
   const name = user?.firstName || (lang === 'ru' ? 'Гость' : 'Mehmon');
+  const onSale = products.filter((p) => discountPercent(p) > 0);
   const popular = products.slice(0, 4);
 
   return (
@@ -54,6 +56,27 @@ export default function Home({
             </button>
           </div>
         </div>
+
+        {onSale.length > 0 && (
+          <div className="section">
+            <div className="section-head">
+              <h2 className="h2">{t.saleTitle}</h2>
+            </div>
+            <div className="grid">
+              {onSale.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  lang={lang}
+                  t={t}
+                  inCart={Boolean(cart[product.id])}
+                  onOpen={onOpenProduct}
+                  onQuickAdd={onQuickAdd}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {popular.length > 0 && (
           <div className="section">
