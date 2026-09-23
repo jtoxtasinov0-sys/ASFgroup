@@ -23,7 +23,7 @@ const T = {
     orderOk: (order) =>
       `✅ <b>Buyurtmangiz muvaffaqiyatli qabul qilindi!</b>\n\n` +
       `🧾 Buyurtma raqami: <b>#${order.id}</b>\n` +
-      `📦 Mahsulot: <b>${order.totalQty} juft</b>\n` +
+      `📦 Mahsulot: <b>${qtyText(order, 'komplekt', 'juft')}</b>\n` +
       `💰 Jami: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx ✅)' : ''}\n` +
       `📍 Manzil: ${order.region}, ${order.address}\n` +
       `📞 Telefon: ${order.phone}\n\n` +
@@ -62,7 +62,7 @@ const T = {
     orderOk: (order) =>
       `✅ <b>Ваш заказ успешно принят!</b>\n\n` +
       `🧾 Номер заказа: <b>#${order.id}</b>\n` +
-      `📦 Товар: <b>${order.totalQty} пар</b>\n` +
+      `📦 Товар: <b>${qtyText(order, 'компл.', 'пар')}</b>\n` +
       `💰 Итого: <b>${fmt(order.total)} сум</b>${order.isWholesale ? '  (оптовая цена ✅)' : ''}\n` +
       `📍 Адрес: ${order.region}, ${order.address}\n` +
       `📞 Телефон: ${order.phone}\n\n` +
@@ -83,6 +83,22 @@ function fmt(n) {
   return new Intl.NumberFormat('ru-RU').format(Number(n) || 0);
 }
 
+/** Buyurtmadagi komplektlar soni (optom qatorlari) */
+function orderPacks(order) {
+  return (Array.isArray(order.items) ? order.items : []).reduce(
+    (sum, i) => sum + (Number(i.packs) || 0),
+    0
+  );
+}
+
+/** "3 komplekt (15 juft)" yoki "7 juft" */
+function qtyText(order, packWord, pairWord) {
+  const packs = orderPacks(order);
+  return packs > 0
+    ? `${packs} ${packWord} (${order.totalQty} ${pairWord})`
+    : `${order.totalQty} ${pairWord}`;
+}
+
 /** Mijoz yozgan matn HTML xabarni buzmasligi uchun */
 function esc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -99,20 +115,22 @@ function adminNewOrder(order) {
 
   const items = (Array.isArray(order.items) ? order.items : [])
     .map((i, n) => {
-      const sizes = Object.entries(i.sizes || {})
-        .map(([size, count]) => `${size}×${count}`)
-        .join(', ');
+      const sizes = i.packs
+        ? `📦 <b>${i.packs} komplekt</b> (${Object.keys(i.sizes || {}).join(', ')})`
+        : `🛍 Dona: ${Object.entries(i.sizes || {})
+            .map(([size, count]) => `${size}×${count}`)
+            .join(', ')}`;
       return (
         `${n + 1}. <b>${esc(i.name)}</b> (${esc(i.article)})\n` +
-        `   📏 ${sizes} — ${i.qty} juft × ${fmt(i.unitPrice)} = <b>${fmt(i.lineTotal)}</b>`
+        `   ${sizes} — ${i.qty} juft × ${fmt(i.unitPrice)} = <b>${fmt(i.lineTotal)}</b>`
       );
     })
     .join('\n');
 
   return (
-    `🆕 <b>Yangi buyurtma #${order.id}</b>\n\n` +
+    `🆕 <b>Yangi ${order.isWholesale ? 'OPTOM ' : ''}buyurtma #${order.id}</b>\n\n` +
     `${items}\n\n` +
-    `📦 Jami: <b>${order.totalQty} juft</b>\n` +
+    `📦 Jami: <b>${qtyText(order, 'komplekt', 'juft')}</b>\n` +
     `💰 Summa: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx)' : ''}\n\n` +
     `👤 Mijoz: ${esc(order.customerName)}\n` +
     `📞 Telefon: ${esc(order.phone)}\n` +

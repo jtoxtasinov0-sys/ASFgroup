@@ -261,23 +261,13 @@ export default function ProductForm({ product, onClose, onSaved }) {
                 placeholder="masalan 125000"
               />
               <span className="hint">
-                Bo'sh qoldirsangiz dona narxiga teng bo'ladi (optom chegirma ishlamaydi)
+                1 juft narxi. Optom (komplekt) buyurtmalarda shu narx qo'llanadi. Bo'sh
+                qoldirsangiz dona narxiga teng bo'ladi
               </span>
             </div>
 
-            <div className="field">
-              <label>Optom minimumi (juft)</label>
-              <input
-                type="number"
-                min="1"
-                value={form.wholesaleMin}
-                onChange={set('wholesaleMin')}
-              />
-              <span className="hint">Buyurtmada shu sondan ko'p juft bo'lsa optom narx ishlaydi</span>
-            </div>
-
             <div className="field full">
-              <label>Razmerlar</label>
+              <label>Razmerlar (1 komplekt = har biridan bittadan)</label>
               <div className="size-boxes">
                 {ALL_SIZES.map((size) => (
                   <button

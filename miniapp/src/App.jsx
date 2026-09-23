@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
-import { hasSeenIntro, markIntroSeen, useCart, useLang } from './lib/store';
+import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
   closeApp,
   getTgUser,
@@ -16,6 +16,7 @@ import ProductSheet from './components/ProductSheet';
 import StoryViewer from './components/StoryViewer';
 
 import Onboarding from './pages/Onboarding';
+import ModeSelect from './pages/ModeSelect';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import Cart from './pages/Cart';
@@ -52,6 +53,9 @@ const writeBoot = (data) => {
 export default function App() {
   const [lang, setLang] = useLang();
   const [intro, setIntro] = useState(() => !hasSeenIntro());
+  const [mode, setMode] = useMode();
+  // Har safar ilovaga kirganda avval "Optom / Donaga" tanlanadi
+  const [modeOpen, setModeOpen] = useState(true);
 
   const [status, setStatus] = useState('loading'); // loading | ready | error
   const [error, setError] = useState('');
@@ -171,10 +175,18 @@ export default function App() {
     }
   };
 
-  /** Tezkor qo'shish: 40-razmerdan 1 juft (yoki birinchi mavjud razmer) */
+  /**
+   * Tezkor qo'shish: optomda — 1 komplekt,
+   * donada — 40-razmerdan 1 juft (yoki birinchi mavjud razmer)
+   */
   const quickAdd = (product) => {
-    if (cart.cart[product.id]) {
+    if (cart.cart[cartKey(mode, product.id)]) {
       setSheetProduct(product);
+      return;
+    }
+    if (mode === 'wholesale') {
+      cart.setPacks(product.id, 1);
+      notifySuccess();
       return;
     }
     const size = product.sizes.includes(40) ? 40 : product.sizes[0];
@@ -189,8 +201,17 @@ export default function App() {
     setView('catalog');
   };
 
+  const pickMode = (value) => {
+    setMode(value);
+    setModeOpen(false);
+    setView('home');
+  };
+
   const reorder = (order) => {
-    order.items.forEach((item) => cart.addItem(item.productId, item.sizes));
+    order.items.forEach((item) => {
+      if (item.packs) cart.setPacks(item.productId, item.packs);
+      else cart.addItem(item.productId, item.sizes);
+    });
     notifySuccess();
     setView('cart');
   };
@@ -218,6 +239,10 @@ export default function App() {
         }}
       />
     );
+  }
+
+  if (modeOpen || !mode) {
+    return <ModeSelect t={t} lang={lang || 'uz'} setLang={setLang} onPick={pickMode} />;
   }
 
   if (status === 'loading') {
@@ -269,6 +294,8 @@ export default function App() {
           seenStories={seenStories}
           onOpenStory={setStoryIndex}
           products={products}
+          mode={mode}
+          onChangeMode={() => setModeOpen(true)}
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
           onQuickAdd={quickAdd}
@@ -284,6 +311,8 @@ export default function App() {
           config={config}
           category={category}
           setCategory={setCategory}
+          mode={mode}
+          onChangeMode={() => setModeOpen(true)}
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
           onQuickAdd={quickAdd}
@@ -297,6 +326,7 @@ export default function App() {
           cartItems={cart.items}
           products={products}
           onChangeSize={cart.changeSize}
+          onChangePacks={cart.changePacks}
           onRemove={cart.removeItem}
           onCheckout={() => setCheckout(true)}
           goCatalog={() => goCatalog()}
@@ -314,16 +344,19 @@ export default function App() {
         />
       )}
 
-      <BottomNav view={view} setView={setView} cartCount={cart.totalQty} t={t} />
+      <BottomNav view={view} setView={setView} cartCount={cart.count} t={t} />
 
       {sheetProduct && (
         <ProductSheet
           product={sheetProduct}
           lang={lang || 'uz'}
           t={t}
-          initialSizes={cart.cart[sheetProduct.id]?.sizes}
+          mode={mode}
+          initialSizes={cart.cart[cartKey('retail', sheetProduct.id)]?.sizes}
+          initialPacks={cart.cart[cartKey('wholesale', sheetProduct.id)]?.packs}
           onClose={() => setSheetProduct(null)}
           onAdd={cart.addItem}
+          onSetPacks={cart.setPacks}
         />
       )}
 

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import ProductCard from '../components/ProductCard';
+import { cartKey } from '../lib/store';
 import { haptic } from '../lib/telegram';
 
 export default function Catalog({
@@ -9,6 +10,8 @@ export default function Catalog({
   config,
   category,
   setCategory,
+  mode,
+  onChangeMode,
   cart,
   onOpenProduct,
   onQuickAdd,
@@ -41,7 +44,15 @@ export default function Catalog({
   return (
     <div className="page">
       <div className="wrap" style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}>
-        <h1 className="h1">{t.navCatalog}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <h1 className="h1">{t.navCatalog}</h1>
+          <button
+            className={`mode-pill${mode === 'wholesale' ? ' wholesale' : ''}`}
+            onClick={onChangeMode}
+          >
+            {mode === 'wholesale' ? t.modeBadgeWholesale : t.modeBadgeRetail} ⇄
+          </button>
+        </div>
         <input
           style={{ marginTop: 12 }}
           placeholder={t.search}
@@ -105,7 +116,8 @@ export default function Catalog({
                 product={product}
                 lang={lang}
                 t={t}
-                inCart={Boolean(cart[product.id])}
+                mode={mode}
+                inCart={Boolean(cart[cartKey(mode, product.id)])}
                 onOpen={onOpenProduct}
                 onQuickAdd={onQuickAdd}
               />

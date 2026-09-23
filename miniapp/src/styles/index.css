@@ -1341,3 +1341,165 @@ img {
   from { transform: scale(0.4); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* ---------- Savdo turi: optom / dona ---------- */
+
+.mode-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(24px + var(--safe-b));
+}
+
+.mode-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 12px auto 4px;
+}
+
+.mode-page h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.mode-page > p {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.mode-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 16px;
+  background: #fff;
+  color: var(--ink);
+  transition: transform 0.12s;
+}
+
+.mode-card:active {
+  transform: scale(0.98);
+}
+
+/* Optom — asosiy savdo turi, katta va ajralib turadi */
+.mode-card.main {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  padding: 26px 18px;
+  box-shadow: var(--shadow-md);
+}
+
+.mode-emoji {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.mode-card.main .mode-emoji {
+  font-size: 40px;
+}
+
+.mode-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mode-text b {
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.mode-card.main .mode-text b {
+  font-size: 22px;
+}
+
+.mode-text span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.mode-card.main .mode-text span {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.mode-arrow {
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.mode-pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  background: var(--bg-soft);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mode-pill.wholesale {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.card-pack {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.card-pack b {
+  color: var(--navy);
+}
+
+.pack-input {
+  width: 52px;
+  padding: 6px 4px;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  border-radius: 9px;
+  -moz-appearance: textfield;
+}
+
+.pack-input::-webkit-outer-spin-button,
+.pack-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pack-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pack-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.cart-group {
+  margin-top: 18px;
+}

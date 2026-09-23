@@ -1,6 +1,7 @@
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
 import { discountPercent } from '../lib/format';
+import { cartKey } from '../lib/store';
 
 export default function Home({
   t,
@@ -11,13 +12,17 @@ export default function Home({
   seenStories,
   onOpenStory,
   products,
+  mode,
+  onChangeMode,
   cart,
   onOpenProduct,
   onQuickAdd,
   goCatalog,
 }) {
   const name = user?.firstName || (lang === 'ru' ? 'Гость' : 'Mehmon');
-  const onSale = products.filter((p) => discountPercent(p) > 0);
+  const isWholesale = mode === 'wholesale';
+  // Chegirmalar dona narxiga tegishli — optomda ko'rsatilmaydi
+  const onSale = isWholesale ? [] : products.filter((p) => discountPercent(p) > 0);
   const popular = products.slice(0, 4);
 
   return (
@@ -28,6 +33,9 @@ export default function Home({
           <div className="header-hello">{t.hello}</div>
           <div className="header-name">{name} 👋</div>
         </div>
+        <button className={`mode-pill${isWholesale ? ' wholesale' : ''}`} onClick={onChangeMode}>
+          {isWholesale ? t.modeBadgeWholesale : t.modeBadgeRetail} ⇄
+        </button>
         <button className="lang-pill" onClick={() => setLang(lang === 'uz' ? 'ru' : 'uz')}>
           {lang === 'uz' ? 'UZ' : 'RU'}
         </button>
@@ -37,8 +45,8 @@ export default function Home({
 
       <div className="wrap">
         <div className="hero">
-          <h2>{t.heroTitle}</h2>
-          <p>{t.heroText}</p>
+          <h2>{isWholesale ? t.wholesaleSection : t.retailSection}</h2>
+          <p>{isWholesale ? t.modeWholesaleText : t.modeRetailText}</p>
           <button onClick={() => goCatalog()}>{t.heroBtn}</button>
         </div>
 
@@ -69,7 +77,8 @@ export default function Home({
                   product={product}
                   lang={lang}
                   t={t}
-                  inCart={Boolean(cart[product.id])}
+                  mode={mode}
+                  inCart={Boolean(cart[cartKey(mode, product.id)])}
                   onOpen={onOpenProduct}
                   onQuickAdd={onQuickAdd}
                 />
@@ -93,7 +102,8 @@ export default function Home({
                   product={product}
                   lang={lang}
                   t={t}
-                  inCart={Boolean(cart[product.id])}
+                  mode={mode}
+                  inCart={Boolean(cart[cartKey(mode, product.id)])}
                   onOpen={onOpenProduct}
                   onQuickAdd={onQuickAdd}
                 />

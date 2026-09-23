@@ -59,6 +59,8 @@ function ItemPreview({ item, onClose }) {
                 <dd>{CATEGORY[item.category]}</dd>
               </>
             )}
+            <dt>Savdo</dt>
+            <dd>{item.packs ? <b>📦 Optom — {item.packs} komplekt</b> : '🛍 Dona'}</dd>
             <dt>Razmerlar</dt>
             <dd>
               <div className="size-chips">
@@ -233,7 +235,10 @@ export default function Orders({ stats, reload }) {
                     <td style={{ minWidth: 240 }}>
                       <div className="order-items">
                         {order.items.map((item) => (
-                          <div className="order-item" key={item.productId}>
+                          <div
+                            className="order-item"
+                            key={`${item.productId}-${item.mode || 'retail'}`}
+                          >
                             <button
                               type="button"
                               className="order-item-img"
@@ -246,9 +251,16 @@ export default function Orders({ stats, reload }) {
                               <b>{item.name}</b>{' '}
                               <span className="muted">({item.article})</span>
                               <div className="muted">
-                                {Object.entries(item.sizes)
-                                  .map(([size, qty]) => `${size}×${qty}`)
-                                  .join(', ')}{' '}
+                                {item.packs ? (
+                                  <b className="pack-badge">📦 {item.packs} komplekt</b>
+                                ) : (
+                                  <span className="pack-badge retail">🛍 Dona</span>
+                                )}{' '}
+                                {item.packs
+                                  ? Object.keys(item.sizes).join(', ')
+                                  : Object.entries(item.sizes)
+                                      .map(([size, qty]) => `${size}×${qty}`)
+                                      .join(', ')}{' '}
                                 = {item.qty} juft · {money(item.unitPrice)}
                                 {item.wholesaleApplied ? ' (optom)' : ''}
                               </div>
@@ -270,7 +282,13 @@ export default function Orders({ stats, reload }) {
 
                     <td className="mono nowrap">
                       <b>{money(order.total)}</b>
-                      <div className="muted">{order.totalQty} juft</div>
+                      <div className="muted">
+                        {(() => {
+                          const packs = order.items.reduce((sum, i) => sum + (i.packs || 0), 0);
+                          return packs ? `${packs} komplekt · ` : '';
+                        })()}
+                        {order.totalQty} juft
+                      </div>
                       {order.isWholesale && <span className="badge on">optom</span>}
                     </td>
 
