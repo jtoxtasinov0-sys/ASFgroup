@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { isPhoneValid, phoneMask } from '../lib/format';
-import { haptic, notifySuccess } from '../lib/telegram';
+import { haptic, isTelegram, notifySuccess } from '../lib/telegram';
 
 export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess }) {
   const [form, setForm] = useState({
@@ -44,6 +44,10 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
       setBusy(false);
     }
   };
+
+  // Oddiy brauzerda (havola orqali) ochilganda Telegram imzosi yo'q —
+  // server buyurtmani qabul qilmaydi, shuning uchun botga yo'naltiramiz
+  const botLink = config?.botUsername ? `https://t.me/${config.botUsername}` : '';
 
   return (
     <>
@@ -103,6 +107,23 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
             <span>{t.onlyUz}</span>
           </div>
 
+          {!isTelegram && (
+            <div className="notice" style={{ background: '#fdecec', color: '#b42318' }}>
+              <span>⚠️</span>
+              <span>
+                {t.openInBot}
+                {botLink && (
+                  <>
+                    {' '}
+                    <a href={botLink} style={{ fontWeight: 700, color: 'inherit' }}>
+                      @{config.botUsername}
+                    </a>
+                  </>
+                )}
+              </span>
+            </div>
+          )}
+
           {error && (
             <div className="notice" style={{ background: '#fdecec', color: '#b42318' }}>
               <span>⚠️</span>
@@ -112,7 +133,7 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
         </div>
 
         <div className="sheet-cta">
-          <button className="btn" disabled={!valid || busy} onClick={submit}>
+          <button className="btn" disabled={!valid || busy || !isTelegram} onClick={submit}>
             {busy ? t.sending : t.confirm}
           </button>
         </div>
