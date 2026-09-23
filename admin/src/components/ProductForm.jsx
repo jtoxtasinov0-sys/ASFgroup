@@ -72,8 +72,16 @@ export default function ProductForm({ product, onClose, onSaved }) {
     }));
   };
 
+  const priceNum = Number(form.price) || 0;
+  const oldNum = Number(form.oldPrice) || 0;
+  const discount = oldNum > priceNum && priceNum > 0 ? Math.round((1 - priceNum / oldNum) * 100) : 0;
+
   const submit = async (e) => {
     e.preventDefault();
+    if (oldNum && oldNum <= priceNum) {
+      setError("Eski narx hozirgi narxdan katta bo'lishi kerak (yoki bo'sh qoldiring)");
+      return;
+    }
     if (existing.length + files.length === 0) {
       setError("Kamida 1 ta rasm qo'shing");
       return;
@@ -212,7 +220,7 @@ export default function ProductForm({ product, onClose, onSaved }) {
             </div>
 
             <div className="field">
-              <label>Dona narxi (so'm) *</label>
+              <label>Hozirgi narx — sotiladigan (so'm) *</label>
               <input
                 type="number"
                 value={form.price}
@@ -223,13 +231,25 @@ export default function ProductForm({ product, onClose, onSaved }) {
             </div>
 
             <div className="field">
-              <label>Eski narx (chizib tashlanadi)</label>
+              <label>Eski narx — chizib ko'rsatiladi (so'm)</label>
               <input
                 type="number"
+                min="0"
                 value={form.oldPrice}
                 onChange={set('oldPrice')}
-                placeholder="bo'sh qoldirsangiz ko'rinmaydi"
+                placeholder="masalan 165000"
               />
+              {discount > 0 ? (
+                <span className="hint" style={{ color: 'var(--red, #e11d2e)', fontWeight: 600 }}>
+                  🔥 Chegirma: −{discount}% (mijoz {(oldNum - priceNum).toLocaleString('ru-RU')} so'm tejaydi)
+                </span>
+              ) : oldNum > 0 ? (
+                <span className="hint" style={{ color: '#b42318' }}>
+                  Eski narx hozirgi narxdan katta bo'lishi kerak
+                </span>
+              ) : (
+                <span className="hint">Bo'sh qoldirsangiz chegirma ko'rinmaydi</span>
+              )}
             </div>
 
             <div className="field">

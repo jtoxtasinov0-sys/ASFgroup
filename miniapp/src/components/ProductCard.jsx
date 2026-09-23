@@ -1,15 +1,18 @@
 import { imageUrl } from '../lib/api';
+import { discountPercent } from '../lib/format';
 import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
 import PriceTag, { OldPrice } from './PriceTag';
 
 export default function ProductCard({ product, lang, t, inCart, onOpen, onQuickAdd }) {
   const currency = t.sum;
+  const discount = discountPercent(product);
 
   return (
     <div className="card" onClick={() => onOpen(product)}>
       <div className="card-img">
         <img src={imageUrl(product.images[0])} alt={pick(product, 'name', lang)} loading="lazy" />
+        {discount > 0 && <span className="sale-badge">−{discount}%</span>}
         <button
           className={`card-add${inCart ? ' added' : ''}`}
           onClick={(e) => {
@@ -28,8 +31,8 @@ export default function ProductCard({ product, lang, t, inCart, onOpen, onQuickA
         <div className="card-art">{product.article}</div>
 
         <div className="price-row">
-          {product.oldPrice ? <OldPrice value={product.oldPrice} currency={currency} /> : null}
-          <PriceTag value={product.price} currency={currency} sale={Boolean(product.oldPrice)} />
+          <PriceTag value={product.price} currency={currency} sale={discount > 0} />
+          {discount > 0 && <OldPrice value={product.oldPrice} currency={currency} />}
         </div>
       </div>
     </div>

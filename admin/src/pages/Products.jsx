@@ -148,9 +148,12 @@ export default function Products({ reload }) {
                     </td>
                     <td className="mono nowrap">
                       <b>{money(product.price)}</b>
-                      {product.oldPrice ? (
-                        <div className="muted" style={{ textDecoration: 'line-through' }}>
-                          {money(product.oldPrice)}
+                      {product.oldPrice > product.price ? (
+                        <div className="muted">
+                          <span style={{ textDecoration: 'line-through' }}>{money(product.oldPrice)}</span>{' '}
+                          <span className="badge sale">
+                            −{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                          </span>
                         </div>
                       ) : null}
                     </td>

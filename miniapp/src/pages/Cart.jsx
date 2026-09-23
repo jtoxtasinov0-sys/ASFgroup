@@ -3,7 +3,7 @@ import { api, imageUrl } from '../lib/api';
 import { money } from '../lib/format';
 import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
-import PriceTag from '../components/PriceTag';
+import PriceTag, { OldPrice } from '../components/PriceTag';
 
 /**
  * Server javob bermasa (uxlab yotgan yoki ulanish yo'q) savatcha bo'sh
@@ -81,6 +81,13 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
     serverCalc?.cartItems === cartItems ? serverCalc.data : localCalc(cartItems, productMap);
   const totalQty = calc.totalQty;
 
+  // Eski narxga nisbatan qancha tejaladi (chegirmadagi mahsulotlar)
+  const savedOf = (line) => {
+    const old = productMap.get(line.productId)?.oldPrice || 0;
+    return old > line.unitPrice ? (old - line.unitPrice) * line.qty : 0;
+  };
+  const saved = calc.items.reduce((sum, line) => sum + savedOf(line), 0);
+
   // Optom narxgacha yana nechta juft kerak?
   const nextWholesale = (() => {
     if (calc?.isWholesale) return 0;
@@ -140,7 +147,14 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
                 </div>
 
                 <div className="price-row">
-                  <PriceTag value={line ? line.lineTotal : 0} currency={t.sum} />
+                  <PriceTag
+                    value={line ? line.lineTotal : 0}
+                    currency={t.sum}
+                    sale={Boolean(line && savedOf(line))}
+                  />
+                  {line && savedOf(line) > 0 && (
+                    <OldPrice value={line.lineTotal + savedOf(line)} currency={t.sum} />
+                  )}
                   {line?.wholesaleApplied && (
                     <span className="muted" style={{ fontSize: 11 }}>
                       {money(line.unitPrice)} × {line.qty}
@@ -159,6 +173,14 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
               {totalQty} {t.pair}
             </b>
           </div>
+          {saved > 0 && (
+            <div className="summary-row" style={{ color: 'var(--red)' }}>
+              <span>{t.discount}</span>
+              <b>
+                −{money(saved)} {t.sum}
+              </b>
+            </div>
+          )}
           <div className="summary-row total">
             <span>{t.total}</span>
             <span>
