@@ -1,0 +1,17 @@
+# Render'ning bepul rejasida server 15 daqiqa so'rovsiz qolsa uxlaydi va
+# keyingi ochilish ~1 daqiqa kutadi. Bu ish har 10 daqiqada serverga
+# so'rov yuborib, uni uyg'oq tutadi (serverning o'zidagi ping'ga zaxira).
+name: Keep-alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Serverni uyg'otish
+        run: curl -fsS --max-time 90 --retry 2 https://asfgroup.onrender.com/api/health || true
