@@ -32,6 +32,23 @@ const readSeen = () => {
   }
 };
 
+const BOOT_KEY = 'asf_boot_v1';
+
+const readBoot = () => {
+  try {
+    const data = JSON.parse(localStorage.getItem(BOOT_KEY) || 'null');
+    return data && data.config && Array.isArray(data.products) ? data : null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const writeBoot = (data) => {
+  try {
+    localStorage.setItem(BOOT_KEY, JSON.stringify(data));
+  } catch (_) { /* private rejim yoki joy tugagan */ }
+};
+
 export default function App() {
   const [lang, setLang] = useLang();
   const [intro, setIntro] = useState(() => !hasSeenIntro());
@@ -59,8 +76,34 @@ export default function App() {
 
   /* ---------- Boshlang'ich yuklash ---------- */
 
+  // Oxirgi muvaffaqiyatli yuklangan ma'lumot — keyingi ochilishda ilova
+  // server javobini kutmasdan darhol ko'rinadi, yangisi fonda yangilanadi
   const load = useCallback(async () => {
-    setStatus('loading');
+    const cached = readBoot();
+    if (cached) {
+      setConfig(cached.config);
+      setProducts(cached.products);
+      setStories(cached.stories || []);
+      setStatus('ready');
+    } else {
+      setStatus('loading');
+    }
+
+    // Profil katalogni kutib turmaydi — parallel so'raladi
+    api
+      .me()
+      .then((profile) => {
+        setUser(profile);
+        if (!lang) setLang(profile.lang);
+      })
+      .catch(() => {
+        // Telegramdan tashqarida ishlamasligi mumkin
+        const tgUser = getTgUser();
+        if (tgUser) {
+          setUser({ firstName: tgUser.first_name, lastName: tgUser.last_name, username: tgUser.username });
+        }
+      });
+
     try {
       const [configData, productList, storyList] = await Promise.all([
         api.getConfig(),
@@ -70,21 +113,11 @@ export default function App() {
       setConfig(configData);
       setProducts(productList);
       setStories(storyList);
-
-      // Foydalanuvchi — Telegramdan tashqarida ishlamasligi mumkin
-      try {
-        const profile = await api.me();
-        setUser(profile);
-        if (!lang) setLang(profile.lang);
-      } catch (_) {
-        const tgUser = getTgUser();
-        if (tgUser) {
-          setUser({ firstName: tgUser.first_name, lastName: tgUser.last_name, username: tgUser.username });
-        }
-      }
-
+      writeBoot({ config: configData, products: productList, stories: storyList });
       setStatus('ready');
     } catch (err) {
+      // Keshdan ko'rsatilayotgan bo'lsa, xato ekraniga o'tkazmaymiz
+      if (cached) return;
       setError(err.message);
       setStatus('error');
     }

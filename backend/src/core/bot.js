@@ -78,6 +78,12 @@ async function startBot() {
 
   warnIfPublicUrlMismatch();
 
+  // Mini App bot tashqarisida ochilsa, mijozni shu botga yo'naltiradi
+  bot
+    .getMe()
+    .then((me) => { config.bot.username = me.username || ''; })
+    .catch(() => {});
+
   if (canUseWebhook()) {
     try {
       await bot.setWebHook(`${config.publicUrl}${webhookPath()}`, {

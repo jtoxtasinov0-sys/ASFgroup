@@ -75,6 +75,23 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ ok: false, message: err?.message || 'Server xatosi' });
 });
 
+/* ----------------------------------------------------------
+   Render'ning bepul rejasida servis 15 daqiqa so'rovsiz qolsa
+   uxlaydi va keyingi ochilish 30-60 soniya kutadi. Har 10
+   daqiqada o'zimizga so'rov yuborib, servisni uyg'oq tutamiz.
+   ---------------------------------------------------------- */
+const KEEP_ALIVE_MS = 10 * 60 * 1000;
+
+function startKeepAlive() {
+  const base = process.env.RENDER_EXTERNAL_URL;
+  if (!base) return; // faqat Render'da kerak
+  const url = `${base.replace(/\/$/, '')}/api/health`;
+  setInterval(() => {
+    fetch(url).catch(() => { /* keyingi safar yana urinadi */ });
+  }, KEEP_ALIVE_MS).unref();
+  console.log('⏰ Keep-alive yoqildi (har 10 daqiqada)');
+}
+
 /* ---------- Ishga tushirish ---------- */
 
 async function start() {
@@ -93,6 +110,8 @@ async function start() {
     console.log(`✅ Server: http://localhost:${config.port}`);
     console.log(`📱 Mini App: ${config.miniappUrl}`);
     console.log(`🛠  Admin API: http://localhost:${config.port}/api/admin\n`);
+
+    startKeepAlive();
 
     if (!bot) return;
     startBot()

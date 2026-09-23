@@ -83,6 +83,7 @@ const cartController = {
         tags: config.tags,
         regions: config.regions,
         sizes: config.sizes,
+        botUsername: config.bot.username || process.env.BOT_USERNAME || '',
       },
     });
   },

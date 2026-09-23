@@ -5,9 +5,36 @@ import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
 import PriceTag from '../components/PriceTag';
 
+/**
+ * Server javob bermasa (uxlab yotgan yoki ulanish yo'q) savatcha bo'sh
+ * ko'rinib qolmasin — xuddi server kabi mahalliy hisoblaymiz.
+ * Buyurtma narxi baribir serverda qayta tekshiriladi.
+ */
+function localCalc(cartItems, productMap) {
+  let totalQty = 0;
+  for (const item of cartItems) {
+    for (const qty of Object.values(item.sizes)) totalQty += Number(qty) || 0;
+  }
+
+  const items = [];
+  let total = 0;
+  let isWholesale = false;
+  for (const item of cartItems) {
+    const product = productMap.get(item.productId);
+    if (!product) continue;
+    const qty = Object.values(item.sizes).reduce((sum, q) => sum + (Number(q) || 0), 0);
+    if (qty === 0) continue;
+    const wholesale = totalQty >= product.wholesaleMin && product.wholesalePrice < product.price;
+    const unitPrice = wholesale ? product.wholesalePrice : product.price;
+    if (wholesale) isWholesale = true;
+    total += unitPrice * qty;
+    items.push({ productId: product.id, unitPrice, qty, lineTotal: unitPrice * qty, wholesaleApplied: wholesale });
+  }
+  return { items, total, totalQty, isWholesale };
+}
+
 export default function Cart({ t, lang, cartItems, products, onChangeSize, onRemove, onCheckout, goCatalog }) {
-  const [calc, setCalc] = useState(null);
-  const [busy, setBusy] = useState(false);
+  const [serverCalc, setCalc] = useState(null);
 
   const productMap = useMemo(
     () => new Map(products.map((p) => [p.id, p])),
@@ -21,17 +48,13 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
       setCalc(null);
       return undefined;
     }
-    setBusy(true);
     api
       .calculate(cartItems)
       .then((data) => {
-        if (!cancelled) setCalc(data);
+        if (!cancelled) setCalc({ cartItems, data });
       })
       .catch(() => {
         if (!cancelled) setCalc(null);
-      })
-      .finally(() => {
-        if (!cancelled) setBusy(false);
       });
     return () => {
       cancelled = true;
@@ -53,7 +76,10 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
     );
   }
 
-  const totalQty = calc?.totalQty ?? 0;
+  // Server javobi joriy savatchaga tegishli bo'lsagina ishlatiladi
+  const calc =
+    serverCalc?.cartItems === cartItems ? serverCalc.data : localCalc(cartItems, productMap);
+  const totalQty = calc.totalQty;
 
   // Optom narxgacha yana nechta juft kerak?
   const nextWholesale = (() => {
@@ -136,7 +162,7 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
           <div className="summary-row total">
             <span>{t.total}</span>
             <span>
-              {busy ? '…' : money(calc?.total || 0)} {t.sum}
+              {money(calc.total)} {t.sum}
             </span>
           </div>
         </div>
@@ -157,7 +183,7 @@ export default function Cart({ t, lang, cartItems, products, onChangeSize, onRem
         <button
           className="btn"
           style={{ marginTop: 16 }}
-          disabled={busy || !calc?.items.length}
+          disabled={!calc.items.length}
           onClick={onCheckout}
         >
           {t.checkout}
