@@ -121,13 +121,14 @@ export default function ProductSheet({
                     overflow: 'hidden',
                     border: i === photo ? '2px solid var(--navy)' : '1px solid var(--line)',
                     padding: 0,
+                    position: 'relative',
                     background: 'var(--bg-soft)',
                   }}
                 >
                   <img
                     src={imageUrl(src)}
                     alt=""
-                    style={frameStyle(frameOf(product, src))}
+                    style={frameStyle(frameOf(product, src), 1)}
                   />
                 </button>
               ))}
