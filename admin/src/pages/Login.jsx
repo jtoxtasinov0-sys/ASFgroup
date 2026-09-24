@@ -13,8 +13,6 @@ export default function Login({ onSuccess }) {
 
   useEffect(() => {
     if (!tgInitData) return;
-    tg.ready?.();
-    tg.expand?.();
     api
       .telegramLogin(tgInitData)
       .then(onSuccess)
