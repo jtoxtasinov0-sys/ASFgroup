@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
+import { frameOf, frameStyle } from '../lib/frame';
 import { money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
 import { itemQty } from '../lib/store';
@@ -117,7 +118,13 @@ export default function Cart({
 
     return (
       <div className="cart-item" key={item.key}>
-        <img className="cart-thumb" src={imageUrl(product.images[0])} alt="" />
+        <div className="cart-thumb">
+          <img
+            src={imageUrl(product.images[0])}
+            alt=""
+            style={frameStyle(frameOf(product, product.images[0]))}
+          />
+        </div>
 
         <div className="cart-info">
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>

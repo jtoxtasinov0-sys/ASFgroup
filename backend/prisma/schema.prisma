@@ -41,6 +41,7 @@ model Product {
   material      String?
   materialRu    String?
   images        String[] @default([])
+  imageFrames   Json     @default("{}") /// Rasm ko'rinishi: { "<url>": { z, x, y } } — kattalik va joylashuv
   price         Int /// Dona narxi (so'm)
   oldPrice      Int? /// Chizib tashlanadigan eski narx
   wholesalePrice Int /// Optom narxi (so'm)

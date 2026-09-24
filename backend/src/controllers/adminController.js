@@ -45,10 +45,53 @@ const toArray = (v) => {
   return [];
 };
 
+const clampNum = (v, min, max, fallback) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n * 100) / 100)) : fallback;
+};
+
+/**
+ * Bitta rasm ko'rinishi: z — kattalik (1 = rasm butunlay ko'rinadi),
+ * x/y — kattalashtirilganda ko'rinadigan qism (%). Sozlanmagan bo'lsa null.
+ */
+const toFrame = (raw) => {
+  if (!raw || typeof raw !== 'object') return null;
+  return {
+    z: clampNum(raw.z, 0.3, 10, 1),
+    x: clampNum(raw.x, 0, 100, 50),
+    y: clampNum(raw.y, 0, 100, 50),
+  };
+};
+
+/**
+ * Rasm ko'rinishlari xaritasi { url: frame }.
+ * `imageFrames` — [...saqlangan rasmlar, ...yangi fayllar] tartibidagi ro'yxat.
+ * Eski admin panel yubormasa, saqlangan rasmlarning avvalgi sozlamasi qoladi.
+ */
+function buildFrames(body, keepImages, uploadedUrls, existing) {
+  const oldFrames = (existing && existing.imageFrames) || {};
+  const frames = {};
+
+  if (body.imageFrames === undefined) {
+    keepImages.forEach((url) => {
+      if (oldFrames[url]) frames[url] = oldFrames[url];
+    });
+    return frames;
+  }
+
+  const list = toArray(body.imageFrames);
+  [...keepImages, ...uploadedUrls].forEach((url, i) => {
+    const frame = toFrame(list[i]);
+    if (frame) frames[url] = frame;
+  });
+  return frames;
+}
+
 /** Mahsulot maydonlarini forma ma'lumotidan yig'adi */
 function buildProductData(body, uploadedUrls, existing) {
   const keepImages = toArray(body.images).filter((u) => typeof u === 'string');
   const images = [...keepImages, ...uploadedUrls];
+  const imageFrames = buildFrames(body, keepImages, uploadedUrls, existing);
 
   const price = toInt(body.price, existing ? existing.price : 0);
   const wholesaleRaw = toInt(body.wholesalePrice, 0);
@@ -66,6 +109,7 @@ function buildProductData(body, uploadedUrls, existing) {
     material: body.material ? String(body.material).trim() : null,
     materialRu: body.materialRu ? String(body.materialRu).trim() : null,
     images,
+    imageFrames,
     price,
     // Eski narx faqat hozirgi narxdan qimmat bo'lsa ma'noga ega (chegirma)
     oldPrice: toInt(body.oldPrice, 0) > price ? toInt(body.oldPrice, 0) : null,

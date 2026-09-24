@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, imageUrl, money } from '../lib/api';
+import { frameOf, frameStyle } from '../lib/frame';
 import ProductForm from '../components/ProductForm';
 
 const CATS = [
@@ -126,7 +127,13 @@ export default function Products({ reload }) {
                 {filtered.map((product) => (
                   <tr key={product.id}>
                     <td>
-                      <img className="thumb" src={imageUrl(product.images[0])} alt="" />
+                      <div className="thumb">
+                        <img
+                          src={imageUrl(product.images[0])}
+                          alt=""
+                          style={frameStyle(frameOf(product, product.images[0]))}
+                        />
+                      </div>
                     </td>
                     <td className="mono nowrap">
                       <b>{product.article}</b>

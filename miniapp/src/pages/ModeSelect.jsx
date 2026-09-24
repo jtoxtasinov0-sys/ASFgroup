@@ -22,7 +22,10 @@ export default function ModeSelect({ t, lang, setLang, onPick }) {
       <button className="mode-card main" onClick={() => pick('wholesale')}>
         <span className="mode-emoji">📦</span>
         <span className="mode-text">
-          <b>{t.modeWholesale}</b>
+          <b>
+            {t.modeWholesale}
+            {t.modeWholesaleSub && <small className="mode-sub"> {t.modeWholesaleSub}</small>}
+          </b>
           <span>{t.modeWholesaleText}</span>
         </span>
         <span className="mode-arrow">→</span>
