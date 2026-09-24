@@ -542,7 +542,7 @@ img {
 
 .card-img {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 4; /* tik ramka — 9:16 rasmlarga mos (lib/frame.js) */
   background: var(--bg-soft);
   overflow: hidden;
 }
@@ -751,7 +751,7 @@ img {
   display: block;
   width: 100%;
   padding: 0;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 4;
   border-radius: var(--r-lg);
   overflow: hidden;
   background: var(--bg-soft);
@@ -944,6 +944,7 @@ img {
 }
 
 .cart-thumb {
+  position: relative;
   width: 76px;
   height: 76px;
   border-radius: var(--r-md);

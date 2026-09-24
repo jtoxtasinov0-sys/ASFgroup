@@ -41,17 +41,18 @@ const toArray = (v) => {
 
 const clampNum = (v, min, max, fallback) => {
   const n = Number(v);
-  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n * 100) / 100)) : fallback;
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n * 1000) / 1000)) : fallback;
 };
 
 /**
- * Bitta rasm ko'rinishi: z — kattalik (1 = rasm butunlay ko'rinadi),
- * x/y — kattalashtirilganda ko'rinadigan qism (%). Sozlanmagan bo'lsa null.
+ * Bitta rasm ko'rinishi: r — eni/bo'yi nisbati, z — kattalik (1 = ramkani to'ldiradi),
+ * x/y — ko'rinadigan qism (%). Sozlanmagan bo'lsa null.
  */
 const toFrame = (raw) => {
-  if (!raw || typeof raw !== 'object') return null;
+  if (!raw || typeof raw !== 'object' || !Number(raw.r)) return null;
   return {
-    z: clampNum(raw.z, 0.3, 10, 1),
+    r: clampNum(raw.r, 0.05, 20, 1),
+    z: clampNum(raw.z, 1, 10, 1),
     x: clampNum(raw.x, 0, 100, 50),
     y: clampNum(raw.y, 0, 100, 50),
   };

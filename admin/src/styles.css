@@ -301,6 +301,7 @@ tbody tr:hover {
 }
 
 .thumb {
+  position: relative;
   width: 48px;
   height: 48px;
   border-radius: 8px;
@@ -587,7 +588,7 @@ tbody tr:hover {
 .preview {
   position: relative;
   width: 86px;
-  height: 86px;
+  height: 115px; /* Mini Appdagi ramka kabi 3:4 */
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -601,6 +602,7 @@ tbody tr:hover {
 }
 
 .preview button {
+  z-index: 1;
   position: absolute;
   top: 3px;
   right: 3px;
@@ -833,8 +835,8 @@ div.item-preview-img {
 .editor-box {
   position: relative;
   width: 100%;
-  max-width: 360px;
-  aspect-ratio: 1 / 1;
+  max-width: 300px;
+  aspect-ratio: 3 / 4; /* Mini Appdagi ramka bilan bir xil */
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;

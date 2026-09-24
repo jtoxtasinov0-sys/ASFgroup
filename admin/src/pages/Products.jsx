@@ -131,7 +131,7 @@ export default function Products({ reload }) {
                         <img
                           src={imageUrl(product.images[0])}
                           alt=""
-                          style={frameStyle(frameOf(product, product.images[0]))}
+                          style={frameStyle(frameOf(product, product.images[0]), 1)}
                         />
                       </div>
                     </td>

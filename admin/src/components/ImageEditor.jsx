@@ -1,27 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
-import { frameStyle } from '../lib/frame';
+import { coverSize, frameStyle } from '../lib/frame';
 
-const MIN_Z = 0.5;
+const MAX_Z = 4;
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-const round = (v) => Math.round(v * 100) / 100;
+const round = (v) => Math.round(v * 1000) / 1000;
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /**
- * Rasmning Mini Appdagi kvadrat ko'rinishini sozlash:
- * sichqoncha / barmoq bilan surish, g'ildirak yoki slayder bilan kattalashtirish.
- * z = 1 — rasm butunlay ko'rinadi; `fillZ` — kvadratni to'liq to'ldiradi.
+ * Rasmning Mini Appdagi ko'rinishini sozlash (tik 3:4 ramka).
+ * Rasm doim ramkani to'liq to'ldiradi — yon tomonlarda bo'sh joy qolmaydi.
+ * Barmoq / sichqoncha bilan surish, ikki barmoq, g'ildirak yoki slayder bilan kattalashtirish.
  */
 export default function ImageEditor({ src, frame, onSave, onClose }) {
-  const [f, setF] = useState(frame || null);
-  const [fillZ, setFillZ] = useState(null);
+  // Eski formatdagi sozlama (r yo'q) hisobga olinmaydi — rasm yuklangach yangidan boshlanadi
+  const [f, setF] = useState(frame?.r ? frame : null);
   const boxRef = useRef(null);
   const drag = useRef(null);
-
-  const maxZ = Math.max(3, (fillZ || 1) * 3);
   const ready = Boolean(f);
 
-  const setZoom = (z) => setF((prev) => prev && { ...prev, z: round(clamp(z, MIN_Z, maxZ)) });
+  const setZoom = (z) => setF((prev) => prev && { ...prev, z: round(clamp(z, 1, MAX_Z)) });
 
   // Barmoqlar: bitta — surish, ikkita — yaqinlashtirish / uzoqlashtirish
   const pointers = useRef(new Map());
@@ -52,18 +50,20 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
     }
     if (!drag.current) return;
 
-    const size = boxRef.current.clientWidth;
+    const { clientWidth: bw, clientHeight: bh } = boxRef.current;
     const dx = e.clientX - drag.current.px;
     const dy = e.clientY - drag.current.py;
     drag.current = { px: e.clientX, py: e.clientY };
+
     setF((prev) => {
-      // Kattalashtirilganda markaz teskari tomonga, kichraytirilganda — shu tomonga siljiydi
-      const k = prev.z - 1;
-      if (Math.abs(k) < 0.02) return prev;
+      const { w, h } = coverSize(prev.r, bw / bh);
+      // Ramkadan tashqarida qolgan qism (px) — faqat shu doirada surish mumkin
+      const overW = ((w * prev.z - 100) / 100) * bw;
+      const overH = ((h * prev.z - 100) / 100) * bh;
       return {
         ...prev,
-        x: round(clamp(prev.x - (dx / (k * size)) * 100, 0, 100)),
-        y: round(clamp(prev.y - (dy / (k * size)) * 100, 0, 100)),
+        x: overW > 1 ? round(clamp(prev.x - (dx / overW) * 100, 0, 100)) : 50,
+        y: overH > 1 ? round(clamp(prev.y - (dy / overH) * 100, 0, 100)) : 50,
       };
     });
   };
@@ -120,17 +120,15 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
               style={frameStyle(f)}
               onLoad={(e) => {
                 const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
-                const fill = w && h ? round(Math.max(w, h) / Math.min(w, h)) : 1;
-                setFillZ(fill);
-                // Sozlanmagan rasm hozir kvadratni to'ldirib turibdi — shundan boshlaymiz
-                setF((prev) => prev || { z: fill, x: 50, y: 50 });
+                const r = w && h ? round(w / h) : 0.75;
+                setF((prev) => (prev?.r ? prev : { r, z: 1, x: 50, y: 50 }));
               }}
             />
           </div>
           <p className="hint" style={{ textAlign: 'center', margin: '8px 0 14px' }}>
-            Mijoz Mini Appda aynan shu kvadratni ko'radi. Rasmni barmoq yoki sichqoncha bilan
-            suring. Kattalashtirish / kichraytirish — ikki barmoqni yoyib yoki qisib, sichqoncha
-            g'ildiragi yoki pastdagi slayder bilan.
+            Mijoz Mini Appda aynan shu ramkani ko'radi. Rasmni barmoq yoki sichqoncha bilan
+            suring. Yaqinlashtirish — ikki barmoqni yoyib, sichqoncha g'ildiragi yoki slayder
+            bilan. Rasmning hammasi mijoz rasmga bosganda to'liq ochiladi.
           </p>
 
           <div className="editor-zoom">
@@ -144,8 +142,8 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
             </button>
             <input
               type="range"
-              min={MIN_Z}
-              max={maxZ}
+              min={1}
+              max={MAX_Z}
               step="0.01"
               value={f?.z ?? 1}
               disabled={!ready}
@@ -167,17 +165,9 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
               type="button"
               className="btn btn-line btn-sm"
               disabled={!ready}
-              onClick={() => setF({ z: 1, x: 50, y: 50 })}
+              onClick={() => setF((prev) => ({ ...prev, z: 1, x: 50, y: 50 }))}
             >
-              ⤢ To'liq ko'rinsin
-            </button>
-            <button
-              type="button"
-              className="btn btn-line btn-sm"
-              disabled={!ready}
-              onClick={() => setF({ z: fillZ, x: 50, y: 50 })}
-            >
-              ⬛ Kvadratni to'ldirsin
+              ↺ Asl holatga
             </button>
           </div>
         </div>
