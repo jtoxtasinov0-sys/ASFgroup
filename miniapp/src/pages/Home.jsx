@@ -48,7 +48,10 @@ export default function Home({
             onClick={() => onSetMode('wholesale')}
           >
             <span className="mode-tab-emoji">📦</span>
-            <b>{t.modeWholesale}</b>
+            <b>
+            {t.modeWholesale}
+            {t.modeWholesaleSub && <small className="mode-sub"> {t.modeWholesaleSub}</small>}
+          </b>
             <span>{t.modeTabWholesale}</span>
           </button>
           <button

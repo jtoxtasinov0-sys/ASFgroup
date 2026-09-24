@@ -1675,3 +1675,11 @@ img {
 .photo-viewer-dots span.on {
   background: #fff;
 }
+
+/* "Ulgurji (optom)" — qavsdagi izoh kichikroq */
+.mode-sub {
+  font-size: 0.62em;
+  font-weight: 600;
+  opacity: 0.75;
+  letter-spacing: 0;
+}

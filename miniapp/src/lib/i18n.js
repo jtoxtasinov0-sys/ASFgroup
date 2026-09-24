@@ -26,7 +26,8 @@ export const dict = {
     // Savdo turi
     modeTitle: 'Qanday xarid qilasiz?',
     modeText: 'Savdo turini tanlang. Keyin istalgan vaqt almashtirish mumkin.',
-    modeWholesale: 'Optom',
+    modeWholesale: 'Ulgurji',
+    modeWholesaleSub: '(optom)',
     modeWholesaleText: 'Komplekt bilan: har bir razmerdan bittadan. Optom narxda.',
     modeRetail: 'Donaga',
     modeRetailText: 'Kerakli razmerdan juftlab tanlang. Dona narxida.',
@@ -157,6 +158,7 @@ export const dict = {
     modeTitle: 'Как будете покупать?',
     modeText: 'Выберите тип покупки. Его можно сменить в любой момент.',
     modeWholesale: 'Оптом',
+    modeWholesaleSub: '',
     modeWholesaleText: 'Комплектами: по одной паре каждого размера. По оптовой цене.',
     modeRetail: 'В розницу',
     modeRetailText: 'Выбирайте нужные размеры поштучно. По розничной цене.',
