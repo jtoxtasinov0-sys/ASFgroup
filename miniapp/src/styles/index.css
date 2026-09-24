@@ -550,7 +550,7 @@ img {
 .card-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .card-add {
@@ -746,6 +746,7 @@ img {
 }
 
 .sheet-photo {
+  position: relative;
   aspect-ratio: 1 / 1;
   border-radius: var(--r-lg);
   overflow: hidden;
@@ -753,10 +754,22 @@ img {
   margin-top: 8px;
 }
 
+/* Bo'sh qolgan joyni o'sha rasmning xiralashgan nusxasi to'ldiradi */
+.sheet-photo-bg {
+  position: absolute;
+  inset: -30px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.9);
+  transform: scale(1.08);
+}
+
+/* Mahsulot rasmi to'liq ko'rinadi — hech qayeri kesilmaydi */
 .sheet-photo img {
+  position: relative;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .sheet-cta {
@@ -923,7 +936,7 @@ img {
   width: 76px;
   height: 76px;
   border-radius: var(--r-md);
-  object-fit: cover;
+  object-fit: contain;
   background: var(--bg-soft);
   flex-shrink: 0;
 }
@@ -1122,7 +1135,7 @@ img {
   width: 38px;
   height: 38px;
   border-radius: 8px;
-  object-fit: cover;
+  object-fit: contain;
   background: var(--bg-soft);
 }
 

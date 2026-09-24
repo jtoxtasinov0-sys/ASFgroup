@@ -87,6 +87,12 @@ export default function ProductSheet({
 
         <div className="sheet-scroll">
           <div className="sheet-photo">
+            <div
+              className="sheet-photo-bg"
+              style={{
+                backgroundImage: `url("${imageUrl(product.images[photo] || product.images[0])}")`,
+              }}
+            />
             <img
               src={imageUrl(product.images[photo] || product.images[0])}
               alt={pick(product, 'name', lang)}
@@ -112,7 +118,7 @@ export default function ProductSheet({
                   <img
                     src={imageUrl(src)}
                     alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'var(--bg-soft)' }}
                   />
                 </button>
               ))}
