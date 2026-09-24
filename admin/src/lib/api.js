@@ -113,6 +113,17 @@ export const api = {
     setToken(data.token);
     return data;
   },
+  /** Telegram ichida ochilganda — admin ID'si bo'lsa parolsiz kirish */
+  telegramLogin: async (initData) => {
+    const res = await apiFetch('/api/admin/telegram-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData }),
+    });
+    const data = await handle(res);
+    setToken(data.token);
+    return data;
+  },
   me: () => request('GET', '/me'),
   dashboard: () => request('GET', '/dashboard'),
 

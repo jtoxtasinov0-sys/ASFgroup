@@ -10,6 +10,7 @@ const storyUpload = makeUploader('stories').array('files', 1);
 
 // Kirish
 router.post('/login', adminController.login);
+router.post('/telegram-login', adminController.telegramLogin);
 
 // Quyidagilarning barchasi token talab qiladi
 router.use(adminAuth);

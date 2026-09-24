@@ -1,10 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+
+const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : undefined;
+const tgInitData = tg?.initData || '';
 
 export default function Login({ onSuccess }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  // Botdagi tugma orqali ochilgan bo'lsa — avval Telegram orqali kirib ko'ramiz
+  const [tgTrying, setTgTrying] = useState(Boolean(tgInitData));
+
+  useEffect(() => {
+    if (!tgInitData) return;
+    tg.ready?.();
+    tg.expand?.();
+    api
+      .telegramLogin(tgInitData)
+      .then(onSuccess)
+      .catch(() => setTgTrying(false));
+    // Faqat birinchi ochilishda
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (tgTrying) {
+    return (
+      <div className="login">
+        <div className="login-card" style={{ textAlign: 'center' }}>
+          <img src="/logo.png" alt="ASF GROUP" />
+          <h1>ASF GROUP</h1>
+          <p>Telegram orqali kirilmoqda...</p>
+          <div className="spinner" style={{ margin: '16px auto 0' }} />
+        </div>
+      </div>
+    );
+  }
 
   const submit = async (e) => {
     e.preventDefault();

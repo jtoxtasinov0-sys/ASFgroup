@@ -15,6 +15,7 @@ function registerBotHandlers(bot) {
   bot.onText(/^\/start/, guard(botController.onStart));
   bot.onText(/^\/help/, guard(botController.onStart));
   bot.onText(/^\/id(@\w+)?$/, guard(botController.onId));
+  bot.onText(/^\/admin(@\w+)?$/, guard(botController.onAdmin));
   bot.on('callback_query', guard(botController.onCallback));
   bot.on('contact', guard(botController.onContact));
 

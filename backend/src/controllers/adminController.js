@@ -4,7 +4,7 @@ const ProductModel = require('../models/Product');
 const OrderModel = require('../models/Order');
 const StoryModel = require('../models/Story');
 const UserModel = require('../models/User');
-const { signAdminToken } = require('../middlewares/auth.middleware');
+const { signAdminToken, verifyInitData } = require('../middlewares/auth.middleware');
 const { fileUrl, removeFile } = require('../utils/upload');
 const { safeSend } = require('../core/bot');
 const { t } = require('../utils/i18n');
@@ -142,6 +142,24 @@ const adminController = {
       return res.json({ ok: true, data: { token: signAdminToken(username), username } });
     }
     return res.status(401).json({ ok: false, message: 'Parol notogri' });
+  },
+
+  /**
+   * Telegram ichidan kirish: admin panel botdagi tugma orqali ochilganda
+   * Telegram imzolagan initData keladi. Foydalanuvchi ADMIN_CHAT_IDS da bo'lsa,
+   * parolsiz kiritamiz. Eski (1 kundan oshgan) initData qabul qilinmaydi.
+   */
+  telegramLogin(req, res) {
+    const initData = String(req.body?.initData || '');
+    const user = verifyInitData(initData);
+    const authDate = Number(new URLSearchParams(initData).get('auth_date')) || 0;
+    const fresh = Date.now() / 1000 - authDate < 24 * 60 * 60;
+
+    if (!user || !fresh || !config.bot.adminChatIds.includes(String(user.id))) {
+      return res.status(403).json({ ok: false, message: 'Telegram orqali kirish ruxsat etilmagan' });
+    }
+    const { username } = config.admin;
+    return res.json({ ok: true, data: { token: signAdminToken(username), username } });
   },
 
   me(req, res) {
