@@ -36,6 +36,11 @@ const UserModel = {
     return prisma.user.update({ where: { telegramId: String(telegramId) }, data });
   },
 
+  /** Botda /admin orqali admin bo'lganlar */
+  listAdmins() {
+    return prisma.user.findMany({ where: { isAdmin: true }, select: { telegramId: true } });
+  },
+
   count() {
     return prisma.user.count();
   },

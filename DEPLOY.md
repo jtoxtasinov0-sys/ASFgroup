@@ -251,6 +251,11 @@ manzil) yuboradi.
 - pastki **Menu** tugmasi ham ularda admin panelni ochadi;
 - `/admin` buyrug'i — tugmani istalgan payt qayta yuboradi.
 
+**Render'ga kirmasdan admin qo'shish:** odam botga `/admin PAROL` deb yozadi
+(PAROL — admin panel paroli, `ADMIN_PASSWORD`). Parol to'g'ri bo'lsa, u bazada
+admin deb belgilanadi va tugma o'sha zahoti chiqadi. Parolli xabar chatdan
+avtomatik o'chiriladi; 1 soatda 5 martadan ko'p xato urinishga ruxsat yo'q.
+
 Tugma orqali ochilganda admin panel **parolsiz** kiradi: Telegram foydalanuvchini
 tasdiqlaydi va backend uning ID'si `ADMIN_CHAT_IDS` da borligini tekshiradi.
 Brauzerdan ochilganda esa avvalgidek parol so'raladi.

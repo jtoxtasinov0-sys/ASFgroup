@@ -18,6 +18,7 @@ model User {
   phone      String?
   lang       String   @default("uz")
   seenIntro  Boolean  @default(false)
+  isAdmin    Boolean  @default(false) /// Botda /admin PAROL orqali admin bo'lgan
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
