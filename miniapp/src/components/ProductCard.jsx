@@ -1,4 +1,5 @@
 import { imageUrl } from '../lib/api';
+import { frameOf, frameStyle } from '../lib/frame';
 import { discountPercent, money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
@@ -13,7 +14,12 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
   return (
     <div className="card" onClick={() => onOpen(product)}>
       <div className="card-img">
-        <img src={imageUrl(product.images[0])} alt={pick(product, 'name', lang)} loading="lazy" />
+        <img
+          src={imageUrl(product.images[0])}
+          alt={pick(product, 'name', lang)}
+          loading="lazy"
+          style={frameStyle(frameOf(product, product.images[0]))}
+        />
         {discount > 0 && <span className="sale-badge">−{discount}%</span>}
         <button
           className={`card-add${inCart ? ' added' : ''}`}

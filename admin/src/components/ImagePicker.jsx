@@ -1,11 +1,28 @@
 import { useRef, useState } from 'react';
 import { imageUrl } from '../lib/api';
+import { frameStyle } from '../lib/frame';
+
+// Har bir fayl uchun bitta vaqtinchalik manzil (har renderda yangisi yaratilmasin)
+const objectUrls = new WeakMap();
+export const fileSrc = (file) => {
+  if (!objectUrls.has(file)) objectUrls.set(file, URL.createObjectURL(file));
+  return objectUrls.get(file);
+};
 
 /**
  * Galereyadan rasm tanlash.
  * `existing` — bazadagi rasm manzillari, `files` — yangi tanlangan fayllar.
  */
-export default function ImagePicker({ existing, files, onExisting, onFiles, max = 8, hint }) {
+export default function ImagePicker({
+  existing,
+  files,
+  onExisting,
+  onFiles,
+  max = 8,
+  hint,
+  frames,
+  onEdit,
+}) {
   const inputRef = useRef(null);
   const [drag, setDrag] = useState(false);
 
@@ -52,7 +69,17 @@ export default function ImagePicker({ existing, files, onExisting, onFiles, max 
         <div className="previews">
           {existing.map((url) => (
             <div className="preview" key={url}>
-              <img src={imageUrl(url)} alt="" />
+              <img src={imageUrl(url)} alt="" style={frames ? frameStyle(frames.get(url)) : undefined} />
+              {onEdit && (
+                <button
+                  type="button"
+                  className="preview-edit"
+                  onClick={() => onEdit(url, imageUrl(url))}
+                  title="Kattalik va joylashuvni sozlash"
+                >
+                  ✎
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => onExisting(existing.filter((u) => u !== url))}
@@ -65,7 +92,21 @@ export default function ImagePicker({ existing, files, onExisting, onFiles, max 
 
           {files.map((file, index) => (
             <div className="preview" key={`${file.name}-${index}`}>
-              <img src={URL.createObjectURL(file)} alt="" />
+              <img
+                src={fileSrc(file)}
+                alt=""
+                style={frames ? frameStyle(frames.get(file)) : undefined}
+              />
+              {onEdit && (
+                <button
+                  type="button"
+                  className="preview-edit"
+                  onClick={() => onEdit(file, fileSrc(file))}
+                  title="Kattalik va joylashuvni sozlash"
+                >
+                  ✎
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => onFiles(files.filter((_, i) => i !== index))}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import ImagePicker from './ImagePicker';
+import ImageEditor from './ImageEditor';
 
 const ALL_SIZES = [39, 40, 41, 42, 43];
 
@@ -55,6 +56,11 @@ export default function ProductForm({ product, onClose, onSaved }) {
   );
   const [existing, setExisting] = useState(product?.images || []);
   const [files, setFiles] = useState([]);
+  // Rasm ko'rinishlari: kalit — saqlangan rasm manzili yoki yangi File
+  const [frames, setFrames] = useState(
+    () => new Map(Object.entries(product?.imageFrames || {}))
+  );
+  const [editing, setEditing] = useState(null); // { key, src }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -113,6 +119,10 @@ export default function ProductForm({ product, onClose, onSaved }) {
     Object.entries(fields).forEach(([key, value]) => data.append(key, value ?? ''));
     data.append('sizes', JSON.stringify(form.sizes));
     data.append('images', JSON.stringify(existing));
+    data.append(
+      'imageFrames',
+      JSON.stringify([...existing, ...files].map((key) => frames.get(key) || null))
+    );
     files.forEach((file) => data.append('files', file));
 
     try {
@@ -146,7 +156,13 @@ export default function ProductForm({ product, onClose, onSaved }) {
               onExisting={setExisting}
               onFiles={setFiles}
               max={8}
+              frames={frames}
+              onEdit={(key, src) => setEditing({ key, src })}
             />
+            <span className="hint">
+              ✎ belgisini bosib, rasm Mini Appda qanday ko'rinishini sozlang — kattalashtirish,
+              kichraytirish va surish mumkin
+            </span>
           </div>
 
           <div className="form-grid">
@@ -307,6 +323,18 @@ export default function ProductForm({ product, onClose, onSaved }) {
           </button>
         </div>
       </form>
+
+      {editing && (
+        <ImageEditor
+          src={editing.src}
+          frame={frames.get(editing.key)}
+          onClose={() => setEditing(null)}
+          onSave={(frame) => {
+            setFrames((prev) => new Map(prev).set(editing.key, frame));
+            setEditing(null);
+          }}
+        />
+      )}
     </div>
   );
 }

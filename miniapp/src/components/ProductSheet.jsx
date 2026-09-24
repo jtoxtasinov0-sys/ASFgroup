@@ -4,7 +4,9 @@ import { pick } from '../lib/i18n';
 import { discountPercent, money, wholesaleUnit } from '../lib/format';
 import { MAX_PACKS } from '../lib/store';
 import { haptic, notifySuccess } from '../lib/telegram';
+import { frameOf, frameStyle } from '../lib/frame';
 import PriceTag, { OldPrice } from './PriceTag';
+import PhotoViewer from './PhotoViewer';
 
 const PACK_PRESETS = [1, 2, 3, 5, 10, 20, 50, 100];
 
@@ -25,6 +27,7 @@ export default function ProductSheet({
   const [packInput, setPackInput] = useState(String(initialPacks || 1));
   const packs = Math.min(MAX_PACKS, Math.max(0, Math.floor(Number(packInput) || 0)));
   const [photo, setPhoto] = useState(0);
+  const [viewer, setViewer] = useState(false);
   const discount = isWholesale ? 0 : discountPercent(product);
   const unitPrice = isWholesale ? wholesaleUnit(product) : product.price;
 
@@ -32,6 +35,7 @@ export default function ProductSheet({
     setSizes(initialSizes || {});
     setPackInput(String(initialPacks || 1));
     setPhoto(0);
+    setViewer(false);
   }, [product.id, initialSizes, initialPacks]);
 
   const qty = useMemo(
@@ -86,18 +90,22 @@ export default function ProductSheet({
         <div className="sheet-handle" />
 
         <div className="sheet-scroll">
-          <div className="sheet-photo">
-            <div
-              className="sheet-photo-bg"
-              style={{
-                backgroundImage: `url("${imageUrl(product.images[photo] || product.images[0])}")`,
-              }}
-            />
+          <button
+            className="sheet-photo"
+            onClick={() => {
+              haptic();
+              setViewer(true);
+            }}
+          >
             <img
               src={imageUrl(product.images[photo] || product.images[0])}
               alt={pick(product, 'name', lang)}
+              style={frameStyle(frameOf(product, product.images[photo] || product.images[0]))}
             />
-          </div>
+            <span className="sheet-photo-zoom" aria-hidden="true">
+              ⤢
+            </span>
+          </button>
 
           {product.images.length > 1 && (
             <div className="tags" style={{ padding: '10px 0 0' }}>
@@ -113,12 +121,13 @@ export default function ProductSheet({
                     overflow: 'hidden',
                     border: i === photo ? '2px solid var(--navy)' : '1px solid var(--line)',
                     padding: 0,
+                    background: 'var(--bg-soft)',
                   }}
                 >
                   <img
                     src={imageUrl(src)}
                     alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'var(--bg-soft)' }}
+                    style={frameStyle(frameOf(product, src))}
                   />
                 </button>
               ))}
@@ -288,6 +297,14 @@ export default function ProductSheet({
           </button>
         </div>
       </div>
+      {viewer && (
+        <PhotoViewer
+          images={product.images.map(imageUrl)}
+          index={photo}
+          onIndex={setPhoto}
+          onClose={() => setViewer(false)}
+        />
+      )}
     </>
   );
 }
