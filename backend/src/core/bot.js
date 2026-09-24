@@ -144,6 +144,28 @@ async function notifyAdmins(text, options = {}) {
   await Promise.all(ids.map((id) => safeSend(id, text, options)));
 }
 
+/** Shu chat ADMIN_CHAT_IDS ro'yxatidami */
+const isAdminChat = (chatId) => config.bot.adminChatIds.includes(String(chatId));
+
+/** Admin panel tugmasini qo'yish mumkinmi (Telegram faqat https ochadi) */
+const hasAdminUrl = () => /^https:\/\//.test(config.adminUrl);
+
+/**
+ * Adminning shaxsiy chatida pastki "Menu" tugmasi admin panelni ochadi.
+ * Guruh ID'lari (minus bilan) uchun qo'yilmaydi — u yerda Mini App ochilmaydi.
+ */
+async function setAdminMenuButton(chatId) {
+  if (!bot || !hasAdminUrl() || Number(chatId) <= 0) return;
+  try {
+    await bot.setChatMenuButton({
+      chat_id: Number(chatId),
+      menu_button: { type: 'web_app', text: 'Admin panel', web_app: { url: config.adminUrl } },
+    });
+  } catch (err) {
+    console.error(`Admin menyu tugmasi o'rnatilmadi (${chatId}):`, err?.message);
+  }
+}
+
 /** Telegramdagi pastki "Menu" tugmasini Mini App'ga ulaydi */
 async function setMenuButton() {
   if (!bot) return;
@@ -160,6 +182,13 @@ async function setMenuButton() {
   } catch (err) {
     console.error('Menu tugmasi o\'rnatilmadi:', err?.message);
   }
+
+  // Adminlarda bu tugma admin panelni ochadi
+  const admins = config.bot.adminChatIds.filter((id) => Number(id) > 0);
+  await Promise.all(admins.map(setAdminMenuButton));
+  if (admins.length && hasAdminUrl()) {
+    console.log(`✅ Admin panel tugmasi ${admins.length} ta adminga o'rnatildi: ${config.adminUrl}`);
+  }
 }
 
 module.exports = {
@@ -169,6 +198,9 @@ module.exports = {
   safeSend,
   notifyAdmins,
   setMenuButton,
+  setAdminMenuButton,
+  isAdminChat,
+  hasAdminUrl,
   webhookPath,
   handleWebhookUpdate,
 };

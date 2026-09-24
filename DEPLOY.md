@@ -93,6 +93,7 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `COMPANY_ADDRESS` | `Toshkent sh.` |
 | `NODE_VERSION` | `20` |
 | `ADMIN_CHAT_IDS` | yangi buyurtma xabari boradigan chat ID'lar — 4-QISM ga qarang |
+| `ADMIN_URL` | *shart emas* — admin panel manzili, standart: `https://asf-admin-ten.vercel.app` |
 
 > 📌 **`DATABASE_URL` ni qayerdan olish kerak:**
 >
@@ -240,6 +241,19 @@ manzil) yuboradi.
 2. Render → **Environment** → `ADMIN_CHAT_IDS` = shu raqam → **Save**
    (servis o'zi qayta ishga tushadi)
 3. Bir nechta odam bo'lsa — vergul bilan: `123456789,987654321`
+
+### Adminlar uchun "Admin panel" tugmasi
+
+`ADMIN_CHAT_IDS` da shaxsiy Chat ID'si yozilgan odamlarga botda alohida
+**🛠 Admin panel** tugmasi chiqadi:
+
+- `/start` xabari ostida — "Do'konni ochish" tugmasi tagida;
+- pastki **Menu** tugmasi ham ularda admin panelni ochadi;
+- `/admin` buyrug'i — tugmani istalgan payt qayta yuboradi.
+
+Tugma orqali ochilganda admin panel **parolsiz** kiradi: Telegram foydalanuvchini
+tasdiqlaydi va backend uning ID'si `ADMIN_CHAT_IDS` da borligini tekshiradi.
+Brauzerdan ochilganda esa avvalgidek parol so'raladi.
 
 **Guruhga yuborish** (bir nechta menejer bo'lsa qulay): botni Telegram
 guruhga qo'shing, guruhda `/id` yozing va chiqqan raqamni (minus bilan

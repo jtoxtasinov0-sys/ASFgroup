@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { frameStyle } from '../lib/frame';
 
 const MIN_Z = 0.5;
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const round = (v) => Math.round(v * 100) / 100;
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /**
  * Rasmning Mini Appdagi kvadrat ko'rinishini sozlash:
@@ -22,15 +23,35 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
 
   const setZoom = (z) => setF((prev) => prev && { ...prev, z: round(clamp(z, MIN_Z, maxZ)) });
 
+  // Barmoqlar: bitta — surish, ikkita — yaqinlashtirish / uzoqlashtirish
+  const pointers = useRef(new Map());
+  const pinch = useRef(null);
+
   const onPointerDown = (e) => {
     if (!ready) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { px: e.clientX, py: e.clientY };
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pts = [...pointers.current.values()];
+    if (pts.length === 2) {
+      pinch.current = { d: dist(pts[0], pts[1]) || 1, z: f.z };
+      drag.current = null;
+    } else if (pts.length === 1) {
+      drag.current = { px: e.clientX, py: e.clientY };
+    }
   };
 
   const onPointerMove = (e) => {
-    if (!drag.current || !boxRef.current) return;
+    if (!pointers.current.has(e.pointerId) || !boxRef.current) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pinch.current) {
+      const pts = [...pointers.current.values()];
+      if (pts.length >= 2) setZoom((pinch.current.z * dist(pts[0], pts[1])) / pinch.current.d);
+      return;
+    }
+    if (!drag.current) return;
+
     const size = boxRef.current.clientWidth;
     const dx = e.clientX - drag.current.px;
     const dy = e.clientY - drag.current.py;
@@ -47,9 +68,31 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
     });
   };
 
-  const onPointerUp = () => {
-    drag.current = null;
+  const onPointerUp = (e) => {
+    pointers.current.delete(e.pointerId);
+    pinch.current = null;
+    const [rest] = [...pointers.current.values()];
+    // Bitta barmoq qolsa — surishni shu barmoq bilan davom ettiramiz
+    drag.current = rest ? { px: rest.x, py: rest.y } : null;
   };
+
+  // Sichqoncha g'ildiragi va noutbuk sensorli panelidagi "chimdish".
+  // React'ning onWheel'i sahifa kattalashishini to'xtata olmaydi, shuning uchun bu yerda.
+  const zoomRef = useRef(setZoom);
+  zoomRef.current = setZoom;
+  const zRef = useRef(1);
+  zRef.current = f?.z ?? 1;
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return undefined;
+    const onWheel = (e) => {
+      e.preventDefault();
+      const step = e.ctrlKey ? Math.exp(-e.deltaY / 100) : e.deltaY < 0 ? 1.06 : 1 / 1.06;
+      zoomRef.current(zRef.current * step);
+    };
+    box.addEventListener('wheel', onWheel, { passive: false });
+    return () => box.removeEventListener('wheel', onWheel);
+  }, []);
 
   return (
     <div className="editor-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -69,7 +112,6 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            onWheel={(e) => f && setZoom(f.z * (e.deltaY < 0 ? 1.06 : 1 / 1.06))}
           >
             <img
               src={src}
@@ -86,8 +128,9 @@ export default function ImageEditor({ src, frame, onSave, onClose }) {
             />
           </div>
           <p className="hint" style={{ textAlign: 'center', margin: '8px 0 14px' }}>
-            Mijoz Mini Appda aynan shu kvadratni ko'radi. Rasmni sichqoncha bilan suring,
-            g'ildirak yoki pastdagi slayder bilan kattalashtiring.
+            Mijoz Mini Appda aynan shu kvadratni ko'radi. Rasmni barmoq yoki sichqoncha bilan
+            suring. Kattalashtirish / kichraytirish — ikki barmoqni yoyib yoki qisib, sichqoncha
+            g'ildiragi yoki pastdagi slayder bilan.
           </p>
 
           <div className="editor-zoom">

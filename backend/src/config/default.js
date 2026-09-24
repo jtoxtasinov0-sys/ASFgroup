@@ -10,6 +10,8 @@ const config = {
     'http://localhost:5000'
   ).replace(/\/$/, ''),
   miniappUrl: (process.env.MINIAPP_URL || 'http://localhost:5173').replace(/\/$/, ''),
+  // Admin panel manzili — ADMIN_CHAT_IDS dagi odamlarga botda alohida tugma bo'lib chiqadi
+  adminUrl: (process.env.ADMIN_URL || 'https://asf-admin-ten.vercel.app').replace(/\/$/, ''),
 
   bot: {
     token: process.env.BOT_TOKEN || '',

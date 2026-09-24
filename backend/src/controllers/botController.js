@@ -1,17 +1,24 @@
 const config = require('../config/default');
 const UserModel = require('../models/User');
 const { t } = require('../utils/i18n');
+const { isAdminChat, hasAdminUrl, setAdminMenuButton } = require('../core/bot');
 
 /** Mini App https manzilida bo'lsagina web_app tugmasini qo'yish mumkin */
 const isHttps = () => /^https:\/\//.test(config.miniappUrl);
 
+/** Admin panelni ochadigan tugma — faqat ADMIN_CHAT_IDS dagi shaxsiy chatlarda */
+const showAdminButton = (chatId) => chatId > 0 && isAdminChat(chatId) && hasAdminUrl();
+
 /** Asosiy klaviatura */
-function mainKeyboard(lang) {
+function mainKeyboard(lang, chatId) {
   const L = t(lang);
   const rows = [];
 
   if (isHttps()) {
     rows.push([{ text: L.openShop, web_app: { url: config.miniappUrl } }]);
+  }
+  if (showAdminButton(chatId)) {
+    rows.push([{ text: '🛠 Admin panel', web_app: { url: config.adminUrl } }]);
   }
   rows.push([{ text: L.contact, callback_data: 'contact' }, { text: L.langBtn, callback_data: 'lang' }]);
 
@@ -27,8 +34,11 @@ const botController = {
 
     await bot.sendMessage(msg.chat.id, L.welcome(name), {
       parse_mode: 'HTML',
-      reply_markup: mainKeyboard(user.lang),
+      reply_markup: mainKeyboard(user.lang, msg.chat.id),
     });
+
+    // Admin uchun pastki "Menu" tugmasi ham admin panelni ochsin
+    if (showAdminButton(msg.chat.id)) await setAdminMenuButton(msg.chat.id);
 
     if (!isHttps()) {
       await bot.sendMessage(
@@ -69,7 +79,7 @@ const botController = {
       const L = t(lang);
       await bot.sendMessage(chatId, L.langSaved, {
         parse_mode: 'HTML',
-        reply_markup: mainKeyboard(lang),
+        reply_markup: mainKeyboard(lang, chatId),
       });
     }
 
@@ -83,7 +93,7 @@ const botController = {
     await bot.sendMessage(
       msg.chat.id,
       user.lang === 'ru' ? '✅ Номер сохранён' : '✅ Raqamingiz saqlandi',
-      { reply_markup: mainKeyboard(user.lang) }
+      { reply_markup: mainKeyboard(user.lang, msg.chat.id) }
     );
   },
 
@@ -101,11 +111,30 @@ const botController = {
     );
   },
 
+  /** /admin — admin panel tugmasi (faqat ADMIN_CHAT_IDS dagilar uchun) */
+  async onAdmin(bot, msg) {
+    if (!showAdminButton(msg.chat.id)) {
+      await bot.sendMessage(
+        msg.chat.id,
+        'Bu buyruq faqat adminlar uchun. Chat ID\'ingizni /id orqali bilib, ' +
+          'serverdagi <code>ADMIN_CHAT_IDS</code> ga yozing.',
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
+    await setAdminMenuButton(msg.chat.id);
+    await bot.sendMessage(msg.chat.id, '🛠 Admin panelga kirish uchun pastdagi tugmani bosing.', {
+      reply_markup: {
+        inline_keyboard: [[{ text: '🛠 Admin panel', web_app: { url: config.adminUrl } }]],
+      },
+    });
+  },
+
   /** Boshqa har qanday xabar */
   async onFallback(bot, msg) {
     const user = await UserModel.findOrCreate(msg.from);
     await bot.sendMessage(msg.chat.id, t(user.lang).fallback, {
-      reply_markup: mainKeyboard(user.lang),
+      reply_markup: mainKeyboard(user.lang, msg.chat.id),
     });
   },
 };
