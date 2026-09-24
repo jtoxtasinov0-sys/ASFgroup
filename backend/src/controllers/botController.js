@@ -1,23 +1,41 @@
 const config = require('../config/default');
 const UserModel = require('../models/User');
 const { t } = require('../utils/i18n');
+const { samePassword } = require('../utils/password');
 const { isAdminChat, hasAdminUrl, setAdminMenuButton } = require('../core/bot');
 
 /** Mini App https manzilida bo'lsagina web_app tugmasini qo'yish mumkin */
 const isHttps = () => /^https:\/\//.test(config.miniappUrl);
 
-/** Admin panelni ochadigan tugma — faqat ADMIN_CHAT_IDS dagi shaxsiy chatlarda */
-const showAdminButton = (chatId) => chatId > 0 && isAdminChat(chatId) && hasAdminUrl();
+/**
+ * Admin panelni ochadigan tugma — faqat shaxsiy chatda va faqat adminlarga:
+ * ADMIN_CHAT_IDS da yozilganlar yoki botda /admin PAROL qilganlar.
+ */
+const showAdminButton = (chatId, user) =>
+  chatId > 0 && hasAdminUrl() && (isAdminChat(chatId) || Boolean(user?.isAdmin));
+
+const adminButtonMarkup = () => ({
+  inline_keyboard: [[{ text: '🛠 Admin panel', web_app: { url: config.adminUrl } }]],
+});
+
+// Parolni taxmin qilishga urinishlarni cheklash: 1 soatda 5 ta xato
+const failedTries = new Map();
+const tooManyTries = (chatId) => {
+  const hourAgo = Date.now() - 60 * 60 * 1000;
+  const tries = (failedTries.get(chatId) || []).filter((ts) => ts > hourAgo);
+  failedTries.set(chatId, tries);
+  return tries.length >= 5;
+};
 
 /** Asosiy klaviatura */
-function mainKeyboard(lang, chatId) {
+function mainKeyboard(lang, chatId, user) {
   const L = t(lang);
   const rows = [];
 
   if (isHttps()) {
     rows.push([{ text: L.openShop, web_app: { url: config.miniappUrl } }]);
   }
-  if (showAdminButton(chatId)) {
+  if (showAdminButton(chatId, user)) {
     rows.push([{ text: '🛠 Admin panel', web_app: { url: config.adminUrl } }]);
   }
   rows.push([{ text: L.contact, callback_data: 'contact' }, { text: L.langBtn, callback_data: 'lang' }]);
@@ -34,11 +52,11 @@ const botController = {
 
     await bot.sendMessage(msg.chat.id, L.welcome(name), {
       parse_mode: 'HTML',
-      reply_markup: mainKeyboard(user.lang, msg.chat.id),
+      reply_markup: mainKeyboard(user.lang, msg.chat.id, user),
     });
 
     // Admin uchun pastki "Menu" tugmasi ham admin panelni ochsin
-    if (showAdminButton(msg.chat.id)) await setAdminMenuButton(msg.chat.id);
+    if (showAdminButton(msg.chat.id, user)) await setAdminMenuButton(msg.chat.id);
 
     if (!isHttps()) {
       await bot.sendMessage(
@@ -79,7 +97,7 @@ const botController = {
       const L = t(lang);
       await bot.sendMessage(chatId, L.langSaved, {
         parse_mode: 'HTML',
-        reply_markup: mainKeyboard(lang, chatId),
+        reply_markup: mainKeyboard(lang, chatId, user),
       });
     }
 
@@ -93,7 +111,7 @@ const botController = {
     await bot.sendMessage(
       msg.chat.id,
       user.lang === 'ru' ? '✅ Номер сохранён' : '✅ Raqamingiz saqlandi',
-      { reply_markup: mainKeyboard(user.lang, msg.chat.id) }
+      { reply_markup: mainKeyboard(user.lang, msg.chat.id, user) }
     );
   },
 
@@ -106,35 +124,73 @@ const botController = {
         (isAdmin
           ? '✅ Bu chat yangi buyurtmalar haqida xabar oladi.'
           : 'Yangi buyurtmalar haqida xabar olish uchun shu raqamni serverdagi ' +
-            '<code>ADMIN_CHAT_IDS</code> sozlamasiga yozing.'),
+            '<code>ADMIN_CHAT_IDS</code> sozlamasiga yozing.\n\n' +
+            'Admin panel tugmasi kerak bo\'lsa: <code>/admin PAROL</code>'),
       { parse_mode: 'HTML' }
     );
   },
 
-  /** /admin — admin panel tugmasi (faqat ADMIN_CHAT_IDS dagilar uchun) */
-  async onAdmin(bot, msg) {
-    if (!showAdminButton(msg.chat.id)) {
+  /**
+   * /admin — admin panel tugmasi.
+   * /admin PAROL — admin panel paroli to'g'ri bo'lsa, shu odam admin bo'ladi
+   * (Render'da ADMIN_CHAT_IDS ni o'zgartirmasdan). Parolli xabar o'chiriladi.
+   */
+  async onAdmin(bot, msg, match) {
+    const chatId = msg.chat.id;
+    if (chatId <= 0) {
+      await bot.sendMessage(chatId, 'Bu buyruq faqat botning shaxsiy chatida ishlaydi.');
+      return;
+    }
+    if (!hasAdminUrl()) {
+      await bot.sendMessage(chatId, '⚠️ Serverda ADMIN_URL https manzil emas — tugma qo\'yib bo\'lmaydi.');
+      return;
+    }
+
+    let user = await UserModel.findOrCreate(msg.from);
+    const password = (match?.[2] || '').trim();
+
+    if (password) {
+      // Parol chatda qolib ketmasin
+      bot.deleteMessage(chatId, msg.message_id).catch(() => {});
+
+      if (tooManyTries(chatId)) {
+        await bot.sendMessage(chatId, '⛔ Juda ko\'p urinish. 1 soatdan keyin qayta urinib ko\'ring.');
+        return;
+      }
+      if (!samePassword(password, config.admin.password)) {
+        failedTries.get(chatId).push(Date.now());
+        await bot.sendMessage(chatId, '❌ Parol noto\'g\'ri. Admin panelga kiradigan parolni yozing.');
+        return;
+      }
+      failedTries.delete(chatId);
+      user = await UserModel.update(user.telegramId, { isAdmin: true });
+    }
+
+    if (!showAdminButton(chatId, user)) {
       await bot.sendMessage(
-        msg.chat.id,
-        'Bu buyruq faqat adminlar uchun. Chat ID\'ingizni /id orqali bilib, ' +
-          'serverdagi <code>ADMIN_CHAT_IDS</code> ga yozing.',
+        chatId,
+        '🔐 Admin bo\'lish uchun shunday yozing:\n<code>/admin PAROL</code>\n\n' +
+          'PAROL — admin panelga kiradigan parol. Xabar darhol o\'chiriladi.',
         { parse_mode: 'HTML' }
       );
       return;
     }
-    await setAdminMenuButton(msg.chat.id);
-    await bot.sendMessage(msg.chat.id, '🛠 Admin panelga kirish uchun pastdagi tugmani bosing.', {
-      reply_markup: {
-        inline_keyboard: [[{ text: '🛠 Admin panel', web_app: { url: config.adminUrl } }]],
-      },
-    });
+
+    await setAdminMenuButton(chatId);
+    await bot.sendMessage(
+      chatId,
+      (password ? '✅ Siz admin bo\'ldingiz.\n\n' : '') +
+        '🛠 Admin panelga kirish uchun pastdagi tugmani bosing. ' +
+        'Endi /start xabarida ham bu tugma chiqadi.',
+      { reply_markup: adminButtonMarkup() }
+    );
   },
 
   /** Boshqa har qanday xabar */
   async onFallback(bot, msg) {
     const user = await UserModel.findOrCreate(msg.from);
     await bot.sendMessage(msg.chat.id, t(user.lang).fallback, {
-      reply_markup: mainKeyboard(user.lang, msg.chat.id),
+      reply_markup: mainKeyboard(user.lang, msg.chat.id, user),
     });
   },
 };

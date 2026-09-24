@@ -183,8 +183,14 @@ async function setMenuButton() {
     console.error('Menu tugmasi o\'rnatilmadi:', err?.message);
   }
 
-  // Adminlarda bu tugma admin panelni ochadi
-  const admins = config.bot.adminChatIds.filter((id) => Number(id) > 0);
+  // Adminlarda bu tugma admin panelni ochadi (ADMIN_CHAT_IDS + botda /admin qilganlar)
+  let dbAdmins = [];
+  try {
+    // eslint-disable-next-line global-require
+    const UserModel = require('../models/User');
+    dbAdmins = (await UserModel.listAdmins()).map((u) => u.telegramId);
+  } catch (_) { /* baza tayyor bo'lmasa — faqat ADMIN_CHAT_IDS */ }
+  const admins = [...new Set([...config.bot.adminChatIds, ...dbAdmins])].filter((id) => Number(id) > 0);
   await Promise.all(admins.map(setAdminMenuButton));
   if (admins.length && hasAdminUrl()) {
     console.log(`✅ Admin panel tugmasi ${admins.length} ta adminga o'rnatildi: ${config.adminUrl}`);
