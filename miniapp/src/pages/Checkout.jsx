@@ -10,6 +10,7 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
     region: '',
     address: '',
     comment: '',
+    paymentMethod: 'cash',
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -35,6 +36,7 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
         region: form.region,
         address: form.address.trim(),
         comment: form.comment.trim(),
+        paymentMethod: form.paymentMethod,
       });
       notifySuccess();
       onSuccess(order);
@@ -100,6 +102,35 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
           <div className="field">
             <label>{t.comment}</label>
             <textarea value={form.comment} onChange={set('comment')} placeholder={t.commentPh} />
+          </div>
+
+          <div className="field">
+            <label>{t.payMethod}</label>
+            <div className="pay-options">
+              {[
+                ['cash', '💵', t.payCash, t.payCashText],
+                ['click', null, t.payClick, t.payClickText],
+              ].map(([key, icon, title, text]) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`pay-option${form.paymentMethod === key ? ' active' : ''}`}
+                  onClick={() => {
+                    haptic();
+                    setForm((p) => ({ ...p, paymentMethod: key }));
+                  }}
+                  aria-pressed={form.paymentMethod === key}
+                >
+                  <b>{icon ? `${icon} ${title}` : <span className="click-logo">click</span>}</b>
+                  <span>{text}</span>
+                </button>
+              ))}
+            </div>
+            {form.paymentMethod === 'click' && (
+              <p className="muted" style={{ fontSize: 12, margin: '8px 0 0' }}>
+                {config?.clickEnabled ? t.payClickSoon : t.payClickManual}
+              </p>
+            )}
           </div>
 
           <div className="notice warn" style={{ marginTop: 0 }}>

@@ -42,7 +42,8 @@ model Product {
   material      String?
   materialRu    String?
   images        String[] @default([])
-  imageFrames   Json     @default("{}") /// Rasm ko'rinishi: { "<url>": { z, x, y } } — kattalik va joylashuv
+  imageFrames   Json     @default("{}") /// Rasm ko'rinishi: { "<url>": { r, z, x, y } } — kattalik va joylashuv
+  imageColors   Json     @default("{}") /// Rasm rangi: { "<url>": "black" | "brown" | "blue" }
   price         Int /// Dona narxi (so'm)
   oldPrice      Int? /// Chizib tashlanadigan eski narx
   wholesalePrice Int /// Optom narxi (so'm)
@@ -65,7 +66,7 @@ model Order {
   id          Int      @id @default(autoincrement())
   userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items       Json /// [{ productId, article, name, image, price, sizes: {"40":2,"41":3}, qty, lineTotal }]
+  items       Json /// [{ productId, article, name, image, color, price, sizes: {"40":2,"41":3}, qty, lineTotal }]
   totalQty    Int      @default(0)
   total       Int
   isWholesale Boolean  @default(false)
@@ -74,6 +75,7 @@ model Order {
   region      String
   address     String
   comment     String?
+  paymentMethod String @default("cash") /// cash — naqd pul | click — Click orqali
   status      String   @default("new") /// new | confirmed | delivered | cancelled
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

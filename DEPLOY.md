@@ -93,6 +93,8 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `COMPANY_ADDRESS` | `Toshkent sh.` |
 | `NODE_VERSION` | `20` |
 | `ADMIN_CHAT_IDS` | yangi buyurtma xabari boradigan chat ID'lar — 4-QISM ga qarang |
+| `CLICK_SERVICE_ID` | *shart emas* — Click kabinetidagi Service ID (pastdagi "Click orqali to'lov" ga qarang) |
+| `CLICK_MERCHANT_ID` | *shart emas* — Click kabinetidagi Merchant ID |
 | `ADMIN_URL` | *shart emas* — admin panel manzili, standart: `https://asf-admin-ten.vercel.app` |
 
 > 📌 **`DATABASE_URL` ni qayerdan olish kerak:**
@@ -259,6 +261,19 @@ avtomatik o'chiriladi; 1 soatda 5 martadan ko'p xato urinishga ruxsat yo'q.
 Tugma orqali ochilganda admin panel **parolsiz** kiradi: Telegram foydalanuvchini
 tasdiqlaydi va backend uning ID'si `ADMIN_CHAT_IDS` da borligini tekshiradi.
 Brauzerdan ochilganda esa avvalgidek parol so'raladi.
+
+### Click orqali to'lov
+
+Buyurtma oynasida mijoz **Naqd pul** yoki **Click** ni tanlaydi. To'lov usuli
+admin paneldagi buyurtmada va bot xabarida ko'rinadi.
+
+- `CLICK_SERVICE_ID` va `CLICK_MERCHANT_ID` qo'yilmagan bo'lsa — Click tanlangan
+  buyurtma bo'yicha menejer mijoz bilan bog'lanadi.
+- Ikkalasi ham qo'yilsa — buyurtmadan so'ng mijozga Click to'lov sahifasi
+  (`my.click.uz`) buyurtma summasi bilan ochiladi.
+
+To'lov bo'lganini Click avtomatik xabar qilishi (Prepare/Complete) hozircha
+ulanmagan — to'lovni Click kabinetidan tekshirib, buyurtmani tasdiqlang.
 
 **Guruhga yuborish** (bir nechta menejer bo'lsa qulay): botni Telegram
 guruhga qo'shing, guruhda `/id` yozing va chiqqan raqamni (minus bilan

@@ -27,8 +27,9 @@ const write = (key, value) => {
 
 export const MAX_PACKS = 100;
 
-/** Savatchadagi qator kaliti: optom va dona alohida saqlanadi */
-export const cartKey = (mode, productId) => `${mode === 'wholesale' ? 'w' : 'r'}:${productId}`;
+/** Savatchadagi qator kaliti: optom va dona, har bir rang alohida saqlanadi */
+export const cartKey = (mode, productId, color) =>
+  `${mode === 'wholesale' ? 'w' : 'r'}:${productId}${color ? `:${color}` : ''}`;
 
 /** 1 komplekt = modeldagi har bir razmerdan bittadan */
 export const packSizes = (product, packs) =>
@@ -71,35 +72,49 @@ export function useCart() {
   useEffect(() => write(CART_KEY, cart), [cart]);
 
   /** Dona: razmerlar bo'yicha */
-  const addItem = useCallback((productId, sizes) => {
+  const addItem = useCallback((productId, sizes, color) => {
     const clean = {};
     for (const [size, qty] of Object.entries(sizes || {})) {
       const n = Math.floor(Number(qty));
       if (n > 0) clean[size] = n;
     }
-    const key = cartKey('retail', productId);
+    const key = cartKey('retail', productId, color);
     setCart((prev) => {
       const next = { ...prev };
       if (Object.keys(clean).length === 0) delete next[key];
-      else next[key] = { productId: Number(productId), mode: 'retail', sizes: clean };
+      else {
+        next[key] = {
+          productId: Number(productId),
+          mode: 'retail',
+          sizes: clean,
+          ...(color ? { color } : {}),
+        };
+      }
       return next;
     });
   }, []);
 
   /** Optom: komplekt soni (0 — o'chirish) */
-  const setPacks = useCallback((productId, packs) => {
+  const setPacks = useCallback((productId, packs, color) => {
     const n = clampPacks(packs);
-    const key = cartKey('wholesale', productId);
+    const key = cartKey('wholesale', productId, color);
     setCart((prev) => {
       const next = { ...prev };
       if (n === 0) delete next[key];
-      else next[key] = { productId: Number(productId), mode: 'wholesale', packs: n };
+      else {
+        next[key] = {
+          productId: Number(productId),
+          mode: 'wholesale',
+          packs: n,
+          ...(color ? { color } : {}),
+        };
+      }
       return next;
     });
   }, []);
 
-  const changePacks = useCallback((productId, delta) => {
-    const key = cartKey('wholesale', productId);
+  /** Savatchadagi qator (kaliti bo'yicha) komplekt sonini o'zgartiradi */
+  const changePacks = useCallback((key, delta) => {
     setCart((prev) => {
       const item = prev[key];
       if (!item) return prev;
@@ -119,8 +134,8 @@ export function useCart() {
     });
   }, []);
 
-  const changeSize = useCallback((productId, size, delta) => {
-    const key = cartKey('retail', productId);
+  /** Savatchadagi qator (kaliti bo'yicha) razmer sonini o'zgartiradi */
+  const changeSize = useCallback((key, size, delta) => {
     setCart((prev) => {
       const item = prev[key];
       if (!item) return prev;

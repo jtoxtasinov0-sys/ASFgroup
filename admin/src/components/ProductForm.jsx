@@ -61,6 +61,10 @@ export default function ProductForm({ product, onClose, onSaved }) {
     () => new Map(Object.entries(product?.imageFrames || {}))
   );
   const [editing, setEditing] = useState(null); // { key, src }
+  // Rasm ranglari: kalit — saqlangan rasm manzili yoki yangi File
+  const [colors, setColors] = useState(
+    () => new Map(Object.entries(product?.imageColors || {}))
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -123,6 +127,10 @@ export default function ProductForm({ product, onClose, onSaved }) {
       'imageFrames',
       JSON.stringify([...existing, ...files].map((key) => frames.get(key) || null))
     );
+    data.append(
+      'imageColors',
+      JSON.stringify([...existing, ...files].map((key) => colors.get(key) || null))
+    );
     files.forEach((file) => data.append('files', file));
 
     try {
@@ -158,10 +166,20 @@ export default function ProductForm({ product, onClose, onSaved }) {
               max={8}
               frames={frames}
               onEdit={(key, src) => setEditing({ key, src })}
+              colors={colors}
+              onColor={(key, value) =>
+                setColors((prev) => {
+                  const next = new Map(prev);
+                  if (value) next.set(key, value);
+                  else next.delete(key);
+                  return next;
+                })
+              }
             />
             <span className="hint">
-              ✎ belgisini bosib, rasm Mini Appda qanday ko'rinishini sozlang — kattalashtirish,
-              kichraytirish va surish mumkin
+              ✎ belgisini bosib, rasm Mini Appda qanday ko'rinishini sozlang. Har bir rasm
+              ostida uning rangini tanlang — mijoz rang tugmasini bossa, shu rangdagi rasm
+              ochiladi. Rang tanlanmasa, rang tugmalari chiqmaydi.
             </span>
           </div>
 

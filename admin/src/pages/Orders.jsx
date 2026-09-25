@@ -1,5 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, date, imageUrl, money } from '../lib/api';
+import { PAYMENT, colorOf } from '../lib/colors';
+
+/** Rang belgisi: ● Qora */
+const ColorTag = ({ color }) => {
+  const c = colorOf(color);
+  if (!c) return null;
+  return (
+    <span className="color-tag">
+      <i style={{ background: c.hex }} />
+      {c.label}
+    </span>
+  );
+};
 
 const STATUSES = [
   { key: 'all', label: 'Hammasi' },
@@ -57,6 +70,14 @@ function ItemPreview({ item, onClose }) {
               <>
                 <dt>Turi</dt>
                 <dd>{CATEGORY[item.category]}</dd>
+              </>
+            )}
+            {item.color && (
+              <>
+                <dt>Rang</dt>
+                <dd>
+                  <ColorTag color={item.color} />
+                </dd>
               </>
             )}
             <dt>Savdo</dt>
@@ -237,7 +258,7 @@ export default function Orders({ stats, reload }) {
                         {order.items.map((item) => (
                           <div
                             className="order-item"
-                            key={`${item.productId}-${item.mode || 'retail'}`}
+                            key={`${item.productId}-${item.mode || 'retail'}-${item.color || ''}`}
                           >
                             <button
                               type="button"
@@ -249,7 +270,8 @@ export default function Orders({ stats, reload }) {
                             </button>
                             <div>
                               <b>{item.name}</b>{' '}
-                              <span className="muted">({item.article})</span>
+                              <span className="muted">({item.article})</span>{' '}
+                              <ColorTag color={item.color} />
                               <div className="muted">
                                 {item.packs ? (
                                   <b className="pack-badge">📦 {item.packs} komplekt</b>
@@ -282,6 +304,9 @@ export default function Orders({ stats, reload }) {
 
                     <td className="mono nowrap">
                       <b>{money(order.total)}</b>
+                      <div className={`pay-tag ${order.paymentMethod || 'cash'}`}>
+                        {PAYMENT[order.paymentMethod] || PAYMENT.cash}
+                      </div>
                       <div className="muted">
                         {(() => {
                           const packs = order.items.reduce((sum, i) => sum + (i.packs || 0), 0);
