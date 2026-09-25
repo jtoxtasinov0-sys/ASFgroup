@@ -140,10 +140,10 @@ const botController = {
     const label = PAY_LABEL[order.paymentStatus] || order.paymentStatus;
     const who = query.from.username ? `@${query.from.username}` : query.from.first_name || 'admin';
     // Telegram caption'ni oddiy matn qilib qaytaradi — HTML uchun qayta ekranlaymiz
-    const original = (query.message.caption || query.message.text || '').replace(
-      /\n*Chekni tekshirib.*$/s,
-      ''
-    );
+    // Hal qilingandan keyin "chekni tekshiring" chaqiriqlari olib tashlanadi
+    const original = (query.message.caption || query.message.text || '')
+      .replace(/^🧾 Mijoz to'lov qildi — chekni tekshiring!/, "🧾 To'lov cheki")
+      .replace(/\n*(🧾 To'lov bo'ldi — chekni tekshiring|Pul kartaga tushganini|Chekni tekshirib).*$/s, '');
     const caption = `${esc(original)}\n\n<b>${label}</b> — ${esc(who)}`;
 
     const target = { chat_id: query.message.chat.id, message_id: query.message.message_id };

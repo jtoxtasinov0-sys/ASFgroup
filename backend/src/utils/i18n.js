@@ -157,6 +157,23 @@ function esc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/** Adminga: to'lov qilindimi yoki yo'qmi */
+function paymentStatusLine(order) {
+  const cash = (order.paymentMethod || 'cash') === 'cash';
+  switch (order.paymentStatus) {
+    case 'paid':
+      return '✅ <b>To\'lov qilindi</b> (tasdiqlangan)';
+    case 'pending':
+      return '🧾 <b>To\'lov bo\'ldi — chekni tekshiring</b>';
+    case 'rejected':
+      return '❌ <b>To\'lov rad etilgan</b> — chek to\'g\'ri kelmadi';
+    default:
+      return cash
+        ? '⏳ <b>To\'lov hali qilinmadi</b> — naqd, mahsulot topshirilganda olinadi'
+        : '⏳ <b>To\'lov hali qilinmadi</b> — mijoz chek yuborishi kutilmoqda';
+  }
+}
+
 /** Egasi/menejerga yangi buyurtma haqida xabar */
 function adminNewOrder(order) {
   const u = order.user || {};
@@ -187,7 +204,8 @@ function adminNewOrder(order) {
     `${items}\n\n` +
     `📦 Jami: <b>${qtyText(order, 'komplekt', 'juft')}</b>\n` +
     `💰 Summa: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx)' : ''}\n` +
-    `💳 To'lov: <b>${PAYMENT.uz[order.paymentMethod] || PAYMENT.uz.cash}</b>\n\n` +
+    `💳 To'lov: <b>${PAYMENT.uz[order.paymentMethod] || PAYMENT.uz.cash}</b>\n` +
+    `${paymentStatusLine(order)}\n\n` +
     `👤 Mijoz: ${esc(order.customerName)}\n` +
     `📞 Telefon: ${esc(order.phone)}\n` +
     `📍 Manzil: ${esc(order.region)}, ${esc(order.address)}\n` +
@@ -200,4 +218,4 @@ function t(lang) {
   return T[lang === 'ru' ? 'ru' : 'uz'];
 }
 
-module.exports = { t, fmt, esc, adminNewOrder, colorName };
+module.exports = { t, fmt, esc, adminNewOrder, colorName, paymentStatusLine };

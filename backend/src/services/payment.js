@@ -8,7 +8,7 @@ const OrderModel = require('../models/Order');
 const UserModel = require('../models/User');
 const { getBot, safeSend, isAdminChat } = require('../core/bot');
 const { removeFile, UPLOAD_ROOT } = require('../utils/upload');
-const { t, fmt, esc } = require('../utils/i18n');
+const { t, fmt, esc, paymentStatusLine } = require('../utils/i18n');
 
 /* ==========================================================
    Kartaga o'tkazma (Uzcard / Humo) + chek rasmi.
@@ -83,14 +83,15 @@ function adminCaption(order) {
   const u = order.user || {};
   const name = [u.firstName, u.lastName].filter(Boolean).join(' ');
   return (
-    `🧾 <b>Yangi to'lov cheki</b>\n\n` +
+    `🧾 <b>Mijoz to'lov qildi — chekni tekshiring!</b>\n\n` +
     `Buyurtma: <b>#${order.id}</b>\n` +
     `💰 Summa: <b>${fmt(order.total)} so'm</b>\n` +
     `📦 ${order.totalQty} juft${order.isWholesale ? ' (optom)' : ''}\n\n` +
     `👤 ${esc(order.customerName)}${name && name !== order.customerName ? ` (${esc(name)})` : ''}\n` +
     `📞 ${esc(order.phone)}${u.username ? `  ·  @${esc(u.username)}` : ''}\n` +
     `📍 ${esc(order.region)}, ${esc(order.address)}\n\n` +
-    `Chekni tekshirib, to'lovni tasdiqlang 👇`
+    `${paymentStatusLine(order)}\n` +
+    `Pul kartaga tushganini tekshirib, to'lovni tasdiqlang yoki rad eting 👇`
   );
 }
 
