@@ -958,3 +958,85 @@ div.item-preview-img {
   border-radius: 7px;
   background: #fff;
 }
+
+/* Qo'lda rang kiritish */
+.custom-color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.custom-color-row input[type='color'] {
+  width: 52px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.color-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 8px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.color-preview i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------- Rassilka ---------- */
+
+.broadcast-status {
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.broadcast-status-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.progress {
+  height: 8px;
+  border-radius: 99px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--navy);
+  transition: width 0.4s;
+}
+
+.broadcast-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.broadcast-preview {
+  margin-top: 8px;
+  font-size: 12.5px;
+}
+
+.broadcast-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

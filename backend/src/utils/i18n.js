@@ -1,9 +1,9 @@
 /** Bot xabarlari — o'zbek va rus tillarida */
-const config = require('../config/default');
+const { colorInfo } = require('./colors');
 
-/** Rang kaliti → nomi ("black" → "Qora") */
+/** Rang kaliti → nomi ("black" → "Qora", "Qizil#c62828" → "Qizil") */
 const colorName = (key, lang = 'uz') => {
-  const c = config.colors.find((x) => x.key === key);
+  const c = colorInfo(key);
   return c ? c[lang === 'ru' ? 'ru' : 'uz'] : '';
 };
 
@@ -137,7 +137,7 @@ function adminNewOrder(order) {
             .join(', ')}`;
       return (
         `${n + 1}. <b>${esc(i.name)}</b> (${esc(i.article)})` +
-        (i.color ? ` — 🎨 <b>${colorName(i.color)}</b>` : '') +
+        (i.color ? ` — 🎨 <b>${esc(colorName(i.color))}</b>` : '') +
         '\n' +
         `   ${sizes} — ${i.qty} juft × ${fmt(i.unitPrice)} = <b>${fmt(i.lineTotal)}</b>`
       );

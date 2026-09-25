@@ -5,6 +5,7 @@ const OrderModel = require('../models/Order');
 const StoryModel = require('../models/Story');
 const { safeSend, notifyAdmins } = require('../core/bot');
 const { t, adminNewOrder } = require('../utils/i18n');
+const { productColors } = require('../utils/colors');
 
 /* ---------- Yordamchi funksiyalar ---------- */
 
@@ -16,11 +17,6 @@ const wholesaleUnit = (product) =>
     ? product.wholesalePrice
     : product.price;
 
-/** Mahsulotda mavjud ranglar (rasmlarga biriktirilgan), palitra tartibida */
-const productColors = (product) => {
-  const used = new Set(Object.values(product.imageColors || {}));
-  return config.colors.filter((c) => used.has(c.key)).map((c) => c.key);
-};
 
 /** Tanlangan rangdagi birinchi rasm (bo'lmasa — asosiy rasm) */
 const colorImage = (product, color) =>

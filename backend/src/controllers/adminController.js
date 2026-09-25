@@ -6,8 +6,10 @@ const UserModel = require('../models/User');
 const { signAdminToken, verifyInitData } = require('../middlewares/auth.middleware');
 const { fileUrl, removeFile } = require('../utils/upload');
 const { safeSend } = require('../core/bot');
+const { startBroadcast, broadcastStatus } = require('../core/broadcast');
 const { t } = require('../utils/i18n');
 const { samePassword } = require('../utils/password');
+const { cleanColor } = require('../utils/colors');
 
 /* ---------- Yordamchi ---------- */
 
@@ -83,24 +85,25 @@ function buildFrames(body, keepImages, uploadedUrls, existing) {
 }
 
 /**
- * Rasm ranglari xaritasi { url: "black" }. `imageColors` — [...saqlangan, ...yangi] tartibida.
+ * Rasm ranglari xaritasi { url: "black" | "Qizil#c62828" }. `imageColors` — [...saqlangan, ...yangi] tartibida.
  * Eski admin panel yubormasa, saqlangan rasmlarning avvalgi rangi qoladi.
  */
 function buildColors(body, keepImages, uploadedUrls, existing) {
-  const keys = config.colors.map((c) => c.key);
   const colors = {};
 
   if (body.imageColors === undefined) {
     const old = (existing && existing.imageColors) || {};
     keepImages.forEach((url) => {
-      if (keys.includes(old[url])) colors[url] = old[url];
+      const c = cleanColor(old[url]);
+      if (c) colors[url] = c;
     });
     return colors;
   }
 
   const list = toArray(body.imageColors);
   [...keepImages, ...uploadedUrls].forEach((url, i) => {
-    if (keys.includes(list[i])) colors[url] = list[i];
+    const c = cleanColor(list[i]);
+    if (c) colors[url] = c;
   });
   return colors;
 }
@@ -404,6 +407,44 @@ const adminController = {
   },
 
   /* ===== Mijozlar ===== */
+  /* ===== Rassilka ===== */
+  async broadcastInfo(_req, res, next) {
+    try {
+      const users = await UserModel.count();
+      res.json({ ok: true, data: { users, ...broadcastStatus() } });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async broadcast(req, res, next) {
+    const photoPath = req.files?.[0]?.path;
+    try {
+      const text = String(req.body?.text || '').trim();
+      const limit = photoPath ? 1024 : 4096; // Telegram cheklovi: rasm izohi / oddiy xabar
+      if (!text && !photoPath) {
+        return res.status(400).json({ ok: false, message: 'Xabar matnini yozing yoki rasm qo\'shing' });
+      }
+      if (text.length > limit) {
+        return res.status(400).json({
+          ok: false,
+          message: `Matn juda uzun: ${text.length} belgi (ko'pi bilan ${limit})`,
+        });
+      }
+      const data = await startBroadcast({
+        text,
+        photoPath,
+        withButton: toBool(req.body?.withButton, true),
+        testOnly: toBool(req.body?.testOnly, false),
+      });
+      res.json({ ok: true, data });
+    } catch (err) {
+      if (photoPath) require('fs').promises.unlink(photoPath).catch(() => {});
+      if (err?.message && !err.code) return res.status(400).json({ ok: false, message: err.message });
+      next(err);
+    }
+  },
+
   async listUsers(_req, res, next) {
     try {
       const users = await UserModel.list();

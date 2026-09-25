@@ -143,6 +143,9 @@ export const api = {
 
   users: () => request('GET', '/users'),
 
+  broadcastInfo: () => request('GET', '/broadcast'),
+  broadcast: (formData) => upload('POST', '/broadcast', formData),
+
   publicConfig: async () => {
     const res = await apiFetch('/api/config');
     return handle(res);
