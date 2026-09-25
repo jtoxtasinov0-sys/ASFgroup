@@ -82,11 +82,35 @@ function buildFrames(body, keepImages, uploadedUrls, existing) {
   return frames;
 }
 
+/**
+ * Rasm ranglari xaritasi { url: "black" }. `imageColors` — [...saqlangan, ...yangi] tartibida.
+ * Eski admin panel yubormasa, saqlangan rasmlarning avvalgi rangi qoladi.
+ */
+function buildColors(body, keepImages, uploadedUrls, existing) {
+  const keys = config.colors.map((c) => c.key);
+  const colors = {};
+
+  if (body.imageColors === undefined) {
+    const old = (existing && existing.imageColors) || {};
+    keepImages.forEach((url) => {
+      if (keys.includes(old[url])) colors[url] = old[url];
+    });
+    return colors;
+  }
+
+  const list = toArray(body.imageColors);
+  [...keepImages, ...uploadedUrls].forEach((url, i) => {
+    if (keys.includes(list[i])) colors[url] = list[i];
+  });
+  return colors;
+}
+
 /** Mahsulot maydonlarini forma ma'lumotidan yig'adi */
 function buildProductData(body, uploadedUrls, existing) {
   const keepImages = toArray(body.images).filter((u) => typeof u === 'string');
   const images = [...keepImages, ...uploadedUrls];
   const imageFrames = buildFrames(body, keepImages, uploadedUrls, existing);
+  const imageColors = buildColors(body, keepImages, uploadedUrls, existing);
 
   const price = toInt(body.price, existing ? existing.price : 0);
   const wholesaleRaw = toInt(body.wholesalePrice, 0);
@@ -105,6 +129,7 @@ function buildProductData(body, uploadedUrls, existing) {
     materialRu: body.materialRu ? String(body.materialRu).trim() : null,
     images,
     imageFrames,
+    imageColors,
     price,
     // Eski narx faqat hozirgi narxdan qimmat bo'lsa ma'noga ega (chegirma)
     oldPrice: toInt(body.oldPrice, 0) > price ? toInt(body.oldPrice, 0) : null,

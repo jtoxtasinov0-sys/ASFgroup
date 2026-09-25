@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
+import { colorImage, colorLabel, effectiveColor } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import { money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
@@ -25,9 +26,11 @@ function localCalc(cartItems, productMap) {
     const unitPrice = wholesale ? wholesaleUnit(product) : product.price;
     if (wholesale) isWholesale = true;
     total += unitPrice * qty;
+    const color = effectiveColor(product, item.color);
     items.push({
       productId: product.id,
       mode: item.mode,
+      ...(color ? { color } : {}),
       unitPrice,
       qty,
       lineTotal: unitPrice * qty,
@@ -95,8 +98,15 @@ export default function Cart({
   const calc =
     serverCalc?.cartItems === cartItems ? serverCalc.data : localCalc(cartItems, productMap);
   const totalQty = calc.totalQty;
-  const lineOf = (item) =>
-    calc.items.find((i) => i.productId === item.productId && (i.mode || 'retail') === item.mode);
+  const lineOf = (item) => {
+    const color = effectiveColor(productMap.get(item.productId), item.color);
+    return calc.items.find(
+      (i) =>
+        i.productId === item.productId &&
+        (i.mode || 'retail') === item.mode &&
+        (i.color || null) === color
+    );
+  };
 
   // Eski narxga nisbatan qancha tejaladi (chegirmadagi dona mahsulotlar)
   const savedOf = (line) => {
@@ -115,22 +125,23 @@ export default function Cart({
     if (!product) return null;
     const line = lineOf(item);
     const isWholesale = item.mode === 'wholesale';
+    const color = effectiveColor(product, item.color);
+    const thumb = colorImage(product, color);
 
     return (
       <div className="cart-item" key={item.key}>
         <div className="cart-thumb">
-          <img
-            src={imageUrl(product.images[0])}
-            alt=""
-            style={frameStyle(frameOf(product, product.images[0]), 1)}
-          />
+          <img src={imageUrl(thumb)} alt="" style={frameStyle(frameOf(product, thumb), 1)} />
         </div>
 
         <div className="cart-info">
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
             <div>
               <div style={{ fontWeight: 600, fontSize: 14 }}>{pick(product, 'name', lang)}</div>
-              <div className="card-art">{product.article}</div>
+              <div className="card-art">
+                {product.article}
+                {color && ` · 🎨 ${colorLabel(color, lang)}`}
+              </div>
             </div>
             <button
               className="muted"
@@ -148,9 +159,9 @@ export default function Cart({
           {isWholesale ? (
             <div className="cart-sizes">
               <span className="chip">
-                <button onClick={() => onChangePacks(item.productId, -1)}>−</button>
+                <button onClick={() => onChangePacks(item.key, -1)}>−</button>
                 <b>{item.packs}</b> {t.pack}
-                <button onClick={() => onChangePacks(item.productId, 1)}>+</button>
+                <button onClick={() => onChangePacks(item.key, 1)}>+</button>
               </span>
               <span className="muted" style={{ fontSize: 11, alignSelf: 'center' }}>
                 {product.sizes.join('·')} × {item.packs} = {itemQty(item, product)} {t.pair}
@@ -161,9 +172,9 @@ export default function Cart({
               {Object.entries(item.sizes).map(([size, qty]) => (
                 <span className="chip" key={size}>
                   <b>{size}</b>
-                  <button onClick={() => onChangeSize(item.productId, size, -1)}>−</button>
+                  <button onClick={() => onChangeSize(item.key, size, -1)}>−</button>
                   {qty}
-                  <button onClick={() => onChangeSize(item.productId, size, 1)}>+</button>
+                  <button onClick={() => onChangeSize(item.key, size, 1)}>+</button>
                 </span>
               ))}
             </div>

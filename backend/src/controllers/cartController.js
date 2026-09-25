@@ -16,6 +16,31 @@ const wholesaleUnit = (product) =>
     ? product.wholesalePrice
     : product.price;
 
+/** Mahsulotda mavjud ranglar (rasmlarga biriktirilgan), palitra tartibida */
+const productColors = (product) => {
+  const used = new Set(Object.values(product.imageColors || {}));
+  return config.colors.filter((c) => used.has(c.key)).map((c) => c.key);
+};
+
+/** Tanlangan rangdagi birinchi rasm (bo'lmasa — asosiy rasm) */
+const colorImage = (product, color) =>
+  (color && product.images.find((url) => product.imageColors?.[url] === color)) ||
+  product.images[0] ||
+  null;
+
+/** Click to'lov sahifasi manzili (sozlanmagan bo'lsa null) */
+function clickPayUrl(order) {
+  const { serviceId, merchantId } = config.click;
+  if (!serviceId || !merchantId) return null;
+  const params = new URLSearchParams({
+    service_id: serviceId,
+    merchant_id: merchantId,
+    amount: String(order.total),
+    transaction_param: String(order.id),
+  });
+  return `https://my.click.uz/services/pay?${params}`;
+}
+
 /**
  * Savatcha qatorlarini bazadagi haqiqiy narxlar bilan qayta hisoblaydi.
  *  - Optom: { productId, packs } — 1 komplekt = har bir razmerdan 1 juft, optom narxda
@@ -52,6 +77,10 @@ function buildOrderItems(cartItems, products) {
       if (qty === 0) continue;
     }
 
+    // Rang — faqat shu mahsulotda bor ranglardan
+    const colors = productColors(product);
+    const color = colors.includes(raw.color) ? raw.color : colors.length ? colors[0] : null;
+
     const wholesale = packs > 0;
     const unitPrice = wholesale ? wholesaleUnit(product) : product.price;
     if (wholesale) isWholesale = true;
@@ -64,7 +93,8 @@ function buildOrderItems(cartItems, products) {
       article: product.article,
       name: product.name,
       nameRu: product.nameRu,
-      image: product.images[0] || null,
+      image: colorImage(product, color),
+      ...(color ? { color } : {}),
       category: product.category,
       mode: wholesale ? 'wholesale' : 'retail',
       ...(wholesale ? { packs } : {}),
@@ -99,6 +129,8 @@ const cartController = {
         tags: config.tags,
         regions: config.regions,
         sizes: config.sizes,
+        colors: config.colors,
+        clickEnabled: Boolean(config.click.serviceId && config.click.merchantId),
         botUsername: config.bot.username || process.env.BOT_USERNAME || '',
       },
     });
@@ -186,6 +218,7 @@ const cartController = {
   async createOrder(req, res, next) {
     try {
       const { items: cartItems, customerName, phone, region, address, comment } = req.body || {};
+      const paymentMethod = req.body?.paymentMethod === 'click' ? 'click' : 'cash';
 
       if (!Array.isArray(cartItems) || cartItems.length === 0) {
         return res.status(400).json({ ok: false, message: 'Savatcha bosh' });
@@ -230,6 +263,7 @@ const cartController = {
         region: region.trim(),
         address: address.trim(),
         comment: comment && comment.trim() ? comment.trim() : null,
+        paymentMethod,
       });
 
       // Telefon raqamini profilga saqlab qo'yamiz
@@ -244,7 +278,8 @@ const cartController = {
       // Egasi/menejerlarga yangi buyurtma haqida xabar
       notifyAdmins(adminNewOrder(order), { disable_web_page_preview: true });
 
-      res.status(201).json({ ok: true, data: order });
+      const payUrl = paymentMethod === 'click' ? clickPayUrl(order) : null;
+      res.status(201).json({ ok: true, data: { ...order, payUrl } });
     } catch (err) {
       next(err);
     }

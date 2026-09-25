@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
+import { effectiveColor } from './lib/colors';
 import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
   closeApp,
+  openLink,
   getTgUser,
   haptic,
   initTelegram,
@@ -181,17 +183,18 @@ export default function App() {
    * donada — 40-razmerdan 1 juft (yoki birinchi mavjud razmer)
    */
   const quickAdd = (product) => {
-    if (cart.cart[cartKey(mode, product.id)]) {
+    const color = effectiveColor(product, null);
+    if (cart.cart[cartKey(mode, product.id, color)]) {
       setSheetProduct(product);
       return;
     }
     if (mode === 'wholesale') {
-      cart.setPacks(product.id, 1);
+      cart.setPacks(product.id, 1, color);
       notifySuccess();
       return;
     }
     const size = product.sizes.includes(40) ? 40 : product.sizes[0];
-    cart.addItem(product.id, { [size]: 1 });
+    cart.addItem(product.id, { [size]: 1 }, color);
     notifySuccess();
   };
 
@@ -210,8 +213,8 @@ export default function App() {
 
   const reorder = (order) => {
     order.items.forEach((item) => {
-      if (item.packs) cart.setPacks(item.productId, item.packs);
-      else cart.addItem(item.productId, item.sizes);
+      if (item.packs) cart.setPacks(item.productId, item.packs, item.color);
+      else cart.addItem(item.productId, item.sizes, item.color);
     });
     notifySuccess();
     setView('cart');
@@ -221,6 +224,11 @@ export default function App() {
     cart.clear();
     setCheckout(false);
     setSuccess(order);
+    // Click tanlangan va sozlangan bo'lsa — to'lov sahifasi ochiladi
+    if (order.payUrl) {
+      setTimeout(() => openLink(order.payUrl), 600);
+      return;
+    }
     // Mini App 2.5 soniyadan so'ng yopiladi — bot xabari Telegramda ko'rinadi
     setTimeout(closeApp, 2500);
   };
@@ -279,6 +287,15 @@ export default function App() {
             {t.orderNo} #{success.id}
           </b>
         </div>
+        {success.payUrl && (
+          <button
+            className="btn"
+            style={{ marginTop: 18, maxWidth: 320 }}
+            onClick={() => openLink(success.payUrl)}
+          >
+            {t.payNow}
+          </button>
+        )}
       </div>
     );
   }
@@ -356,8 +373,7 @@ export default function App() {
           lang={lang || 'uz'}
           t={t}
           mode={mode}
-          initialSizes={cart.cart[cartKey('retail', sheetProduct.id)]?.sizes}
-          initialPacks={cart.cart[cartKey('wholesale', sheetProduct.id)]?.packs}
+          cartLine={(m, color) => cart.cart[cartKey(m, sheetProduct.id, color)]}
           onClose={() => setSheetProduct(null)}
           onAdd={cart.addItem}
           onSetPacks={cart.setPacks}

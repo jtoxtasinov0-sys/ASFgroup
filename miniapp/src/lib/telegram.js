@@ -43,6 +43,16 @@ export function closeApp() {
   } catch (_) { /* brauzerda ishlamaydi */ }
 }
 
+/** Tashqi havolani ochadi (Telegram ichida — brauzerda, oddiy brauzerda — yangi oynada) */
+export function openLink(url) {
+  try {
+    if (tg?.openLink) tg.openLink(url);
+    else window.open(url, '_blank');
+  } catch (_) {
+    window.location.href = url;
+  }
+}
+
 /** Telegramning orqaga tugmasi */
 export function setBackButton(visible, handler) {
   if (!tg?.BackButton) return () => {};

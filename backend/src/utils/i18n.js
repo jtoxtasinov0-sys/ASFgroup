@@ -1,4 +1,17 @@
 /** Bot xabarlari — o'zbek va rus tillarida */
+const config = require('../config/default');
+
+/** Rang kaliti → nomi ("black" → "Qora") */
+const colorName = (key, lang = 'uz') => {
+  const c = config.colors.find((x) => x.key === key);
+  return c ? c[lang === 'ru' ? 'ru' : 'uz'] : '';
+};
+
+const PAYMENT = {
+  uz: { cash: '💵 Naqd pul', click: '💳 Click' },
+  ru: { cash: '💵 Наличные', click: '💳 Click' },
+};
+
 const T = {
   uz: {
     welcome: (name) =>
@@ -25,6 +38,7 @@ const T = {
       `🧾 Buyurtma raqami: <b>#${order.id}</b>\n` +
       `📦 Mahsulot: <b>${qtyText(order, 'komplekt', 'juft')}</b>\n` +
       `💰 Jami: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx ✅)' : ''}\n` +
+      `💳 To'lov: ${PAYMENT.uz[order.paymentMethod] || PAYMENT.uz.cash}\n` +
       `📍 Manzil: ${order.region}, ${order.address}\n` +
       `📞 Telefon: ${order.phone}\n\n` +
       `Menejerimiz tez orada siz bilan bog'lanadi 👞`,
@@ -64,6 +78,7 @@ const T = {
       `🧾 Номер заказа: <b>#${order.id}</b>\n` +
       `📦 Товар: <b>${qtyText(order, 'компл.', 'пар')}</b>\n` +
       `💰 Итого: <b>${fmt(order.total)} сум</b>${order.isWholesale ? '  (оптовая цена ✅)' : ''}\n` +
+      `💳 Оплата: ${PAYMENT.ru[order.paymentMethod] || PAYMENT.ru.cash}\n` +
       `📍 Адрес: ${order.region}, ${order.address}\n` +
       `📞 Телефон: ${order.phone}\n\n` +
       `Наш менеджер свяжется с вами в ближайшее время 👞`,
@@ -121,7 +136,9 @@ function adminNewOrder(order) {
             .map(([size, count]) => `${size}×${count}`)
             .join(', ')}`;
       return (
-        `${n + 1}. <b>${esc(i.name)}</b> (${esc(i.article)})\n` +
+        `${n + 1}. <b>${esc(i.name)}</b> (${esc(i.article)})` +
+        (i.color ? ` — 🎨 <b>${colorName(i.color)}</b>` : '') +
+        '\n' +
         `   ${sizes} — ${i.qty} juft × ${fmt(i.unitPrice)} = <b>${fmt(i.lineTotal)}</b>`
       );
     })
@@ -131,7 +148,8 @@ function adminNewOrder(order) {
     `🆕 <b>Yangi ${order.isWholesale ? 'OPTOM ' : ''}buyurtma #${order.id}</b>\n\n` +
     `${items}\n\n` +
     `📦 Jami: <b>${qtyText(order, 'komplekt', 'juft')}</b>\n` +
-    `💰 Summa: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx)' : ''}\n\n` +
+    `💰 Summa: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx)' : ''}\n` +
+    `💳 To'lov: <b>${PAYMENT.uz[order.paymentMethod] || PAYMENT.uz.cash}</b>\n\n` +
     `👤 Mijoz: ${esc(order.customerName)}\n` +
     `📞 Telefon: ${esc(order.phone)}\n` +
     `📍 Manzil: ${esc(order.region)}, ${esc(order.address)}\n` +
@@ -144,4 +162,4 @@ function t(lang) {
   return T[lang === 'ru' ? 'ru' : 'uz'];
 }
 
-module.exports = { t, fmt, esc, adminNewOrder };
+module.exports = { t, fmt, esc, adminNewOrder, colorName };

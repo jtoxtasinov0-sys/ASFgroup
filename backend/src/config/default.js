@@ -58,6 +58,20 @@ const config = {
 
   sizes: [39, 40, 41, 42, 43],
 
+  // Mahsulot ranglari — admin panelda har bir rasmga biriktiriladi
+  colors: [
+    { key: 'black', uz: 'Qora', ru: 'Чёрный', hex: '#1c1c1e' },
+    { key: 'brown', uz: 'Jigarrang', ru: 'Коричневый', hex: '#7a4a2b' },
+    { key: 'blue', uz: "Ko'k", ru: 'Синий', hex: '#1f4fa3' },
+  ],
+
+  // Click orqali to'lov (my.click.uz). Ikkalasi ham berilsa — mijozga to'lov
+  // sahifasi ochiladi; berilmasa, Click tanlangan buyurtma bo'yicha menejer bog'lanadi.
+  click: {
+    serviceId: process.env.CLICK_SERVICE_ID || '',
+    merchantId: process.env.CLICK_MERCHANT_ID || '',
+  },
+
   categories: [
     { key: 'ready', uz: 'Tayyor oyoq kiyim', ru: 'Готовая обувь' },
     { key: 'upper', uz: 'Zagatovka', ru: 'Заготовка' },

@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { pick } from '../lib/i18n';
 import { discountPercent, money, wholesaleUnit } from '../lib/format';
 import { MAX_PACKS } from '../lib/store';
 import { haptic, notifySuccess } from '../lib/telegram';
+import { colorLabel, effectiveColor, productColors } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import PriceTag, { OldPrice } from './PriceTag';
 import PhotoViewer from './PhotoViewer';
@@ -15,28 +16,79 @@ export default function ProductSheet({
   lang,
   t,
   mode,
-  initialSizes,
-  initialPacks,
+  cartLine,
   onClose,
   onAdd,
   onSetPacks,
 }) {
   const isWholesale = mode === 'wholesale';
-  const [sizes, setSizes] = useState(initialSizes || {});
+  const colors = productColors(product);
+  const imageColorOf = (i) => product.imageColors?.[product.images[i]] || null;
+
+  // Boshlang'ich rang — birinchi rasmning rangi (yoki mavjud birinchi rang)
+  const startColor = () => effectiveColor(product, imageColorOf(0));
+  const [color, setColor] = useState(startColor);
+  const line = cartLine(mode, color);
+
+  const [sizes, setSizes] = useState(line?.sizes || {});
   // Maydon vaqtincha bo'sh bo'lishi mumkin (yangi son yozilayotganda)
-  const [packInput, setPackInput] = useState(String(initialPacks || 1));
+  const [packInput, setPackInput] = useState(String(line?.packs || 1));
   const packs = Math.min(MAX_PACKS, Math.max(0, Math.floor(Number(packInput) || 0)));
   const [photo, setPhoto] = useState(0);
   const [viewer, setViewer] = useState(false);
+  const trackRef = useRef(null);
   const discount = isWholesale ? 0 : discountPercent(product);
   const unitPrice = isWholesale ? wholesaleUnit(product) : product.price;
 
+  // Boshqa mahsulot ochildi — hammasi boshidan
   useEffect(() => {
-    setSizes(initialSizes || {});
-    setPackInput(String(initialPacks || 1));
+    const c = startColor();
+    const saved = cartLine(mode, c);
+    setColor(c);
+    setSizes(saved?.sizes || {});
+    setPackInput(String(saved?.packs || 1));
     setPhoto(0);
     setViewer(false);
-  }, [product.id, initialSizes, initialPacks]);
+    if (trackRef.current) trackRef.current.scrollLeft = 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id, mode]);
+
+  // Rang almashdi — shu rang savatchada bo'lsa, o'sha miqdorlar ko'rsatiladi
+  const pickColorState = (c) => {
+    if (c === color) return;
+    setColor(c);
+    const saved = cartLine(mode, c);
+    if (saved) {
+      setSizes(saved.sizes || {});
+      setPackInput(String(saved.packs || 1));
+    }
+  };
+
+  /** Karuselni i-rasmga suradi */
+  const goTo = (i, smooth = true) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollTo({ left: i * el.clientWidth, behavior: smooth ? 'smooth' : 'auto' });
+  };
+
+  // Rasm surilganda — joriy rasm va (rasmning rangi bo'lsa) rang yangilanadi
+  const onTrackScroll = () => {
+    const el = trackRef.current;
+    if (!el || !el.clientWidth) return;
+    const i = Math.round(el.scrollLeft / el.clientWidth);
+    if (i === photo) return;
+    setPhoto(i);
+    const c = imageColorOf(i);
+    if (c) pickColorState(c);
+  };
+
+  // Rang tugmasi — shu rangdagi birinchi rasmga o'tadi
+  const selectColor = (c) => {
+    haptic();
+    pickColorState(c);
+    const i = product.images.findIndex((url) => product.imageColors?.[url] === c);
+    if (i >= 0) goTo(i);
+  };
 
   const qty = useMemo(
     () =>
@@ -72,14 +124,15 @@ export default function ProductSheet({
   const submit = () => {
     if (qty === 0) return;
     notifySuccess();
-    if (isWholesale) onSetPacks(product.id, packs);
-    else onAdd(product.id, sizes);
+    if (isWholesale) onSetPacks(product.id, packs, color);
+    else onAdd(product.id, sizes, color);
     onClose();
   };
 
   const details = [
     [t.article, product.article],
-    [t.color, pick(product, 'color', lang)],
+    // Rang tugmalari bo'lsa, matndagi rang takrorlanmaydi
+    [t.color, colors.length ? null : pick(product, 'color', lang)],
     [t.material, pick(product, 'material', lang)],
   ].filter(([, value]) => value);
 
@@ -90,29 +143,46 @@ export default function ProductSheet({
         <div className="sheet-handle" />
 
         <div className="sheet-scroll">
-          <button
-            className="sheet-photo"
-            onClick={() => {
-              haptic();
-              setViewer(true);
-            }}
-          >
-            <img
-              src={imageUrl(product.images[photo] || product.images[0])}
-              alt={pick(product, 'name', lang)}
-              style={frameStyle(frameOf(product, product.images[photo] || product.images[0]))}
-            />
+          {/* Rasmlar: chapga / o'ngga surib almashtiriladi, bosilsa butun ekranda ochiladi */}
+          <div className="sheet-photo">
+            <div className="photo-track" ref={trackRef} onScroll={onTrackScroll}>
+              {product.images.map((src, i) => (
+                <button
+                  key={src}
+                  className="photo-slide"
+                  onClick={() => {
+                    haptic();
+                    setViewer(true);
+                  }}
+                >
+                  <img
+                    src={imageUrl(src)}
+                    alt={pick(product, 'name', lang)}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    draggable={false}
+                    style={frameStyle(frameOf(product, src))}
+                  />
+                </button>
+              ))}
+            </div>
             <span className="sheet-photo-zoom" aria-hidden="true">
               ⤢
             </span>
-          </button>
+            {product.images.length > 1 && (
+              <div className="photo-dots" aria-hidden="true">
+                {product.images.map((src, i) => (
+                  <span key={src} className={i === photo ? 'on' : ''} />
+                ))}
+              </div>
+            )}
+          </div>
 
           {product.images.length > 1 && (
             <div className="tags" style={{ padding: '10px 0 0' }}>
               {product.images.map((src, i) => (
                 <button
                   key={src}
-                  onClick={() => setPhoto(i)}
+                  onClick={() => goTo(i)}
                   style={{
                     flex: '0 0 auto',
                     width: 54,
@@ -180,6 +250,27 @@ export default function ProductSheet({
                 </span>
               </div>
             )
+          )}
+
+          {colors.length > 0 && (
+            <div className="section" style={{ marginTop: 20 }}>
+              <h3 className="h2">
+                {t.chooseColor}: <span className="color-current">{colorLabel(color, lang)}</span>
+              </h3>
+              <div className="color-options">
+                {colors.map((c) => (
+                  <button
+                    key={c.key}
+                    className={`color-option${c.key === color ? ' active' : ''}`}
+                    onClick={() => selectColor(c.key)}
+                    aria-pressed={c.key === color}
+                  >
+                    <span className="color-dot" style={{ background: c.hex }} />
+                    {c[lang === 'ru' ? 'ru' : 'uz']}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           <div className="section" style={{ marginTop: 20 }}>
@@ -291,6 +382,7 @@ export default function ProductSheet({
             ) : (
               <>
                 {t.addToCart} ·{' '}
+                {color && colors.length > 1 ? `${colorLabel(color, lang)}, ` : ''}
                 {isWholesale ? `${packs} ${t.pack} (${qty} ${t.pair})` : `${qty} ${t.pair}`} —{' '}
                 {money(total)} {t.sum}
               </>
@@ -302,7 +394,10 @@ export default function ProductSheet({
         <PhotoViewer
           images={product.images.map(imageUrl)}
           index={photo}
-          onIndex={setPhoto}
+          onIndex={(i) => {
+            setPhoto(i);
+            goTo(i, false);
+          }}
           onClose={() => setViewer(false)}
         />
       )}
