@@ -72,6 +72,14 @@ const config = {
     merchantId: process.env.CLICK_MERCHANT_ID || '',
   },
 
+  // Kartaga o'tkazma (Uzcard / Humo). Admin panel → Sozlamalar ustun turadi,
+  // bu yerdagilar faqat boshlang'ich qiymat.
+  payment: {
+    cardNumber: process.env.PAYMENT_CARD || '',
+    cardHolder: process.env.PAYMENT_CARD_HOLDER || '',
+    cardType: process.env.PAYMENT_CARD_TYPE || '', // uzcard | humo
+  },
+
   categories: [
     { key: 'ready', uz: 'Tayyor oyoq kiyim', ru: 'Готовая обувь' },
     { key: 'upper', uz: 'Zagatovka', ru: 'Заготовка' },

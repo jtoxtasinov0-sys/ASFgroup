@@ -90,12 +90,14 @@ async function request(method, path, body) {
     'X-Telegram-Init-Data': getInitData(),
     'ngrok-skip-browser-warning': 'true',
   };
-  if (body) headers['Content-Type'] = 'application/json';
+  // FormData (fayl yuklash) bo'lsa Content-Type ni brauzer o'zi qo'yadi
+  const isForm = body instanceof FormData;
+  if (body && !isForm) headers['Content-Type'] = 'application/json';
 
   const res = await fetchWithRetry(`/api${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
   });
 
   let json;
@@ -128,4 +130,9 @@ export const api = {
   calculate: (items) => request('POST', '/cart/calculate', { items }),
   createOrder: (payload) => request('POST', '/orders', payload),
   myOrders: () => request('GET', '/orders/my'),
+  uploadReceipt: (orderId, file) => {
+    const form = new FormData();
+    form.append('file', file, file.name || 'receipt.jpg');
+    return request('POST', `/orders/${orderId}/receipt`, form);
+  },
 };

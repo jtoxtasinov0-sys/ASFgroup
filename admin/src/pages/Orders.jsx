@@ -16,6 +16,7 @@ const ColorTag = ({ color }) => {
 
 const STATUSES = [
   { key: 'all', label: 'Hammasi' },
+  { key: 'pay:pending', label: '🧾 Chek tekshirish' },
   { key: 'new', label: '🆕 Yangi' },
   { key: 'confirmed', label: '✅ Tasdiqlangan' },
   { key: 'delivered', label: '📦 Yetkazilgan' },
@@ -119,6 +120,13 @@ const LABEL = {
   cancelled: 'Bekor qilindi',
 };
 
+const PAY_LABEL = {
+  unpaid: "To'lanmagan",
+  pending: 'Chek keldi',
+  paid: "To'langan",
+  rejected: 'Chek rad etilgan',
+};
+
 export default function Orders({ stats, reload }) {
   const [orders, setOrders] = useState(null);
   const [filter, setFilter] = useState('all');
@@ -158,6 +166,39 @@ export default function Orders({ stats, reload }) {
     }
   };
 
+  const changePayment = async (id, paymentStatus) => {
+    const text = paymentStatus === 'paid' ? "to'lov TASDIQLANSINMI" : 'chek RAD ETILSINMI';
+    if (!window.confirm(`#${id} buyurtma: ${text}? Mijozga botdan xabar boradi.`)) return;
+    try {
+      await api.setPaymentStatus(id, paymentStatus);
+      load();
+      reload();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const clearAll = async () => {
+    const typed = window.prompt(
+      "DIQQAT! Barcha buyurtmalar butunlay o'chiriladi, statistika 0 ga tushadi " +
+        "va raqamlash #1 dan boshlanadi. Buni qaytarib bo'lmaydi.\n\n" +
+        'Davom etish uchun TOZALASH deb yozing:'
+    );
+    if (typed === null) return;
+    if (typed.trim().toUpperCase() !== 'TOZALASH') {
+      setError("Tozalash bekor qilindi — TOZALASH so'zi noto'g'ri yozildi");
+      return;
+    }
+    try {
+      await api.clearOrders();
+      setError('');
+      load();
+      reload();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const remove = async (id) => {
     if (!window.confirm(`#${id} raqamli buyurtma o'chirilsinmi?`)) return;
     try {
@@ -173,9 +214,14 @@ export default function Orders({ stats, reload }) {
     <>
       <div className="page-head">
         <h1>Buyurtmalar</h1>
-        <button className="btn btn-line" onClick={load}>
-          ↻ Yangilash
-        </button>
+        <div className="row-actions">
+          <button className="btn btn-line" onClick={load}>
+            ↻ Yangilash
+          </button>
+          <button className="btn btn-danger" onClick={clearAll}>
+            🗑 Hammasini tozalash
+          </button>
+        </div>
       </div>
 
       <div className="stats">
@@ -186,6 +232,10 @@ export default function Orders({ stats, reload }) {
         <div className="stat">
           <span>Yangi</span>
           <b style={{ color: 'var(--red)' }}>{stats?.newCount ?? '—'}</b>
+        </div>
+        <div className="stat">
+          <span>Chek tekshirish</span>
+          <b style={{ color: 'var(--amber)' }}>{stats?.pendingPayments ?? '—'}</b>
         </div>
         <div className="stat">
           <span>Yetkazilgan</span>
@@ -315,6 +365,38 @@ export default function Orders({ stats, reload }) {
                         {order.totalQty} juft
                       </div>
                       {order.isWholesale && <span className="badge on">optom</span>}
+
+                      {order.paymentMethod === 'card' && (
+                        <div className="pay-box">
+                          <span className={`badge pay-${order.paymentStatus}`}>
+                            {PAY_LABEL[order.paymentStatus] || order.paymentStatus}
+                          </span>
+                          {order.receiptUrl && (
+                            <a
+                              className="receipt-thumb"
+                              href={imageUrl(order.receiptUrl)}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Chekni kattalashtirish"
+                            >
+                              <img src={imageUrl(order.receiptUrl)} alt="Chek" />
+                            </a>
+                          )}
+                          {order.paymentStatus === 'pending' && (
+                            <div className="row-actions" style={{ marginTop: 6 }}>
+                              <button className="btn btn-sm" onClick={() => changePayment(order.id, 'paid')}>
+                                ✅ Tasdiqlash
+                              </button>
+                              <button
+                                className="btn btn-line btn-sm"
+                                onClick={() => changePayment(order.id, 'rejected')}
+                              >
+                                Rad etish
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </td>
 
                     <td className="muted nowrap">{date(order.createdAt)}</td>

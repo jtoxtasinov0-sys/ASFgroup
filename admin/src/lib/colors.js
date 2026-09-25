@@ -25,4 +25,5 @@ export const customColor = (name, hex) => {
 export const PAYMENT = {
   cash: '💵 Naqd pul',
   click: '💳 Click',
+  card: "🏦 Kartaga o'tkazma",
 };

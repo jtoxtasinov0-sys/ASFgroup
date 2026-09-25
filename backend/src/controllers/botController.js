@@ -1,7 +1,14 @@
 const config = require('../config/default');
 const UserModel = require('../models/User');
-const { t } = require('../utils/i18n');
+const OrderModel = require('../models/Order');
+const { t, esc } = require('../utils/i18n');
 const { samePassword } = require('../utils/password');
+const { canDecide, attachReceipt, setPaymentStatus, saveTelegramFile } = require('../services/payment');
+
+const PAY_LABEL = {
+  paid: "✅ TO'LOV TASDIQLANDI",
+  rejected: '❌ CHEK RAD ETILDI',
+};
 const { isAdminChat, hasAdminUrl, setAdminMenuButton } = require('../core/bot');
 
 /** Mini App https manzilida bo'lsagina web_app tugmasini qo'yish mumkin */
@@ -69,6 +76,10 @@ const botController = {
 
   /** Inline tugmalar */
   async onCallback(bot, query) {
+    if (query.data && query.data.startsWith('pay:')) {
+      return botController.onPaymentDecision(bot, query);
+    }
+
     const chatId = query.message.chat.id;
     const user = await UserModel.findOrCreate(query.from);
     const data = query.data;
@@ -102,6 +113,79 @@ const botController = {
     }
 
     await bot.answerCallbackQuery(query.id).catch(() => {});
+  },
+
+  /** Admin chekni tasdiqlaydi yoki rad etadi: pay:ok:12 | pay:no:12 */
+  async onPaymentDecision(bot, query) {
+    const [, action, id] = query.data.split(':');
+
+    if (!(await canDecide(query.from.id))) {
+      return bot.answerCallbackQuery(query.id, {
+        text: "Sizda bu amal uchun ruxsat yo'q",
+        show_alert: true,
+      });
+    }
+
+    const current = await OrderModel.findById(id);
+    if (!current) {
+      return bot.answerCallbackQuery(query.id, { text: 'Buyurtma topilmadi', show_alert: true });
+    }
+
+    // Boshqa admin allaqachon hal qilgan bo'lsa — qayta o'zgartirmaymiz
+    let order = current;
+    if (current.paymentStatus === 'pending') {
+      order = await setPaymentStatus(id, action === 'ok' ? 'paid' : 'rejected');
+    }
+
+    const label = PAY_LABEL[order.paymentStatus] || order.paymentStatus;
+    const who = query.from.username ? `@${query.from.username}` : query.from.first_name || 'admin';
+    // Telegram caption'ni oddiy matn qilib qaytaradi — HTML uchun qayta ekranlaymiz
+    const original = (query.message.caption || query.message.text || '').replace(
+      /\n*Chekni tekshirib.*$/s,
+      ''
+    );
+    const caption = `${esc(original)}\n\n<b>${label}</b> — ${esc(who)}`;
+
+    const target = { chat_id: query.message.chat.id, message_id: query.message.message_id };
+    const edit = query.message.photo || query.message.document
+      ? bot.editMessageCaption(caption, { ...target, parse_mode: 'HTML' })
+      : bot.editMessageText(caption, { ...target, parse_mode: 'HTML' });
+    await edit.catch(() => {});
+
+    await bot
+      .answerCallbackQuery(query.id, {
+        text: current.paymentStatus === 'pending' ? label : `Avvalroq hal qilingan: ${label}`,
+      })
+      .catch(() => {});
+  },
+
+  /** Mijoz kartaga o'tkazma chekini botga rasm qilib yuboradi */
+  async onReceipt(bot, msg) {
+    const user = await UserModel.findOrCreate(msg.from);
+    const L = t(user.lang);
+
+    const photo = msg.photo?.[msg.photo.length - 1];
+    const doc = msg.document;
+    if (!photo && !(doc && /^image\//.test(doc.mime_type || ''))) {
+      return bot.sendMessage(msg.chat.id, L.receiptNotImage);
+    }
+
+    const order = await OrderModel.findLatestUnpaid(user.telegramId);
+    if (!order) {
+      return bot.sendMessage(msg.chat.id, L.noUnpaidOrder, {
+        reply_markup: mainKeyboard(user.lang, msg.chat.id, user),
+      });
+    }
+
+    const fileId = photo ? photo.file_id : doc.file_id;
+    let receiptUrl = null;
+    try {
+      receiptUrl = await saveTelegramFile(bot, fileId);
+    } catch (err) {
+      console.error('Chek fayli saqlanmadi:', err?.message);
+    }
+
+    await attachReceipt(order, receiptUrl, { fileId, kind: photo ? 'photo' : 'document' });
   },
 
   /** Telefon raqami yuborilganda */

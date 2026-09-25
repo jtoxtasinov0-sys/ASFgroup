@@ -1,8 +1,11 @@
 const express = require('express');
 const cartController = require('../controllers/cartController');
 const { telegramAuth } = require('../middlewares/auth.middleware');
+const { makeUploader } = require('../utils/upload');
 
 const router = express.Router();
+
+const receiptUpload = makeUploader('receipts').single('file');
 
 // Ochiq yo'llar
 router.get('/config', cartController.getConfig);
@@ -17,5 +20,6 @@ router.post('/me', telegramAuth, cartController.me);
 router.patch('/profile', telegramAuth, cartController.updateProfile);
 router.post('/orders', telegramAuth, cartController.createOrder);
 router.get('/orders/my', telegramAuth, cartController.myOrders);
+router.post('/orders/:id/receipt', telegramAuth, receiptUpload, cartController.uploadReceipt);
 
 module.exports = router;

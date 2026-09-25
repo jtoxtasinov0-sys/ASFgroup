@@ -3,3 +3,4 @@ node_modules
 uploads/products/custom-*
 uploads/stories/*
 !uploads/stories/.gitkeep
+uploads/receipts/*

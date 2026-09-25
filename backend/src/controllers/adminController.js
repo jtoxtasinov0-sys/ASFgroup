@@ -10,6 +10,13 @@ const { startBroadcast, broadcastStatus } = require('../core/broadcast');
 const { t } = require('../utils/i18n');
 const { samePassword } = require('../utils/password');
 const { cleanColor } = require('../utils/colors');
+const SettingModel = require('../models/Setting');
+const {
+  CARD_TYPES,
+  onlyDigits,
+  getPaymentSettings,
+  setPaymentStatus,
+} = require('../services/payment');
 
 /* ---------- Yordamchi ---------- */
 
@@ -220,7 +227,10 @@ const adminController = {
   /* ===== Buyurtmalar ===== */
   async listOrders(req, res, next) {
     try {
-      const orders = await OrderModel.findAll({ status: req.query.status });
+      const orders = await OrderModel.findAll({
+        status: req.query.status,
+        paymentStatus: req.query.payment,
+      });
       res.json({ ok: true, data: orders });
     } catch (err) {
       next(err);
@@ -250,10 +260,79 @@ const adminController = {
     }
   },
 
+  /** Kartaga o'tkazmani tasdiqlash / rad etish */
+  async updatePaymentStatus(req, res, next) {
+    try {
+      const { paymentStatus } = req.body || {};
+      if (!['paid', 'rejected', 'unpaid'].includes(paymentStatus)) {
+        return res.status(400).json({ ok: false, message: "Notogri to'lov holati" });
+      }
+      const order = await setPaymentStatus(req.params.id, paymentStatus);
+      if (!order) return res.status(404).json({ ok: false, message: 'Topilmadi' });
+      res.json({ ok: true, data: order });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async deleteOrder(req, res, next) {
     try {
+      const existing = await OrderModel.findById(req.params.id);
+      if (existing?.receiptUrl) removeFile(existing.receiptUrl);
       await OrderModel.remove(req.params.id);
       res.json({ ok: true });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /** Barcha buyurtmalarni tozalash (statistika 0 ga tushadi, raqamlar #1 dan boshlanadi) */
+  async clearOrders(req, res, next) {
+    try {
+      if ((req.body || {}).confirm !== 'TOZALASH') {
+        return res.status(400).json({ ok: false, message: 'Tasdiqlash uchun TOZALASH deb yozing' });
+      }
+      const receipts = await OrderModel.clearAll();
+      receipts.forEach(removeFile);
+      res.json({ ok: true });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /* ===== Sozlamalar: kartaga o'tkazma uchun karta ===== */
+  async getSettings(_req, res, next) {
+    try {
+      const p = await getPaymentSettings();
+      res.json({ ok: true, data: p });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateSettings(req, res, next) {
+    try {
+      const body = req.body || {};
+      const cardNumber = onlyDigits(body.cardNumber);
+      const cardHolder = String(body.cardHolder || '').trim();
+      const cardType = CARD_TYPES[body.cardType] ? body.cardType : '';
+
+      if (cardNumber) {
+        if (cardNumber.length !== 16) {
+          return res
+            .status(400)
+            .json({ ok: false, message: "Karta raqami 16 ta raqamdan iborat bo'lishi kerak" });
+        }
+        if (!cardType) {
+          return res.status(400).json({ ok: false, message: 'Karta turini tanlang: Uzcard yoki Humo' });
+        }
+        if (!cardHolder) {
+          return res.status(400).json({ ok: false, message: 'Karta egasining ismini kiriting' });
+        }
+      }
+
+      await SettingModel.setMany({ cardNumber, cardHolder, cardType });
+      res.json({ ok: true, data: await getPaymentSettings() });
     } catch (err) {
       next(err);
     }

@@ -10,7 +10,8 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
     region: '',
     address: '',
     comment: '',
-    paymentMethod: 'cash',
+    // Admin karta kiritgan bo'lsa — kartaga o'tkazma birinchi tanlangan bo'ladi
+    paymentMethod: config?.payment?.enabled ? 'card' : 'cash',
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -108,13 +109,19 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
             <label>{t.payMethod}</label>
             <div className="pay-options">
               {[
+                config?.payment?.enabled && [
+                  'card',
+                  '🏦',
+                  t.payCard,
+                  t.payCardText(config.payment.typeLabel),
+                ],
                 ['cash', '💵', t.payCash, t.payCashText],
                 ['click', null, t.payClick, t.payClickText],
-              ].map(([key, icon, title, text]) => (
+              ].filter(Boolean).map(([key, icon, title, text]) => (
                 <button
                   key={key}
                   type="button"
-                  className={`pay-option${form.paymentMethod === key ? ' active' : ''}`}
+                  className={`pay-option${key === 'card' ? ' wide' : ''}${form.paymentMethod === key ? ' active' : ''}`}
                   onClick={() => {
                     haptic();
                     setForm((p) => ({ ...p, paymentMethod: key }));
@@ -126,6 +133,11 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
                 </button>
               ))}
             </div>
+            {form.paymentMethod === 'card' && (
+              <p className="muted" style={{ fontSize: 12, margin: '8px 0 0' }}>
+                {t.payCardSoon}
+              </p>
+            )}
             {form.paymentMethod === 'click' && (
               <p className="muted" style={{ fontSize: 12, margin: '8px 0 0' }}>
                 {config?.clickEnabled ? t.payClickSoon : t.payClickManual}

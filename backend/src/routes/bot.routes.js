@@ -19,6 +19,11 @@ function registerBotHandlers(bot) {
   bot.on('callback_query', guard(botController.onCallback));
   bot.on('contact', guard(botController.onContact));
 
+  // Kartaga o'tkazma cheki: rasm yoki rasm-fayl (faqat shaxsiy chatda)
+  const receipt = guard(botController.onReceipt);
+  bot.on('photo', (msg) => msg.chat.type === 'private' && receipt(msg));
+  bot.on('document', (msg) => msg.chat.type === 'private' && receipt(msg));
+
   bot.on('message', (msg) => {
     if (!msg.text || msg.text.startsWith('/') || msg.contact) return;
     if (msg.chat.type !== 'private') return; // guruhdagi yozishmalarga javob bermaymiz

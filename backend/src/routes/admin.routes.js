@@ -21,7 +21,9 @@ router.get('/dashboard', adminController.dashboard);
 
 // Buyurtmalar
 router.get('/orders', adminController.listOrders);
+router.post('/orders/clear', adminController.clearOrders);
 router.patch('/orders/:id/status', adminController.updateOrderStatus);
+router.patch('/orders/:id/payment', adminController.updatePaymentStatus);
 router.delete('/orders/:id', adminController.deleteOrder);
 
 // Mahsulotlar (CRUD) — rasmlar galereyadan yuklanadi
@@ -43,5 +45,9 @@ router.post('/broadcast', broadcastUpload, adminController.broadcast);
 
 // Mijozlar
 router.get('/users', adminController.listUsers);
+
+// Sozlamalar (kartaga o'tkazma uchun karta)
+router.get('/settings', adminController.getSettings);
+router.put('/settings', adminController.updateSettings);
 
 module.exports = router;

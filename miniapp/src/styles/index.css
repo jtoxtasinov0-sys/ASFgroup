@@ -1824,3 +1824,174 @@ img {
   font-weight: 800;
   letter-spacing: -0.02em;
 }
+/* ---------- To'lov ekrani ---------- */
+
+.pay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.pay-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 18px 20px;
+}
+
+.pay-check {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 32px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pay-sub {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 6px 0 0;
+  line-height: 1.45;
+}
+
+.pay-sub b {
+  color: var(--ink);
+}
+
+.pay-card {
+  margin-top: 20px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-lg);
+  padding: 6px 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.pay-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  font-size: 13px;
+}
+
+.pay-row > span {
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.pay-row b {
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.pay-row .mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.pay-val {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pay-amount {
+  font-size: 16px;
+}
+
+.pay-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: 2px 0;
+}
+
+.pay-copy {
+  flex-shrink: 0;
+  background: #fff;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.pay-copy.done {
+  background: #d9f5e5;
+  color: #0b7a3c;
+}
+
+.pay-upload {
+  width: 100%;
+  margin-top: 16px;
+  min-height: 72px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-soft);
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.pay-upload.has {
+  justify-content: flex-start;
+  border-style: solid;
+}
+
+.pay-upload img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.pay-upload:disabled {
+  opacity: 0.6;
+}
+
+.pay-help {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  padding: 12px;
+  border-radius: var(--r-md);
+  background: #fff4e5;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pay-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.badge.pay-unpaid { background: #fdecec; color: #b42318; }
+.badge.pay-pending { background: #fff4e5; color: #92400e; }
+.badge.pay-paid { background: #e7f6ee; color: #0b7a3c; }
+.badge.pay-rejected { background: #fdecec; color: #b42318; }
+
+.pay-option.wide {
+  grid-column: 1 / -1;
+}

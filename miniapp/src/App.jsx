@@ -15,6 +15,7 @@ import {
 } from './lib/telegram';
 
 import BottomNav from './components/BottomNav';
+import PaymentScreen from './components/PaymentScreen';
 import ProductSheet from './components/ProductSheet';
 import StoryViewer from './components/StoryViewer';
 
@@ -229,6 +230,8 @@ export default function App() {
       setTimeout(() => openLink(order.payUrl), 600);
       return;
     }
+    // Kartaga o'tkazma — karta raqami va chek yuklash ekrani ochiq qoladi
+    if (order.paymentMethod === 'card') return;
     // Mini App 2.5 soniyadan so'ng yopiladi — bot xabari Telegramda ko'rinadi
     setTimeout(closeApp, 2500);
   };
@@ -273,6 +276,24 @@ export default function App() {
           {t.retry}
         </button>
       </div>
+    );
+  }
+
+  if (success && success.paymentMethod === 'card' && config?.payment?.enabled) {
+    return (
+      <PaymentScreen
+        t={t}
+        order={success}
+        payment={config.payment}
+        company={config.company}
+        fresh
+        onClose={() => {
+          setSuccess(null);
+          setView('home');
+          closeApp();
+        }}
+        onUploaded={setSuccess}
+      />
     );
   }
 

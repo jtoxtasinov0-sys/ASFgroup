@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const multer = require('multer');
 
 const ROOT = path.join(__dirname, '..', '..', 'uploads');
@@ -17,7 +18,8 @@ function makeUploader(folder) {
     destination: (_req, _file, cb) => cb(null, dest),
     filename: (_req, file, cb) => {
       const ext = (path.extname(file.originalname) || '.jpg').toLowerCase();
-      const safe = `custom-${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
+      // Tasodifiy nom — chek rasmlarining manzilini taxmin qilib bo'lmasin
+      const safe = `custom-${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
       cb(null, safe);
     },
   });

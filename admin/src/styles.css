@@ -1040,3 +1040,56 @@ div.item-preview-img {
   flex-wrap: wrap;
   gap: 10px;
 }
+/* ---------- To'lov ---------- */
+
+.badge.pay-unpaid { background: #f1f2f5; color: var(--muted); }
+.badge.pay-pending { background: #fff4e5; color: var(--amber); }
+.badge.pay-paid { background: #e7f6ee; color: #0b7a3c; }
+.badge.pay-rejected { background: #fdecec; color: #b42318; }
+
+.receipt-thumb {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin-top: 6px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.receipt-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.alert.ok {
+  background: #e7f6ee;
+  color: #0b7a3c;
+}
+
+.settings-card {
+  max-width: 720px;
+  padding: 22px;
+}
+
+.settings-card h2 {
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+
+.settings-card > p {
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.pay-tag.card {
+  background: #fff4e5;
+  color: var(--amber);
+}
+
+.pay-box {
+  margin-top: 8px;
+  font-family: inherit;
+  white-space: normal;
+}

@@ -75,13 +75,26 @@ model Order {
   region      String
   address     String
   comment     String?
-  paymentMethod String @default("cash") /// cash — naqd pul | click — Click orqali
+  paymentMethod String @default("cash") /// cash — naqd pul | click — Click orqali | card — kartaga o'tkazma (Uzcard/Humo)
+  paymentStatus String    @default("unpaid") /// unpaid | pending (chek yuborilgan) | paid | rejected
+  receiptUrl    String? /// Kartaga o'tkazma cheki rasmi
+  receiptAt     DateTime? /// Chek yuborilgan vaqt
   status      String   @default("new") /// new | confirmed | delivered | cancelled
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([status])
+  @@index([paymentStatus])
   @@map("orders")
+}
+
+/// Admin paneldan o'zgartiriladigan sozlamalar (to'lov kartasi)
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }
 
 /// Storylar (bosh sahifadagi doiralar)

@@ -2,10 +2,24 @@ import { useEffect, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
 import { date, money } from '../lib/format';
 import { haptic } from '../lib/telegram';
+import PaymentScreen from '../components/PaymentScreen';
 
 export default function Profile({ t, lang, setLang, user, config, onReorder }) {
   const [orders, setOrders] = useState(null);
   const [open, setOpen] = useState(false);
+  const [paying, setPaying] = useState(null);
+
+  const payEnabled = Boolean(config?.payment?.enabled);
+  const canPay = (order) =>
+    payEnabled &&
+    order.paymentMethod === 'card' &&
+    order.status !== 'cancelled' &&
+    ['unpaid', 'rejected'].includes(order.paymentStatus);
+
+  const onUploaded = (updated) => {
+    setPaying(updated);
+    setOrders((list) => list?.map((o) => (o.id === updated.id ? { ...o, ...updated } : o)));
+  };
 
   useEffect(() => {
     if (!open || orders) return;
@@ -67,6 +81,19 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
                     <div className="muted" style={{ marginBottom: 6 }}>
                       {date(order.createdAt)}
                     </div>
+
+                    {order.paymentMethod === 'card' && order.paymentStatus && (
+                      <div className="pay-line" style={{ marginTop: 0, marginBottom: 8 }}>
+                        <span className={`badge pay-${order.paymentStatus}`}>
+                          {t.payStatuses[order.paymentStatus] || order.paymentStatus}
+                        </span>
+                        {canPay(order) && (
+                          <button className="btn btn-sm" onClick={() => setPaying(order)}>
+                            {t.payCardNow}
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {order.items.map((item) => (
                       <div className="order-line" key={`${item.productId}-${item.mode || 'retail'}`}>
@@ -131,6 +158,17 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
             </span>
           </a>
         </div>
+
+        {paying && (
+          <PaymentScreen
+            t={t}
+            order={paying}
+            payment={config.payment}
+            company={config.company}
+            onClose={() => setPaying(null)}
+            onUploaded={onUploaded}
+          />
+        )}
 
         <div className="section">
           <h2 className="h2">{t.aboutUs}</h2>

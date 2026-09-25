@@ -5,9 +5,10 @@ const OrderModel = {
     return prisma.order.create({ data, include: { user: true } });
   },
 
-  findAll({ status } = {}) {
+  findAll({ status, paymentStatus } = {}) {
     const where = {};
     if (status && status !== 'all') where.status = status;
+    if (paymentStatus && paymentStatus !== 'all') where.paymentStatus = paymentStatus;
     return prisma.order.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -26,6 +27,38 @@ const OrderModel = {
     });
   },
 
+  /** Mijozning eng oxirgi kartaga to'lanmagan (yoki cheki rad etilgan) buyurtmasi */
+  findLatestUnpaid(telegramId) {
+    return prisma.order.findFirst({
+      where: {
+        user: { telegramId: String(telegramId) },
+        paymentMethod: 'card',
+        paymentStatus: { in: ['unpaid', 'rejected'] },
+        status: { not: 'cancelled' },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { user: true },
+    });
+  },
+
+  update(id, data) {
+    return prisma.order.update({
+      where: { id: Number(id) },
+      data,
+      include: { user: true },
+    });
+  },
+
+  /** Barcha buyurtmalarni o'chiradi va raqamlashni #1 dan qayta boshlaydi */
+  async clearAll() {
+    const withReceipts = await prisma.order.findMany({
+      where: { receiptUrl: { not: null } },
+      select: { receiptUrl: true },
+    });
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "orders" RESTART IDENTITY');
+    return withReceipts.map((o) => o.receiptUrl);
+  },
+
   updateStatus(id, status) {
     return prisma.order.update({
       where: { id: Number(id) },
@@ -39,16 +72,17 @@ const OrderModel = {
   },
 
   async stats() {
-    const [total, newCount, delivered, sumAgg] = await Promise.all([
+    const [total, newCount, delivered, pendingPayments, sumAgg] = await Promise.all([
       prisma.order.count(),
       prisma.order.count({ where: { status: 'new' } }),
       prisma.order.count({ where: { status: 'delivered' } }),
+      prisma.order.count({ where: { paymentStatus: 'pending' } }),
       prisma.order.aggregate({
         _sum: { total: true },
         where: { status: { not: 'cancelled' } },
       }),
     ]);
-    return { total, newCount, delivered, revenue: sumAgg._sum.total || 0 };
+    return { total, newCount, delivered, pendingPayments, revenue: sumAgg._sum.total || 0 };
   },
 };
 

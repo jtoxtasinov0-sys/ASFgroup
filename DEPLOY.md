@@ -395,3 +395,19 @@ git push
 
 - Vercel → `miniapp` va `admin` ni qayta build qiladi *(0-QISM dagi Root Directory sozlangandan keyin)*
 - Render → `backend` ni qayta build qiladi
+
+---
+
+## Kartaga o'tkazma (Uzcard / Humo) va chek
+
+1. Admin panel → **⚙️ Sozlamalar** → karta raqami, turi (Uzcard / Humo) va karta egasini yozing → **Saqlash**
+2. Endi buyurtma berishda **"🏦 Kartaga o'tkazma"** usuli chiqadi. Mijozga Mini App'da va botda
+   karta raqami va to'lanadigan summa ko'rsatiladi
+3. Mijoz chek rasmini Mini App'dan yuklaydi yoki botga rasm qilib yuboradi
+4. Adminlarga (`ADMIN_CHAT_IDS` va `/admin PAROL` qilganlar) botdan chek rasmi
+   **✅ Tasdiqlash / ❌ Rad etish** tugmalari bilan keladi
+
+Karta raqami bo'sh bo'lsa, bu usul ko'rinmaydi.
+
+**Buyurtmalarni tozalash:** Admin panel → Buyurtmalar → **🗑 Hammasini tozalash** → `TOZALASH` deb yozing.
+Barcha buyurtmalar o'chadi, statistika 0 ga tushadi, raqamlash #1 dan boshlanadi. Qaytarib bo'lmaydi.

@@ -127,7 +127,13 @@ export const api = {
   me: () => request('GET', '/me'),
   dashboard: () => request('GET', '/dashboard'),
 
-  orders: (status) => request('GET', `/orders${status && status !== 'all' ? `?status=${status}` : ''}`),
+  orders: (status) => {
+    // "pay:pending" — to'lov holati bo'yicha filtr
+    if (status && status.startsWith('pay:')) return request('GET', `/orders?payment=${status.slice(4)}`);
+    return request('GET', `/orders${status && status !== 'all' ? `?status=${status}` : ''}`);
+  },
+  setPaymentStatus: (id, paymentStatus) => request('PATCH', `/orders/${id}/payment`, { paymentStatus }),
+  clearOrders: () => request('POST', '/orders/clear', { confirm: 'TOZALASH' }),
   setOrderStatus: (id, status) => request('PATCH', `/orders/${id}/status`, { status }),
   deleteOrder: (id) => request('DELETE', `/orders/${id}`),
 
@@ -142,6 +148,9 @@ export const api = {
   deleteStory: (id) => request('DELETE', `/stories/${id}`),
 
   users: () => request('GET', '/users'),
+
+  settings: () => request('GET', '/settings'),
+  saveSettings: (data) => request('PUT', '/settings', data),
 
   broadcastInfo: () => request('GET', '/broadcast'),
   broadcast: (formData) => upload('POST', '/broadcast', formData),

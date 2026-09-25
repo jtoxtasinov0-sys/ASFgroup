@@ -6,6 +6,8 @@ const StoryModel = require('../models/Story');
 const { safeSend, notifyAdmins } = require('../core/bot');
 const { t, adminNewOrder } = require('../utils/i18n');
 const { productColors } = require('../utils/colors');
+const { fileUrl, removeFile } = require('../utils/upload');
+const { getPublicPayment, attachReceipt } = require('../services/payment');
 
 /* ---------- Yordamchi funksiyalar ---------- */
 
@@ -116,20 +118,25 @@ async function priceCart(cartItems) {
 
 const cartController = {
   /** Ilova sozlamalari: kategoriyalar, viloyatlar, razmerlar */
-  getConfig(_req, res) {
-    res.json({
-      ok: true,
-      data: {
-        company: config.company,
-        categories: config.categories,
-        tags: config.tags,
-        regions: config.regions,
-        sizes: config.sizes,
-        colors: config.colors,
-        clickEnabled: Boolean(config.click.serviceId && config.click.merchantId),
-        botUsername: config.bot.username || process.env.BOT_USERNAME || '',
-      },
-    });
+  async getConfig(_req, res, next) {
+    try {
+      res.json({
+        ok: true,
+        data: {
+          company: config.company,
+          categories: config.categories,
+          tags: config.tags,
+          regions: config.regions,
+          sizes: config.sizes,
+          colors: config.colors,
+          clickEnabled: Boolean(config.click.serviceId && config.click.merchantId),
+          botUsername: config.bot.username || process.env.BOT_USERNAME || '',
+          payment: await getPublicPayment(),
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
   },
 
   /** Foydalanuvchini ro'yxatdan o'tkazadi / profilini qaytaradi */
@@ -214,7 +221,11 @@ const cartController = {
   async createOrder(req, res, next) {
     try {
       const { items: cartItems, customerName, phone, region, address, comment } = req.body || {};
-      const paymentMethod = req.body?.paymentMethod === 'click' ? 'click' : 'cash';
+      // Kartaga o'tkazma faqat admin karta kiritgan bo'lsa
+      const payment = await getPublicPayment();
+      const asked = req.body?.paymentMethod;
+      const paymentMethod =
+        asked === 'click' ? 'click' : asked === 'card' && payment.enabled ? 'card' : 'cash';
 
       if (!Array.isArray(cartItems) || cartItems.length === 0) {
         return res.status(400).json({ ok: false, message: 'Savatcha bosh' });
@@ -269,7 +280,8 @@ const cartController = {
 
       // Botdan mijozga tasdiq xabari
       const lang = t(user.lang);
-      safeSend(user.telegramId, lang.orderOk(order));
+      // Kartaga o'tkazmada — karta raqami va to'lanadigan summa ham yoziladi
+      safeSend(user.telegramId, lang.orderOk(order, paymentMethod === 'card' ? payment : null));
 
       // Egasi/menejerlarga yangi buyurtma haqida xabar
       notifyAdmins(adminNewOrder(order), { disable_web_page_preview: true });
@@ -277,6 +289,33 @@ const cartController = {
       const payUrl = paymentMethod === 'click' ? clickPayUrl(order) : null;
       res.status(201).json({ ok: true, data: { ...order, payUrl } });
     } catch (err) {
+      next(err);
+    }
+  },
+
+  /** Kartaga o'tkazma chekini yuklash (Mini App'dan) */
+  async uploadReceipt(req, res, next) {
+    const url = req.file ? fileUrl('receipts', req.file.filename) : null;
+    try {
+      if (!url) return res.status(400).json({ ok: false, message: 'Chek rasmini tanlang' });
+
+      const order = await OrderModel.findById(req.params.id);
+      if (!order || order.user?.telegramId !== String(req.tgUser.id)) {
+        removeFile(url);
+        return res.status(404).json({ ok: false, message: 'Buyurtma topilmadi' });
+      }
+      if (order.paymentStatus === 'paid') {
+        removeFile(url);
+        return res.status(400).json({ ok: false, message: "Bu buyurtma allaqachon to'langan" });
+      }
+
+      const updated = await attachReceipt(order, url, { filePath: req.file.path });
+      res.json({
+        ok: true,
+        data: { id: updated.id, paymentStatus: updated.paymentStatus, receiptUrl: updated.receiptUrl },
+      });
+    } catch (err) {
+      removeFile(url);
       next(err);
     }
   },

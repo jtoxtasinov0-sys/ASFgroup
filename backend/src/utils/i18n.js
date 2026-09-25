@@ -8,8 +8,8 @@ const colorName = (key, lang = 'uz') => {
 };
 
 const PAYMENT = {
-  uz: { cash: '💵 Naqd pul', click: '💳 Click' },
-  ru: { cash: '💵 Наличные', click: '💳 Click' },
+  uz: { cash: '💵 Naqd pul', click: '💳 Click', card: "🏦 Kartaga o'tkazma" },
+  ru: { cash: '💵 Наличные', click: '💳 Click', card: '🏦 Перевод на карту' },
 };
 
 const T = {
@@ -33,15 +33,34 @@ const T = {
       `<b>ASF GROUP</b>\n<i>${c.slogan}</i>\n\n` +
       `📞 Telefon: ${c.phone}\n📍 Manzil: ${c.address}\n\n` +
       `Optom buyurtmalar uchun bevosita bog'laning.`,
-    orderOk: (order) =>
+    orderOk: (order, pay) =>
       `✅ <b>Buyurtmangiz muvaffaqiyatli qabul qilindi!</b>\n\n` +
       `🧾 Buyurtma raqami: <b>#${order.id}</b>\n` +
       `📦 Mahsulot: <b>${qtyText(order, 'komplekt', 'juft')}</b>\n` +
       `💰 Jami: <b>${fmt(order.total)} so'm</b>${order.isWholesale ? '  (optom narx ✅)' : ''}\n` +
       `💳 To'lov: ${PAYMENT.uz[order.paymentMethod] || PAYMENT.uz.cash}\n` +
-      `📍 Manzil: ${order.region}, ${order.address}\n` +
-      `📞 Telefon: ${order.phone}\n\n` +
-      `Menejerimiz tez orada siz bilan bog'lanadi 👞`,
+      `📍 Manzil: ${esc(order.region)}, ${esc(order.address)}\n` +
+      `📞 Telefon: ${esc(order.phone)}\n\n` +
+      (pay
+        ? `💳 <b>To'lov uchun karta (${pay.typeLabel}):</b>\n` +
+          `<code>${pay.cardFormatted}</code>\n` +
+          `👤 Qabul qiluvchi: <b>${esc(pay.cardHolder)}</b>\n` +
+          `💰 To'lanadigan summa: <b>${fmt(order.total)} so'm</b>\n\n` +
+          `📸 To'lovni qilgach, <b>chek rasmini shu chatga yuboring</b> ` +
+          `(yoki do'kondagi "Chek rasmini yuklash" tugmasi orqali). ` +
+          `Admin tasdiqlagach buyurtmangiz jo'natiladi.`
+        : `Menejerimiz tez orada siz bilan bog'lanadi 👞`),
+    receiptReceived: (order) =>
+      `🧾 <b>#${order.id}</b> buyurtma uchun chek qabul qilindi.\n` +
+      `Admin tekshirib tasdiqlagach, sizga xabar beramiz ⏳`,
+    paymentPaid: (order) =>
+      `✅ <b>#${order.id}</b> buyurtmangiz uchun to'lov tasdiqlandi!\nTez orada jo'natamiz 👞`,
+    paymentRejected: (order) =>
+      `❌ <b>#${order.id}</b> buyurtmangiz uchun yuborilgan chek tasdiqlanmadi.\n` +
+      `To'lovni tekshirib, chek rasmini shu chatga qaytadan yuboring yoki biz bilan bog'laning.`,
+    noUnpaidOrder:
+      "Sizda kartaga to'lov kutilayotgan buyurtma yo'q. Avval do'kondan buyurtma bering 👇",
+    receiptNotImage: "Iltimos, chekni rasm (foto) ko'rinishida yuboring 📸",
     statusChanged: (order, label) =>
       `🔔 <b>#${order.id}</b> raqamli buyurtmangiz holati: <b>${label}</b>`,
     statuses: {
@@ -73,15 +92,34 @@ const T = {
       `<b>ASF GROUP</b>\n<i>Качество и доверие</i>\n\n` +
       `📞 Телефон: ${c.phone}\n📍 Адрес: ${c.address}\n\n` +
       `По оптовым заказам свяжитесь напрямую.`,
-    orderOk: (order) =>
+    orderOk: (order, pay) =>
       `✅ <b>Ваш заказ успешно принят!</b>\n\n` +
       `🧾 Номер заказа: <b>#${order.id}</b>\n` +
       `📦 Товар: <b>${qtyText(order, 'компл.', 'пар')}</b>\n` +
       `💰 Итого: <b>${fmt(order.total)} сум</b>${order.isWholesale ? '  (оптовая цена ✅)' : ''}\n` +
       `💳 Оплата: ${PAYMENT.ru[order.paymentMethod] || PAYMENT.ru.cash}\n` +
-      `📍 Адрес: ${order.region}, ${order.address}\n` +
-      `📞 Телефон: ${order.phone}\n\n` +
-      `Наш менеджер свяжется с вами в ближайшее время 👞`,
+      `📍 Адрес: ${esc(order.region)}, ${esc(order.address)}\n` +
+      `📞 Телефон: ${esc(order.phone)}\n\n` +
+      (pay
+        ? `💳 <b>Карта для оплаты (${pay.typeLabel}):</b>\n` +
+          `<code>${pay.cardFormatted}</code>\n` +
+          `👤 Получатель: <b>${esc(pay.cardHolder)}</b>\n` +
+          `💰 Сумма к оплате: <b>${fmt(order.total)} сум</b>\n\n` +
+          `📸 После оплаты <b>отправьте фото чека в этот чат</b> ` +
+          `(или через кнопку «Загрузить фото чека» в магазине). ` +
+          `После подтверждения администратором заказ будет отправлен.`
+        : `Наш менеджер свяжется с вами в ближайшее время 👞`),
+    receiptReceived: (order) =>
+      `🧾 Чек по заказу <b>#${order.id}</b> получен.\n` +
+      `Сообщим, как только администратор подтвердит оплату ⏳`,
+    paymentPaid: (order) =>
+      `✅ Оплата заказа <b>#${order.id}</b> подтверждена!\nСкоро отправим 👞`,
+    paymentRejected: (order) =>
+      `❌ Чек по заказу <b>#${order.id}</b> не подтверждён.\n` +
+      `Проверьте оплату и отправьте фото чека в этот чат ещё раз или свяжитесь с нами.`,
+    noUnpaidOrder:
+      'У вас нет заказов, ожидающих оплаты картой. Сначала оформите заказ в магазине 👇',
+    receiptNotImage: 'Пожалуйста, отправьте чек в виде фото 📸',
     statusChanged: (order, label) =>
       `🔔 Статус заказа <b>#${order.id}</b>: <b>${label}</b>`,
     statuses: {

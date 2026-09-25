@@ -7,6 +7,7 @@ import Products from './pages/Products';
 import Stories from './pages/Stories';
 import Users from './pages/Users';
 import Broadcast from './pages/Broadcast';
+import Settings from './pages/Settings';
 
 const MENU = [
   { key: 'orders', icon: '🧾', label: 'Buyurtmalar' },
@@ -14,6 +15,7 @@ const MENU = [
   { key: 'stories', icon: '📸', label: 'Storylar' },
   { key: 'users', icon: '👥', label: 'Mijozlar' },
   { key: 'broadcast', icon: '📣', label: 'Rassilka' },
+  { key: 'settings', icon: '⚙️', label: 'Sozlamalar' },
 ];
 
 export default function App() {
@@ -66,8 +68,8 @@ export default function App() {
           >
             <span>{item.icon}</span>
             {item.label}
-            {item.key === 'orders' && stats?.newCount > 0 && (
-              <span className="side-count">{stats.newCount}</span>
+            {item.key === 'orders' && (stats?.newCount > 0 || stats?.pendingPayments > 0) && (
+              <span className="side-count">{Math.max(stats.newCount, stats.pendingPayments)}</span>
             )}
           </button>
         ))}
@@ -89,6 +91,7 @@ export default function App() {
         {page === 'stories' && <Stories />}
         {page === 'users' && <Users />}
         {page === 'broadcast' && <Broadcast />}
+        {page === 'settings' && <Settings />}
       </main>
     </div>
   );
