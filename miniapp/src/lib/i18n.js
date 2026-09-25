@@ -109,7 +109,9 @@ export const dict = {
     payClickSoon: 'Buyurtmadan so\'ng Click to\'lov sahifasi ochiladi',
     payClickManual: 'Menejer Click orqali to\'lov uchun siz bilan bog\'lanadi',
     payCard: "Kartaga o'tkazma",
-    payCardText: (type) => `${type} kartaga o'tkazib, chek rasmini yuborasiz`,
+    payCardClick: "Kartaga o'tkazma (Click, Payme, bank ilovasi)",
+    payCardText: (type) =>
+      `${type} kartaga Click, Payme yoki bank ilovasi orqali o'tkazib, chek rasmini yuborasiz`,
     payCardSoon: "Buyurtmadan so'ng karta raqami va to'lanadigan summa ko'rsatiladi",
     yourName: 'Ismingiz',
     yourPhone: 'Telefon raqam',
@@ -271,7 +273,9 @@ export const dict = {
     payClickSoon: 'После заказа откроется страница оплаты Click',
     payClickManual: 'Менеджер свяжется с вами для оплаты через Click',
     payCard: 'Перевод на карту',
-    payCardText: (type) => `Переведите на карту ${type} и отправьте фото чека`,
+    payCardClick: 'Перевод на карту (Click, Payme, банк)',
+    payCardText: (type) =>
+      `Переведите на карту ${type} через Click, Payme или банк и отправьте фото чека`,
     payCardSoon: 'После заказа появятся номер карты и сумма к оплате',
     yourName: 'Ваше имя',
     yourPhone: 'Номер телефона',

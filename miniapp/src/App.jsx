@@ -279,12 +279,14 @@ export default function App() {
     );
   }
 
-  if (success && success.paymentMethod === 'card' && config?.payment?.enabled) {
+  // Karta ma'lumoti buyurtma javobida ham keladi — eski keshdagi sozlama xalaqit bermasin
+  const successPayment = success?.payment?.enabled ? success.payment : config?.payment;
+  if (success && success.paymentMethod === 'card' && successPayment?.enabled) {
     return (
       <PaymentScreen
         t={t}
         order={success}
-        payment={config.payment}
+        payment={successPayment}
         company={config.company}
         fresh
         onClose={() => {

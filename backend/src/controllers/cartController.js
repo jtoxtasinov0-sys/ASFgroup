@@ -224,8 +224,12 @@ const cartController = {
       // Kartaga o'tkazma faqat admin karta kiritgan bo'lsa
       const payment = await getPublicPayment();
       const asked = req.body?.paymentMethod;
-      const paymentMethod =
-        asked === 'click' ? 'click' : asked === 'card' && payment.enabled ? 'card' : 'cash';
+      // Click bilan shartnoma (merchant) bo'lmasa — Click orqali ham shu kartaga
+      // o'tkaziladi, shuning uchun chek yuborish jarayoni ishlasin
+      const clickDirect = Boolean(config.click.serviceId && config.click.merchantId);
+      let paymentMethod = 'cash';
+      if (asked === 'click') paymentMethod = !clickDirect && payment.enabled ? 'card' : 'click';
+      if (asked === 'card' && payment.enabled) paymentMethod = 'card';
 
       if (!Array.isArray(cartItems) || cartItems.length === 0) {
         return res.status(400).json({ ok: false, message: 'Savatcha bosh' });
@@ -287,7 +291,10 @@ const cartController = {
       notifyAdmins(adminNewOrder(order), { disable_web_page_preview: true });
 
       const payUrl = paymentMethod === 'click' ? clickPayUrl(order) : null;
-      res.status(201).json({ ok: true, data: { ...order, payUrl } });
+      res.status(201).json({
+        ok: true,
+        data: { ...order, payUrl, payment: paymentMethod === 'card' ? payment : undefined },
+      });
     } catch (err) {
       next(err);
     }

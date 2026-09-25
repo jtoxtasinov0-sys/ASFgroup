@@ -111,12 +111,19 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
               {[
                 config?.payment?.enabled && [
                   'card',
-                  '🏦',
-                  t.payCard,
+                  '💳',
+                  config.clickEnabled ? t.payCard : t.payCardClick,
                   t.payCardText(config.payment.typeLabel),
                 ],
                 ['cash', '💵', t.payCash, t.payCashText],
-                ['click', null, t.payClick, t.payClickText],
+                // Click bilan shartnoma yo'q bo'lsa — Click ham shu kartaga o'tkazma,
+                // alohida tugma chalkashtirmasin
+                !(config?.payment?.enabled && !config?.clickEnabled) && [
+                  'click',
+                  null,
+                  t.payClick,
+                  t.payClickText,
+                ],
               ].filter(Boolean).map(([key, icon, title, text]) => (
                 <button
                   key={key}
