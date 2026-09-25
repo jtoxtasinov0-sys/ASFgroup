@@ -262,6 +262,16 @@ Tugma orqali ochilganda admin panel **parolsiz** kiradi: Telegram foydalanuvchin
 tasdiqlaydi va backend uning ID'si `ADMIN_CHAT_IDS` da borligini tekshiradi.
 Brauzerdan ochilganda esa avvalgidek parol so'raladi.
 
+### Rassilka
+
+Admin panel → **📣 Rassilka**: matn (va ixtiyoriy rasm) yozib, botga kamida bir
+marta `/start` bosgan barcha mijozlarga yuborasiz. Avval **🧪 Sinov** tugmasi
+bilan faqat adminlarga yuborib tekshiring. Xabarlar soniyasiga ~20 tadan
+yuboriladi (Telegram cheklovi); jarayon sahifada ko'rinib turadi.
+
+> Rassilka ketayotganda Render servis qayta ishga tushsa (deploy), qolgan
+> mijozlarga yuborilmay qoladi — rassilka paytida deploy qilmang.
+
 ### Click orqali to'lov
 
 Buyurtma oynasida mijoz **Naqd pul** yoki **Click** ni tanlaydi. To'lov usuli

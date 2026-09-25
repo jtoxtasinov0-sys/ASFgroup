@@ -6,12 +6,14 @@ import Orders from './pages/Orders';
 import Products from './pages/Products';
 import Stories from './pages/Stories';
 import Users from './pages/Users';
+import Broadcast from './pages/Broadcast';
 
 const MENU = [
   { key: 'orders', icon: '🧾', label: 'Buyurtmalar' },
   { key: 'products', icon: '👞', label: 'Mahsulotlar' },
   { key: 'stories', icon: '📸', label: 'Storylar' },
   { key: 'users', icon: '👥', label: 'Mijozlar' },
+  { key: 'broadcast', icon: '📣', label: 'Rassilka' },
 ];
 
 export default function App() {
@@ -86,6 +88,7 @@ export default function App() {
         {page === 'products' && <Products reload={loadStats} />}
         {page === 'stories' && <Stories />}
         {page === 'users' && <Users />}
+        {page === 'broadcast' && <Broadcast />}
       </main>
     </div>
   );

@@ -41,6 +41,12 @@ const UserModel = {
     return prisma.user.findMany({ where: { isAdmin: true }, select: { telegramId: true } });
   },
 
+  /** Rassilka uchun — barcha mijozlarning Telegram ID'lari */
+  async allTelegramIds() {
+    const rows = await prisma.user.findMany({ select: { telegramId: true } });
+    return rows.map((u) => u.telegramId).filter((id) => Number(id) > 0);
+  },
+
   count() {
     return prisma.user.count();
   },

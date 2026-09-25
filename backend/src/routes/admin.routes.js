@@ -7,6 +7,7 @@ const router = express.Router();
 
 const productUpload = makeUploader('products').array('files', 8);
 const storyUpload = makeUploader('stories').array('files', 1);
+const broadcastUpload = makeUploader('broadcast').array('files', 1);
 
 // Kirish
 router.post('/login', adminController.login);
@@ -35,6 +36,10 @@ router.get('/stories', adminController.listStories);
 router.post('/stories', storyUpload, adminController.createStory);
 router.put('/stories/:id', storyUpload, adminController.updateStory);
 router.delete('/stories/:id', adminController.deleteStory);
+
+// Rassilka
+router.get('/broadcast', adminController.broadcastInfo);
+router.post('/broadcast', broadcastUpload, adminController.broadcast);
 
 // Mijozlar
 router.get('/users', adminController.listUsers);
