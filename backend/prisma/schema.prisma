@@ -115,3 +115,14 @@ model Story {
 
   @@map("stories")
 }
+
+/// Admin/mijoz yuklagan rasmlarning zaxirasi. Render diski har deploy'da tozalanadi —
+/// rasm diskda topilmasa shu yerdan tiklanadi.
+model StoredFile {
+  path      String   @id /// "/uploads/products/custom-....jpg"
+  mime      String
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@map("files")
+}

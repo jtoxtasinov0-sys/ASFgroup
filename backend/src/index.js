@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const config = require('./config/default');
 const { connectDatabase, disconnectDatabase } = require('./database/connection');
+const { ensureLocalFile } = require('./utils/upload');
 const {
   createBot,
   startBot,
@@ -27,6 +28,13 @@ app.use(
   '/uploads',
   express.static(path.join(__dirname, '..', 'uploads'), { maxAge: '7d' })
 );
+// Diskda yo'q bo'lsa (Render deploy'dan keyin) — bazadagi zaxiradan tiklaymiz
+app.get('/uploads/*', async (req, res) => {
+  const file = await ensureLocalFile(decodeURIComponent(req.path));
+  if (!file) return res.sendStatus(404);
+  res.set('Cache-Control', 'public, max-age=604800');
+  return res.sendFile(file);
+});
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, name: 'ASF GROUP API', slogan: config.company.slogan });

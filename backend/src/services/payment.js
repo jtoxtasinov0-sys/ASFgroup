@@ -7,7 +7,7 @@ const SettingModel = require('../models/Setting');
 const OrderModel = require('../models/Order');
 const UserModel = require('../models/User');
 const { getBot, safeSend, isAdminChat } = require('../core/bot');
-const { removeFile, UPLOAD_ROOT } = require('../utils/upload');
+const { removeFile, storeFile, UPLOAD_ROOT } = require('../utils/upload');
 const { t, fmt, esc, paymentStatusLine } = require('../utils/i18n');
 
 /* ==========================================================
@@ -197,7 +197,9 @@ async function saveTelegramFile(bot, fileId) {
   const ext = (path.extname(tmp) || '.jpg').toLowerCase();
   const name = `custom-${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
   fs.renameSync(tmp, path.join(dir, name));
-  return `/uploads/receipts/${name}`;
+  const url = `/uploads/receipts/${name}`;
+  await storeFile(url);
+  return url;
 }
 
 module.exports = {

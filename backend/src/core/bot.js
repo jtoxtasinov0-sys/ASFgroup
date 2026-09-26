@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('../config/default');
-const { UPLOAD_ROOT } = require('../utils/upload');
+const { ensureLocalFile, mimeOf } = require('../utils/upload');
 
 let bot = null;
 
@@ -149,16 +149,14 @@ async function notifyAdmins(text, options = {}) {
 
 /**
  * Rasm manzilini Telegram qabul qiladigan ko'rinishga keltiradi:
- * serverdagi fayl bo'lsa — fayl oqimi, aks holda https manzil (bo'lmasa null).
+ * serverdagi fayl (diskda bo'lmasa — bazadagi zaxiradan tiklanadi) yoki https manzil.
+ * Topilmasa — null.
  */
-function photoSource(image) {
+async function photoSource(image) {
   if (!image) return null;
-  if (/^https?:\/\//.test(image)) return /^https:\/\//.test(image) ? { url: image } : null;
-  if (image.startsWith('/uploads/')) {
-    const file = path.join(UPLOAD_ROOT, image.replace('/uploads/', ''));
-    if (fs.existsSync(file)) return { file };
-  }
-  return canUseWebhook() ? { url: `${config.publicUrl}${image}` } : null;
+  if (/^https:\/\//.test(image)) return { url: image };
+  const file = await ensureLocalFile(image);
+  return file ? { file } : null;
 }
 
 /** Telegram rasm ostidagi matn chegarasi (HTML teglarsiz hisoblanadi) */
@@ -167,16 +165,16 @@ const visibleLength = (html) =>
   html.replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp);/g, ' ').length;
 
 /** Bitta rasmni media ko'rinishiga keltiradi (fayl bo'lsa — oqim) */
-function photoMedia(image, fileIds) {
+async function photoMedia(image, fileIds) {
   if (fileIds.has(image)) return { media: fileIds.get(image) };
-  const src = photoSource(image);
+  const src = await photoSource(image);
   if (!src) return null;
   if (!src.file) return { media: src.url };
   return {
     media: fs.createReadStream(src.file),
     fileOptions: {
       filename: path.basename(src.file),
-      contentType: `image/${path.extname(src.file).slice(1).replace('jpg', 'jpeg') || 'jpeg'}`,
+      contentType: mimeOf(src.file),
     },
   };
 }
@@ -208,9 +206,9 @@ async function notifyAdminsWithPhotos(images, text, options = {}) {
   const fileIds = new Map();
 
   for (const chatId of ids) {
-    const list = unique
-      .map((image) => ({ image, item: photoMedia(image, fileIds) }))
-      .filter((p) => p.item);
+    const list = (
+      await Promise.all(unique.map(async (image) => ({ image, item: await photoMedia(image, fileIds) })))
+    ).filter((p) => p.item);
 
     if (!list.length) {
       await safeSend(chatId, text, options);
