@@ -1,6 +1,9 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('../config/default');
+const { UPLOAD_ROOT } = require('../utils/upload');
 
 let bot = null;
 
@@ -144,6 +147,59 @@ async function notifyAdmins(text, options = {}) {
   await Promise.all(ids.map((id) => safeSend(id, text, options)));
 }
 
+/**
+ * Rasm manzilini Telegram qabul qiladigan ko'rinishga keltiradi:
+ * serverdagi fayl bo'lsa — fayl oqimi, aks holda https manzil (bo'lmasa null).
+ */
+function photoSource(image) {
+  if (!image) return null;
+  if (/^https?:\/\//.test(image)) return /^https:\/\//.test(image) ? { url: image } : null;
+  if (image.startsWith('/uploads/')) {
+    const file = path.join(UPLOAD_ROOT, image.replace('/uploads/', ''));
+    if (fs.existsSync(file)) return { file };
+  }
+  return canUseWebhook() ? { url: `${config.publicUrl}${image}` } : null;
+}
+
+/**
+ * Yangi buyurtma: avval har bir mahsulot rasmi (ostida ma'lumoti bilan),
+ * keyin umumiy buyurtma xabari. Rasm yuborilmasa — ma'lumot matn bo'lib ketadi.
+ * photos: [{ image, caption }]
+ */
+async function notifyAdminsWithPhotos(photos, text, options = {}) {
+  const ids = config.bot.adminChatIds;
+  if (!ids.length) {
+    console.warn('⚠️  ADMIN_CHAT_IDS qo\'yilmagan — yangi buyurtma xabari hech kimga yuborilmadi');
+    return;
+  }
+  if (!bot) return;
+
+  // Bir marta yuklangan rasm qolgan adminlarga Telegram file_id orqali boradi
+  const fileIds = new Map();
+
+  for (const chatId of ids) {
+    for (const { image, caption } of photos) {
+      const opts = { caption, parse_mode: 'HTML' };
+      try {
+        const src = fileIds.get(image) ? { id: fileIds.get(image) } : photoSource(image);
+        if (!src) throw new Error('rasm topilmadi');
+        const sent = src.file
+          ? await bot.sendPhoto(chatId, fs.createReadStream(src.file), opts, {
+            filename: path.basename(src.file),
+            contentType: `image/${path.extname(src.file).slice(1).replace('jpg', 'jpeg') || 'jpeg'}`,
+          })
+          : await bot.sendPhoto(chatId, src.id || src.url, opts);
+        const fileId = sent?.photo?.[sent.photo.length - 1]?.file_id;
+        if (fileId) fileIds.set(image, fileId);
+      } catch (err) {
+        if (image) console.error(`Adminga mahsulot rasmi yuborilmadi (${chatId}):`, err?.message);
+        await safeSend(chatId, caption);
+      }
+    }
+    await safeSend(chatId, text, options);
+  }
+}
+
 /** Shu chat ADMIN_CHAT_IDS ro'yxatidami */
 const isAdminChat = (chatId) => config.bot.adminChatIds.includes(String(chatId));
 
@@ -203,6 +259,7 @@ module.exports = {
   getBot,
   safeSend,
   notifyAdmins,
+  notifyAdminsWithPhotos,
   setMenuButton,
   setAdminMenuButton,
   isAdminChat,

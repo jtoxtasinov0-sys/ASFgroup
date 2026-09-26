@@ -4,8 +4,8 @@ const ProductModel = require('../models/Product');
 const OrderModel = require('../models/Order');
 const StoryModel = require('../models/Story');
 const SettingModel = require('../models/Setting');
-const { safeSend, notifyAdmins } = require('../core/bot');
-const { t, adminNewOrder } = require('../utils/i18n');
+const { safeSend, notifyAdminsWithPhotos } = require('../core/bot');
+const { t, adminNewOrder, adminOrderItemCaption } = require('../utils/i18n');
 const { productColors } = require('../utils/colors');
 const { fileUrl, removeFile } = require('../utils/upload');
 const { getPublicPayment, attachReceipt } = require('../services/payment');
@@ -331,8 +331,13 @@ const cartController = {
       // Kartaga o'tkazmada — karta raqami va to'lanadigan summa ham yoziladi
       safeSend(user.telegramId, lang.orderOk(order, paymentMethod === 'card' ? payment : null));
 
-      // Egasi/menejerlarga yangi buyurtma haqida xabar
-      notifyAdmins(adminNewOrder(order), { disable_web_page_preview: true });
+      // Egasi/menejerlarga: har bir mahsulot rasmi (ostida rang, razmer, soni), keyin umumiy xabar
+      const photos = (Array.isArray(order.items) ? order.items : []).map((item, n) => ({
+        image: item.image,
+        caption: adminOrderItemCaption(order, item, n),
+      }));
+      notifyAdminsWithPhotos(photos, adminNewOrder(order), { disable_web_page_preview: true })
+        .catch((err) => console.error('Adminlarga buyurtma xabari yuborilmadi:', err?.message));
 
       const payUrl = paymentMethod === 'click' ? clickPayUrl(order) : null;
       res.status(201).json({
