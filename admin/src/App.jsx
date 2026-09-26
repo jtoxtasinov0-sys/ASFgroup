@@ -4,6 +4,7 @@ import { api, clearToken, getToken } from './lib/api';
 import Login from './pages/Login';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
+import Stock from './pages/Stock';
 import Stories from './pages/Stories';
 import Users from './pages/Users';
 import Broadcast from './pages/Broadcast';
@@ -12,6 +13,7 @@ import Settings from './pages/Settings';
 const MENU = [
   { key: 'orders', icon: '🧾', label: 'Buyurtmalar' },
   { key: 'products', icon: '👞', label: 'Mahsulotlar' },
+  { key: 'stock', icon: '📦', label: 'Ombor' },
   { key: 'stories', icon: '📸', label: 'Storylar' },
   { key: 'users', icon: '👥', label: 'Mijozlar' },
   { key: 'broadcast', icon: '📣', label: 'Rassilka' },
@@ -88,6 +90,7 @@ export default function App() {
       <main className="main">
         {page === 'orders' && <Orders stats={stats} reload={loadStats} />}
         {page === 'products' && <Products reload={loadStats} />}
+        {page === 'stock' && <Stock />}
         {page === 'stories' && <Stories />}
         {page === 'users' && <Users />}
         {page === 'broadcast' && <Broadcast />}

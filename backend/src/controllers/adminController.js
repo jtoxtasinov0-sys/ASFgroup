@@ -1,3 +1,4 @@
+const { Prisma } = require('@prisma/client');
 const config = require('../config/default');
 const ProductModel = require('../models/Product');
 const OrderModel = require('../models/Order');
@@ -11,6 +12,13 @@ const { t } = require('../utils/i18n');
 const { samePassword } = require('../utils/password');
 const { cleanColor } = require('../utils/colors');
 const SettingModel = require('../models/Setting');
+const {
+  cleanCount,
+  cleanPairs,
+  changeOrderStatus,
+  removeOrderWithStock,
+  restoreOpenOrders,
+} = require('../services/stock');
 const {
   CARD_TYPES,
   onlyDigits,
@@ -245,7 +253,9 @@ const adminController = {
         return res.status(400).json({ ok: false, message: 'Notogri holat' });
       }
 
-      const order = await OrderModel.updateStatus(req.params.id, status);
+      // Bekor qilinsa — tovar omborga qaytadi, qayta tiklansa — yana ayiriladi
+      const order = await changeOrderStatus(req.params.id, status);
+      if (!order) return res.status(404).json({ ok: false, message: 'Topilmadi' });
 
       // Mijozga holat o'zgargani haqida xabar
       if (order.user) {
@@ -279,7 +289,7 @@ const adminController = {
     try {
       const existing = await OrderModel.findById(req.params.id);
       if (existing?.receiptUrl) removeFile(existing.receiptUrl);
-      await OrderModel.remove(req.params.id);
+      await removeOrderWithStock(req.params.id);
       res.json({ ok: true });
     } catch (err) {
       next(err);
@@ -292,6 +302,8 @@ const adminController = {
       if ((req.body || {}).confirm !== 'TOZALASH') {
         return res.status(400).json({ ok: false, message: 'Tasdiqlash uchun TOZALASH deb yozing' });
       }
+      // Yetkazilmagan buyurtmalardagi tovar omborga qaytadi
+      await restoreOpenOrders();
       const receipts = await OrderModel.clearAll();
       receipts.forEach(removeFile);
       res.json({ ok: true });
@@ -401,6 +413,29 @@ const adminController = {
       if (err.code === 'P2002') {
         return res.status(400).json({ ok: false, message: 'Bu artikul allaqachon mavjud' });
       }
+      next(err);
+    }
+  },
+
+  /**
+   * Ombor: { stockPacks: 12, stockPairs: { "40": 5 } }.
+   * Bo'sh qiymat — hisoblanmaydi (cheklov yo'q). Yuborilmagan maydon o'zgarmaydi.
+   */
+  async updateStock(req, res, next) {
+    try {
+      const existing = await ProductModel.findById(req.params.id);
+      if (!existing) return res.status(404).json({ ok: false, message: 'Topilmadi' });
+
+      const body = req.body || {};
+      const data = {};
+      if ('stockPacks' in body) data.stockPacks = cleanCount(body.stockPacks);
+      if ('stockPairs' in body) data.stockPairs = cleanPairs(body.stockPairs, existing.sizes);
+      // Prisma'da Json maydonni tozalash uchun maxsus qiymat kerak
+      if (data.stockPairs === null) data.stockPairs = Prisma.DbNull;
+
+      const product = await ProductModel.update(req.params.id, data);
+      res.json({ ok: true, data: product });
+    } catch (err) {
       next(err);
     }
   },

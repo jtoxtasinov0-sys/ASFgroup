@@ -141,6 +141,7 @@ export const api = {
   createProduct: (formData) => upload('POST', '/products', formData),
   updateProduct: (id, formData) => upload('PUT', `/products/${id}`, formData),
   deleteProduct: (id) => request('DELETE', `/products/${id}`),
+  updateStock: (id, data) => request('PATCH', `/products/${id}/stock`, data),
 
   stories: () => request('GET', '/stories'),
   createStory: (formData) => upload('POST', '/stories', formData),

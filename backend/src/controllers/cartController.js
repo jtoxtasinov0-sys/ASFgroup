@@ -8,6 +8,7 @@ const { t, adminNewOrder } = require('../utils/i18n');
 const { productColors } = require('../utils/colors');
 const { fileUrl, removeFile } = require('../utils/upload');
 const { getPublicPayment, attachReceipt } = require('../services/payment');
+const { StockError, createOrderWithStock } = require('../services/stock');
 
 /* ---------- Yordamchi funksiyalar ---------- */
 
@@ -112,6 +113,23 @@ function buildOrderItems(cartItems, products) {
 async function priceCart(cartItems) {
   const products = await ProductModel.findManyByIds(cartItems.map((i) => i.productId));
   return buildOrderItems(cartItems, products);
+}
+
+/** Omborda yetmagan mahsulotlar haqida mijoz tilida xabar */
+function shortageMessage(shortages, lang) {
+  const ru = lang === 'ru';
+  const lines = shortages.map((s) => {
+    const name = `${(ru && s.nameRu) || s.name} (${s.article})`;
+    if (s.size) {
+      return ru
+        ? `${name}, размер ${s.size}: осталось ${s.left} пар`
+        : `${name}, ${s.size}-razmer: ${s.left} juft qoldi`;
+    }
+    return ru ? `${name}: осталось ${s.left} компл.` : `${name}: ${s.left} komplekt qoldi`;
+  });
+  const head = ru ? 'На складе недостаточно товара:' : 'Omborda yetarli emas:';
+  const tail = ru ? 'Уменьшите количество в корзине.' : 'Savatchadagi sonni kamaytiring.';
+  return `${head}\n${lines.join('\n')}\n${tail}`;
 }
 
 /* ---------- Controllerlar ---------- */
@@ -263,19 +281,30 @@ const cartController = {
 
       const user = await UserModel.findOrCreate(req.tgUser);
 
-      const order = await OrderModel.create({
-        userId: user.id,
-        items,
-        total,
-        totalQty: realQty,
-        isWholesale,
-        customerName: customerName.trim(),
-        phone: phone.trim(),
-        region: region.trim(),
-        address: address.trim(),
-        comment: comment && comment.trim() ? comment.trim() : null,
-        paymentMethod,
-      });
+      // Ombordan ayirish va buyurtmani saqlash — bitta tranzaksiyada
+      let order;
+      try {
+        order = await createOrderWithStock({
+          userId: user.id,
+          items,
+          total,
+          totalQty: realQty,
+          isWholesale,
+          customerName: customerName.trim(),
+          phone: phone.trim(),
+          region: region.trim(),
+          address: address.trim(),
+          comment: comment && comment.trim() ? comment.trim() : null,
+          paymentMethod,
+        });
+      } catch (err) {
+        if (!(err instanceof StockError)) throw err;
+        return res.status(409).json({
+          ok: false,
+          code: 'OUT_OF_STOCK',
+          message: shortageMessage(err.shortages, user.lang),
+        });
+      }
 
       // Telefon raqamini profilga saqlab qo'yamiz
       if (!user.phone) {

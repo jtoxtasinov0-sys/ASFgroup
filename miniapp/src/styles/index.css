@@ -1995,3 +1995,83 @@ img {
 .pay-option.wide {
   grid-column: 1 / -1;
 }
+
+/* ---------- Ombor qoldig'i ---------- */
+
+.card-img.sold-out img {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+.soldout-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.card-stock {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.card-stock.low {
+  color: #b45309;
+}
+
+.stock-note {
+  margin-top: 8px;
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: #e7f6ee;
+  color: #0b7a3c;
+}
+
+.stock-note.low {
+  background: #fff4e5;
+  color: #b45309;
+}
+
+.stock-note.out {
+  background: #fdecec;
+  color: #b42318;
+}
+
+.size-stock {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  margin-top: 1px;
+}
+
+.size-stock.low {
+  color: #b45309;
+}
+
+.size-stock.out {
+  color: #b42318;
+}
+
+.size-row.out {
+  background: var(--bg-soft);
+  opacity: 0.6;
+}
+
+.stock-warn {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b42318;
+}

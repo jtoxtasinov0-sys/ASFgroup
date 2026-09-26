@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { pick } from '../lib/i18n';
 import { discountPercent, money, wholesaleUnit } from '../lib/format';
-import { MAX_PACKS } from '../lib/store';
+import { MAX_PACKS, cartKey } from '../lib/store';
+import { maxPacks, maxPairs, packsLeft, pairsLeft } from '../lib/stock';
 import { haptic, notifySuccess } from '../lib/telegram';
 import { colorLabel, effectiveColor, productColors } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
@@ -17,6 +18,7 @@ export default function ProductSheet({
   t,
   mode,
   cartLine,
+  cartItems = [],
   onClose,
   onAdd,
   onSetPacks,
@@ -33,7 +35,12 @@ export default function ProductSheet({
   const [sizes, setSizes] = useState(line?.sizes || {});
   // Maydon vaqtincha bo'sh bo'lishi mumkin (yangi son yozilayotganda)
   const [packInput, setPackInput] = useState(String(line?.packs || 1));
-  const packs = Math.min(MAX_PACKS, Math.max(0, Math.floor(Number(packInput) || 0)));
+  // Ombor: shu qatorga qancha qo'shish mumkin (boshqa ranglar savatchada band qilgani hisobga olinadi)
+  const lineKey = cartKey(mode, product.id, color);
+  const packCap = Math.min(MAX_PACKS, maxPacks(product, cartItems, lineKey));
+  const pairCap = (size) => maxPairs(product, size, cartItems, lineKey);
+  const packsTracked = packsLeft(product) !== null;
+  const packs = Math.min(packCap, Math.max(0, Math.floor(Number(packInput) || 0)));
   const [photo, setPhoto] = useState(0);
   const [viewer, setViewer] = useState(false);
   const trackRef = useRef(null);
@@ -102,19 +109,19 @@ export default function ProductSheet({
 
   const changePacks = (value) => {
     haptic();
-    setPackInput(String(Math.min(MAX_PACKS, Math.max(1, Math.floor(Number(value) || 1)))));
+    setPackInput(String(Math.min(packCap, Math.max(1, Math.floor(Number(value) || 1)))));
   };
 
   const typePacks = (value) => {
     const digits = String(value).replace(/\D/g, '').slice(0, 3);
-    setPackInput(digits === '' ? '' : String(Math.min(MAX_PACKS, Number(digits))));
+    setPackInput(digits === '' ? '' : String(Math.min(packCap, Number(digits))));
   };
 
   const change = (size, delta) => {
     haptic();
     setSizes((prev) => {
       const next = { ...prev };
-      const value = Math.max(0, Number(next[size] || 0) + delta);
+      const value = Math.min(pairCap(size), Math.max(0, Number(next[size] || 0) + delta));
       if (value === 0) delete next[size];
       else next[size] = value;
       return next;
@@ -125,7 +132,13 @@ export default function ProductSheet({
     if (qty === 0) return;
     notifySuccess();
     if (isWholesale) onSetPacks(product.id, packs, color);
-    else onAdd(product.id, sizes, color);
+    else {
+      // Ombordagidan ko'p bo'lsa (savatchadagi eski qator) — qoldiqqacha kamaytiriladi
+      const capped = Object.fromEntries(
+        Object.entries(sizes).map(([size, n]) => [size, Math.min(Number(n), pairCap(size))])
+      );
+      onAdd(product.id, capped, color);
+    }
     onClose();
   };
 
@@ -296,6 +309,11 @@ export default function ProductSheet({
               <p className="muted" style={{ margin: '4px 0 0' }}>
                 {t.packOf(product.sizes)}
               </p>
+              {packsTracked && (
+                <div className={`stock-note${packsLeft(product) === 0 ? ' out' : packsLeft(product) < 5 ? ' low' : ''}`}>
+                  📦 {packsLeft(product) === 0 ? t.soldOut : t.packsLeft(packsLeft(product))}
+                </div>
+              )}
 
               <div className="size-row on" style={{ marginTop: 10 }}>
                 <div className="size-label">
@@ -305,7 +323,7 @@ export default function ProductSheet({
                   </span>
                 </div>
                 <div className="stepper">
-                  <button onClick={() => changePacks(packs - 1)} disabled={packs <= 1}>
+                  <button onClick={() => changePacks(packs - 1)} disabled={packs <= 1 || packCap === 0}>
                     −
                   </button>
                   <input
@@ -313,19 +331,20 @@ export default function ProductSheet({
                     type="number"
                     inputMode="numeric"
                     min={1}
-                    max={MAX_PACKS}
+                    max={packCap}
+                    disabled={packCap === 0}
                     value={packInput}
                     onChange={(e) => typePacks(e.target.value)}
                     onBlur={() => packs === 0 && changePacks(1)}
                   />
-                  <button onClick={() => changePacks(packs + 1)} disabled={packs >= MAX_PACKS}>
+                  <button onClick={() => changePacks(packs + 1)} disabled={packs >= packCap}>
                     +
                   </button>
                 </div>
               </div>
 
               <div className="pack-presets">
-                {PACK_PRESETS.map((n) => (
+                {PACK_PRESETS.filter((n) => n <= packCap).map((n) => (
                   <button
                     key={n}
                     className={`tag${packs === n ? ' active' : ''}`}
@@ -354,18 +373,31 @@ export default function ProductSheet({
               <div className="sizes">
                 {product.sizes.map((size) => {
                   const value = Number(sizes[size] || 0);
+                  const cap = pairCap(size);
+                  const left = pairsLeft(product, size);
+                  const out = left === 0;
                   return (
-                    <div key={size} className={`size-row${value > 0 ? ' on' : ''}`}>
+                    <div
+                      key={size}
+                      className={`size-row${value > 0 ? ' on' : ''}${out && value === 0 ? ' out' : ''}`}
+                    >
                       <div className="size-label">
                         {size}
                         <span>{t.pair}</span>
+                        {left !== null && (
+                          <em className={`size-stock${out ? ' out' : left < 5 ? ' low' : ''}`}>
+                            {out ? t.sizeSoldOut : t.pairsLeftShort(left)}
+                          </em>
+                        )}
                       </div>
                       <div className="stepper">
                         <button onClick={() => change(size, -1)} disabled={value === 0}>
                           −
                         </button>
                         <b>{value}</b>
-                        <button onClick={() => change(size, 1)}>+</button>
+                        <button onClick={() => change(size, 1)} disabled={value >= cap}>
+                          +
+                        </button>
                       </div>
                     </div>
                   );
@@ -378,7 +410,7 @@ export default function ProductSheet({
         <div className="sheet-cta">
           <button className="btn" onClick={submit} disabled={qty === 0}>
             {qty === 0 ? (
-              isWholesale ? t.choosePacks : t.chooseSizes
+              isWholesale ? (packCap === 0 ? t.soldOut : t.choosePacks) : t.chooseSizes
             ) : (
               <>
                 {t.addToCart} ·{' '}

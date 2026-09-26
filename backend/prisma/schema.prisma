@@ -50,6 +50,10 @@ model Product {
   wholesaleMin   Int      @default(10) /// Shu sondan boshlab optom narx
   sizes         Int[]    @default([39, 40, 41, 42, 43])
   inStock       Boolean  @default(true)
+  /// Ombor: optom uchun komplektlar soni (null — hisoblanmaydi, cheklov yo'q)
+  stockPacks    Int?
+  /// Ombor: dona savdo uchun razmer bo'yicha juftlar { "39": 5, "40": 12 } (null — hisoblanmaydi)
+  stockPairs    Json?
   isActive      Boolean  @default(true)
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
@@ -66,7 +70,7 @@ model Order {
   id          Int      @id @default(autoincrement())
   userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items       Json /// [{ productId, article, name, image, color, price, sizes: {"40":2,"41":3}, qty, lineTotal }]
+  items       Json /// [{ productId, article, name, image, color, price, sizes: {"40":2,"41":3}, qty, lineTotal, stockTaken }]
   totalQty    Int      @default(0)
   total       Int
   isWholesale Boolean  @default(false)

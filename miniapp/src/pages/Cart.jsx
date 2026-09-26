@@ -5,6 +5,7 @@ import { frameOf, frameStyle } from '../lib/frame';
 import { money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
 import { itemQty } from '../lib/store';
+import { maxPacks, maxPairs } from '../lib/stock';
 import { haptic } from '../lib/telegram';
 import PriceTag, { OldPrice } from '../components/PriceTag';
 
@@ -127,6 +128,12 @@ export default function Cart({
     const isWholesale = item.mode === 'wholesale';
     const color = effectiveColor(product, item.color);
     const thumb = colorImage(product, color);
+    // Ombor: shu qator uchun ruxsat etilgan eng ko'p miqdor
+    const packCap = isWholesale ? maxPacks(product, cartItems, item.key) : Infinity;
+    const pairCap = (size) => maxPairs(product, size, cartItems, item.key);
+    const over = isWholesale
+      ? item.packs > packCap
+      : Object.entries(item.sizes).some(([size, n]) => n > pairCap(size));
 
     return (
       <div className="cart-item" key={item.key}>
@@ -161,7 +168,9 @@ export default function Cart({
               <span className="chip">
                 <button onClick={() => onChangePacks(item.key, -1)}>−</button>
                 <b>{item.packs}</b> {t.pack}
-                <button onClick={() => onChangePacks(item.key, 1)}>+</button>
+                <button onClick={() => onChangePacks(item.key, 1)} disabled={item.packs >= packCap}>
+                  +
+                </button>
               </span>
               <span className="muted" style={{ fontSize: 11, alignSelf: 'center' }}>
                 {product.sizes.join('·')} × {item.packs} = {itemQty(item, product)} {t.pair}
@@ -174,9 +183,26 @@ export default function Cart({
                   <b>{size}</b>
                   <button onClick={() => onChangeSize(item.key, size, -1)}>−</button>
                   {qty}
-                  <button onClick={() => onChangeSize(item.key, size, 1)}>+</button>
+                  <button
+                    onClick={() => onChangeSize(item.key, size, 1)}
+                    disabled={qty >= pairCap(size)}
+                  >
+                    +
+                  </button>
                 </span>
               ))}
+            </div>
+          )}
+
+          {over && (
+            <div className="stock-warn">
+              ⚠️{' '}
+              {isWholesale
+                ? t.stockLimit(`${packCap} ${t.pack}`)
+                : Object.entries(item.sizes)
+                    .filter(([size, n]) => n > pairCap(size))
+                    .map(([size]) => `${size}: ${t.stockLimit(`${pairCap(size)} ${t.pair}`)}`)
+                    .join('; ')}
             </div>
           )}
 

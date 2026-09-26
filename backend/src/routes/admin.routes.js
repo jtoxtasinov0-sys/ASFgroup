@@ -33,6 +33,9 @@ router.post('/products', productUpload, adminController.createProduct);
 router.put('/products/:id', productUpload, adminController.updateProduct);
 router.delete('/products/:id', adminController.deleteProduct);
 
+// Ombor (komplekt va razmer bo'yicha juftlar qoldig'i)
+router.patch('/products/:id/stock', adminController.updateStock);
+
 // Storylar
 router.get('/stories', adminController.listStories);
 router.post('/stories', storyUpload, adminController.createStory);

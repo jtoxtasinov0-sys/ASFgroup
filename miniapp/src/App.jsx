@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
 import { effectiveColor } from './lib/colors';
+import { maxPacks, maxPairs } from './lib/stock';
 import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
   closeApp,
@@ -189,12 +190,22 @@ export default function App() {
       setSheetProduct(product);
       return;
     }
+    // Omborda qolmagan bo'lsa — mahsulot oynasi ochiladi (u yerda "Tugagan" ko'rinadi)
     if (mode === 'wholesale') {
+      if (maxPacks(product, cart.items, null) < 1) {
+        setSheetProduct(product);
+        return;
+      }
       cart.setPacks(product.id, 1, color);
       notifySuccess();
       return;
     }
-    const size = product.sizes.includes(40) ? 40 : product.sizes[0];
+    const available = product.sizes.filter((s) => maxPairs(product, s, cart.items, null) > 0);
+    if (!available.length) {
+      setSheetProduct(product);
+      return;
+    }
+    const size = available.includes(40) ? 40 : available[0];
     cart.addItem(product.id, { [size]: 1 }, color);
     notifySuccess();
   };
@@ -221,8 +232,21 @@ export default function App() {
     setView('cart');
   };
 
+  /** Katalogni (ombor qoldig'i bilan) serverdan qayta oladi */
+  const refreshProducts = () => {
+    api
+      .getProducts()
+      .then((list) => {
+        setProducts(list);
+        const cached = readBoot();
+        if (cached) writeBoot({ ...cached, products: list });
+      })
+      .catch(() => {});
+  };
+
   const onOrderSuccess = (order) => {
     cart.clear();
+    refreshProducts();
     setCheckout(false);
     setSuccess(order);
     // Click tanlangan va sozlangan bo'lsa — to'lov sahifasi ochiladi
@@ -397,6 +421,7 @@ export default function App() {
           t={t}
           mode={mode}
           cartLine={(m, color) => cart.cart[cartKey(m, sheetProduct.id, color)]}
+          cartItems={cart.items}
           onClose={() => setSheetProduct(null)}
           onAdd={cart.addItem}
           onSetPacks={cart.setPacks}
@@ -412,6 +437,7 @@ export default function App() {
           cartItems={cart.items}
           onClose={() => setCheckout(false)}
           onSuccess={onOrderSuccess}
+          onFailed={refreshProducts}
         />
       )}
 

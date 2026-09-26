@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { isPhoneValid, phoneMask } from '../lib/format';
 import { haptic, isTelegram, notifySuccess } from '../lib/telegram';
 
-export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess }) {
+export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess, onFailed }) {
   const [form, setForm] = useState({
     customerName: [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '',
     phone: phoneMask(user?.phone || ''),
@@ -44,6 +44,8 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
     } catch (err) {
       haptic('heavy');
       setError(err.message);
+      // Omborda yetmagan bo'lishi mumkin — qoldiqlar yangilanadi
+      if (onFailed) onFailed();
       setBusy(false);
     }
   };
@@ -177,7 +179,7 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
           {error && (
             <div className="notice" style={{ background: '#fdecec', color: '#b42318' }}>
               <span>⚠️</span>
-              <span>{error}</span>
+              <span style={{ whiteSpace: 'pre-line' }}>{error}</span>
             </div>
           )}
         </div>
