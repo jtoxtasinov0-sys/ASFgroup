@@ -58,7 +58,7 @@ const writeBoot = (data) => {
 export default function App() {
   const [lang, setLang] = useLang();
   const [intro, setIntro] = useState(() => !hasSeenIntro());
-  const [mode, setMode] = useMode();
+  const [savedMode, setMode] = useMode();
   // Har safar ilovaga kirganda avval "Optom / Donaga" tanlanadi
   const [modeOpen, setModeOpen] = useState(true);
 
@@ -82,6 +82,9 @@ export default function App() {
 
   const cart = useCart();
   const t = getDict(lang || 'uz');
+  // Admin donaga savdoni o'chirib qo'ygan bo'lsa — faqat optom
+  const retailOn = config?.retailEnabled !== false;
+  const mode = retailOn ? savedMode : 'wholesale';
 
   /* ---------- Boshlang'ich yuklash ---------- */
 
@@ -138,6 +141,16 @@ export default function App() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* ---------- Donaga savdo o'chirilgan: optomga o'tkazamiz ---------- */
+
+  useEffect(() => {
+    if (retailOn || !config) return;
+    if (savedMode !== 'wholesale') setMode('wholesale');
+    setModeOpen(false);
+    // Savatchada qolgan donali qatorlar buyurtmada qabul qilinmaydi
+    cart.items.filter((item) => item.mode === 'retail').forEach((item) => cart.removeItem(item.key));
+  }, [retailOn, config, savedMode, setMode, cart.items, cart.removeItem]);
 
   /* ---------- Tilni serverga saqlash ---------- */
 
@@ -226,7 +239,7 @@ export default function App() {
   const reorder = (order) => {
     order.items.forEach((item) => {
       if (item.packs) cart.setPacks(item.productId, item.packs, item.color);
-      else cart.addItem(item.productId, item.sizes, item.color);
+      else if (retailOn) cart.addItem(item.productId, item.sizes, item.color);
     });
     notifySuccess();
     setView('cart');
@@ -277,7 +290,8 @@ export default function App() {
     );
   }
 
-  if (modeOpen || !mode) {
+  // Tanlov ekrani faqat sozlama ma'lum bo'lganda va donaga savdo yoqilgan bo'lsa chiqadi
+  if ((modeOpen || !mode) && config && retailOn) {
     return <ModeSelect t={t} lang={lang || 'uz'} setLang={setLang} onPick={pickMode} />;
   }
 
@@ -360,10 +374,15 @@ export default function App() {
           onOpenStory={setStoryIndex}
           products={products}
           mode={mode}
-          onSetMode={(value) => {
-            haptic();
-            setMode(value);
-          }}
+          // Donaga savdo o'chirilgan bo'lsa — almashtirish tugmalari ko'rinmaydi
+          onSetMode={
+            retailOn
+              ? (value) => {
+                  haptic();
+                  setMode(value);
+                }
+              : null
+          }
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
           onQuickAdd={quickAdd}
@@ -380,7 +399,7 @@ export default function App() {
           category={category}
           setCategory={setCategory}
           mode={mode}
-          onChangeMode={() => setModeOpen(true)}
+          onChangeMode={retailOn ? () => setModeOpen(true) : null}
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
           onQuickAdd={quickAdd}

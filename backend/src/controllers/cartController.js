@@ -3,6 +3,7 @@ const UserModel = require('../models/User');
 const ProductModel = require('../models/Product');
 const OrderModel = require('../models/Order');
 const StoryModel = require('../models/Story');
+const SettingModel = require('../models/Setting');
 const { safeSend, notifyAdmins } = require('../core/bot');
 const { t, adminNewOrder } = require('../utils/i18n');
 const { productColors } = require('../utils/colors');
@@ -150,6 +151,8 @@ const cartController = {
           clickEnabled: Boolean(config.click.serviceId && config.click.merchantId),
           botUsername: config.bot.username || process.env.BOT_USERNAME || '',
           payment: await getPublicPayment(),
+          // Admin donaga savdoni o'chirib qo'ygan bo'lsa — Mini App faqat optom ko'rsatadi
+          retailEnabled: await SettingModel.isRetailEnabled(),
         },
       });
     } catch (err) {
@@ -280,6 +283,18 @@ const cartController = {
       }
 
       const user = await UserModel.findOrCreate(req.tgUser);
+
+      // Donaga savdo vaqtincha o'chirilgan bo'lsa — faqat optom buyurtma qabul qilinadi
+      if (items.some((i) => i.mode === 'retail') && !(await SettingModel.isRetailEnabled())) {
+        return res.status(400).json({
+          ok: false,
+          code: 'RETAIL_DISABLED',
+          message:
+            user.lang === 'ru'
+              ? 'Продажа в розницу временно недоступна. Уберите розничные товары из корзины.'
+              : "Donaga savdo vaqtincha to'xtatilgan. Savatchadan donali mahsulotlarni olib tashlang.",
+        });
+      }
 
       // Ombordan ayirish va buyurtmani saqlash — bitta tranzaksiyada
       let order;

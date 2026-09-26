@@ -152,6 +152,7 @@ export const api = {
 
   settings: () => request('GET', '/settings'),
   saveSettings: (data) => request('PUT', '/settings', data),
+  saveSales: (retailEnabled) => request('PUT', '/settings/sales', { retailEnabled }),
 
   broadcastInfo: () => request('GET', '/broadcast'),
   broadcast: (formData) => upload('POST', '/broadcast', formData),

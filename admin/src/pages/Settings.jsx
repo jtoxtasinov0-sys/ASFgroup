@@ -39,6 +39,27 @@ export default function Settings() {
     setForm((prev) => ({ ...prev, cardNumber, cardType: detected || prev.cardType }));
   };
 
+  // Donaga savdo tugmasi — bosilishi bilan darhol saqlanadi
+  const [salesBusy, setSalesBusy] = useState(false);
+  const toggleRetail = async () => {
+    const next = !form.retailEnabled;
+    if (!next && !window.confirm("Donaga savdo o'chirilsinmi? Mijozlar faqat optom (komplekt) xarid qila oladi.")) {
+      return;
+    }
+    setSalesBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      const data = await api.saveSales(next);
+      setForm((prev) => ({ ...prev, retailEnabled: data.retailEnabled }));
+      setMessage(data.retailEnabled ? '✅ Donaga savdo yoqildi' : "✅ Donaga savdo o'chirildi — faqat optom");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSalesBusy(false);
+    }
+  };
+
   const save = async (e) => {
     e.preventDefault();
     setBusy(true);
@@ -70,6 +91,34 @@ export default function Settings() {
           </div>
         )
       ) : (
+        <>
+        <div className="card settings-card" style={{ marginBottom: 18 }}>
+          <h2>🛍 Savdo turlari</h2>
+          <p className="muted">
+            <b>📦 Optom</b> doim ishlaydi. <b>🛍 Donaga</b> savdoni vaqtincha o'chirib qo'yish mumkin —
+            o'chirilsa, Mini App'da "Optom / Donaga" tanlovi chiqmaydi, mijozlar faqat komplekt bilan
+            xarid qiladi. Donali buyurtma kerak bo'lganda shu yerdan qayta yoqasiz.
+          </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 14 }}>
+            <span className={`badge ${form.retailEnabled ? 'on' : 'off'}`}>
+              {form.retailEnabled ? '🛍 Donaga savdo: YOQILGAN' : "🛍 Donaga savdo: O'CHIRILGAN"}
+            </span>
+            <button
+              type="button"
+              className={`btn${form.retailEnabled ? ' btn-danger' : ''}`}
+              disabled={salesBusy}
+              onClick={toggleRetail}
+            >
+              {salesBusy
+                ? 'Saqlanmoqda...'
+                : form.retailEnabled
+                  ? "Donaga savdoni o'chirish"
+                  : 'Donaga savdoni yoqish'}
+            </button>
+          </div>
+        </div>
+
         <form className="card settings-card" onSubmit={save}>
           <h2>🏦 Kartaga o'tkazma (Uzcard / Humo)</h2>
           <p className="muted">
@@ -125,6 +174,7 @@ export default function Settings() {
             </span>
           </div>
         </form>
+        </>
       )}
     </>
   );

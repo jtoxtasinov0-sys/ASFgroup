@@ -41,7 +41,8 @@ export default function Home({
       <Stories stories={stories} lang={lang} seen={seenStories} onOpen={onOpenStory} />
 
       <div className="wrap">
-        {/* Savdo turi — har safar bosh sahifada ko'rinib turadi */}
+        {/* Savdo turi — har safar bosh sahifada ko'rinib turadi (donaga o'chirilgan bo'lsa — yo'q) */}
+        {onSetMode && (
         <div className="mode-switch">
           <button
             className={`mode-tab${isWholesale ? ' active' : ''}`}
@@ -63,6 +64,7 @@ export default function Home({
             <span>{t.modeTabRetail}</span>
           </button>
         </div>
+        )}
 
         <div className="hero">
           <h2>{isWholesale ? t.wholesaleSection : t.retailSection}</h2>

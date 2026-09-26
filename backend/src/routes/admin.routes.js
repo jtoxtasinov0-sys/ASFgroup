@@ -52,5 +52,7 @@ router.get('/users', adminController.listUsers);
 // Sozlamalar (kartaga o'tkazma uchun karta)
 router.get('/settings', adminController.getSettings);
 router.put('/settings', adminController.updateSettings);
+// Donaga savdoni yoqish / o'chirish
+router.put('/settings/sales', adminController.updateSales);
 
 module.exports = router;

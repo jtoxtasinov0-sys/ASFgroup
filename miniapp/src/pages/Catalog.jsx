@@ -46,12 +46,17 @@ export default function Catalog({
       <div className="wrap" style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <h1 className="h1">{t.navCatalog}</h1>
-          <button
-            className={`mode-pill${mode === 'wholesale' ? ' wholesale' : ''}`}
-            onClick={onChangeMode}
-          >
-            {mode === 'wholesale' ? t.modeBadgeWholesale : t.modeBadgeRetail} ⇄
-          </button>
+          {onChangeMode ? (
+            <button
+              className={`mode-pill${mode === 'wholesale' ? ' wholesale' : ''}`}
+              onClick={onChangeMode}
+            >
+              {mode === 'wholesale' ? t.modeBadgeWholesale : t.modeBadgeRetail} ⇄
+            </button>
+          ) : (
+            // Donaga savdo o'chirilgan — faqat optom, almashtirib bo'lmaydi
+            <span className="mode-pill wholesale">{t.modeBadgeWholesale}</span>
+          )}
         </div>
         <input
           style={{ marginTop: 12 }}

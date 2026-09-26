@@ -28,6 +28,15 @@ const {
 
 /* ---------- Yordamchi ---------- */
 
+/** Sozlamalar sahifasi uchun: karta + donaga savdo holati */
+async function adminSettings() {
+  const [payment, retailEnabled] = await Promise.all([
+    getPaymentSettings(),
+    SettingModel.isRetailEnabled(),
+  ]);
+  return { ...payment, retailEnabled };
+}
+
 const toInt = (v, fallback = 0) => {
   const raw = String(v ?? '').replace(/\s/g, '');
   if (raw === '') return fallback;
@@ -312,11 +321,10 @@ const adminController = {
     }
   },
 
-  /* ===== Sozlamalar: kartaga o'tkazma uchun karta ===== */
+  /* ===== Sozlamalar: kartaga o'tkazma uchun karta + donaga savdo ===== */
   async getSettings(_req, res, next) {
     try {
-      const p = await getPaymentSettings();
-      res.json({ ok: true, data: p });
+      res.json({ ok: true, data: await adminSettings() });
     } catch (err) {
       next(err);
     }
@@ -344,7 +352,21 @@ const adminController = {
       }
 
       await SettingModel.setMany({ cardNumber, cardHolder, cardType });
-      res.json({ ok: true, data: await getPaymentSettings() });
+      res.json({ ok: true, data: await adminSettings() });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /** Donaga savdoni vaqtincha o'chirish / yoqish (optom doim ishlaydi) */
+  async updateSales(req, res, next) {
+    try {
+      const { retailEnabled } = req.body || {};
+      if (typeof retailEnabled !== 'boolean') {
+        return res.status(400).json({ ok: false, message: "retailEnabled noto'g'ri" });
+      }
+      await SettingModel.setMany({ retailEnabled });
+      res.json({ ok: true, data: await adminSettings() });
     } catch (err) {
       next(err);
     }
