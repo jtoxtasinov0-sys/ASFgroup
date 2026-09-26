@@ -177,23 +177,6 @@ function paymentStatusLine(order) {
 /** Buyurtma qatoridagi rang nomi (rasmga rang belgilanmagan bo'lsa — shuni aytadi) */
 const itemColorText = (i) => (i.color && colorName(i.color)) || 'belgilanmagan';
 
-/** Adminga: mahsulot rasmi ostidagi ma'lumot */
-function adminOrderItemCaption(order, i, n) {
-  const sizes = i.packs
-    ? `📦 <b>${i.packs} komplekt</b> (${Object.keys(i.sizes || {}).join(', ')})`
-    : `🛍 Dona: ${Object.entries(i.sizes || {})
-        .map(([size, count]) => `${size}×${count}`)
-        .join(', ')}`;
-  return (
-    `🧾 Buyurtma #${order.id} — ${n + 1}-mahsulot\n\n` +
-    `👟 <b>${esc(i.name)}</b>\n` +
-    `🔖 Artikul: <b>${esc(i.article)}</b>\n` +
-    `🎨 Rang: <b>${esc(itemColorText(i))}</b>\n` +
-    `${sizes}\n` +
-    `🔢 ${i.qty} juft × ${fmt(i.unitPrice)} = <b>${fmt(i.lineTotal)} so'm</b>`
-  );
-}
-
 /** Egasi/menejerga yangi buyurtma haqida xabar */
 function adminNewOrder(order) {
   const u = order.user || {};
@@ -242,7 +225,6 @@ module.exports = {
   fmt,
   esc,
   adminNewOrder,
-  adminOrderItemCaption,
   colorName,
   paymentStatusLine,
 };

@@ -161,12 +161,41 @@ function photoSource(image) {
   return canUseWebhook() ? { url: `${config.publicUrl}${image}` } : null;
 }
 
+/** Telegram rasm ostidagi matn chegarasi (HTML teglarsiz hisoblanadi) */
+const CAPTION_MAX = 1024;
+const visibleLength = (html) =>
+  html.replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp);/g, ' ').length;
+
+/** Bitta rasmni media ko'rinishiga keltiradi (fayl bo'lsa — oqim) */
+function photoMedia(image, fileIds) {
+  if (fileIds.has(image)) return { media: fileIds.get(image) };
+  const src = photoSource(image);
+  if (!src) return null;
+  if (!src.file) return { media: src.url };
+  return {
+    media: fs.createReadStream(src.file),
+    fileOptions: {
+      filename: path.basename(src.file),
+      contentType: `image/${path.extname(src.file).slice(1).replace('jpg', 'jpeg') || 'jpeg'}`,
+    },
+  };
+}
+
+/** Yuborilgan xabar(lar)dagi rasm ID'larini eslab qoladi — keyingi adminga qayta yuklamaslik uchun */
+function rememberFileIds(images, sent, fileIds) {
+  const messages = Array.isArray(sent) ? sent : [sent];
+  messages.forEach((m, n) => {
+    const id = m?.photo?.[m.photo.length - 1]?.file_id;
+    if (id && images[n]) fileIds.set(images[n], id);
+  });
+}
+
 /**
- * Yangi buyurtma: avval har bir mahsulot rasmi (ostida ma'lumoti bilan),
- * keyin umumiy buyurtma xabari. Rasm yuborilmasa — ma'lumot matn bo'lib ketadi.
- * photos: [{ image, caption }]
+ * Yangi buyurtma: mahsulot rasmi(lar)i va ostida BITTA to'liq buyurtma xabari.
+ * Bir nechta mahsulot bo'lsa — albom. Matn juda uzun bo'lsa (1024 belgidan ko'p) —
+ * rasmlar, keyin alohida matn. Rasm yuborilmasa — faqat matn.
  */
-async function notifyAdminsWithPhotos(photos, text, options = {}) {
+async function notifyAdminsWithPhotos(images, text, options = {}) {
   const ids = config.bot.adminChatIds;
   if (!ids.length) {
     console.warn('⚠️  ADMIN_CHAT_IDS qo\'yilmagan — yangi buyurtma xabari hech kimga yuborilmadi');
@@ -174,29 +203,36 @@ async function notifyAdminsWithPhotos(photos, text, options = {}) {
   }
   if (!bot) return;
 
-  // Bir marta yuklangan rasm qolgan adminlarga Telegram file_id orqali boradi
+  const unique = [...new Set(images.filter(Boolean))].slice(0, 10);
+  const captionFits = visibleLength(text) <= CAPTION_MAX;
   const fileIds = new Map();
 
   for (const chatId of ids) {
-    for (const { image, caption } of photos) {
-      const opts = { caption, parse_mode: 'HTML' };
-      try {
-        const src = fileIds.get(image) ? { id: fileIds.get(image) } : photoSource(image);
-        if (!src) throw new Error('rasm topilmadi');
-        const sent = src.file
-          ? await bot.sendPhoto(chatId, fs.createReadStream(src.file), opts, {
-            filename: path.basename(src.file),
-            contentType: `image/${path.extname(src.file).slice(1).replace('jpg', 'jpeg') || 'jpeg'}`,
-          })
-          : await bot.sendPhoto(chatId, src.id || src.url, opts);
-        const fileId = sent?.photo?.[sent.photo.length - 1]?.file_id;
-        if (fileId) fileIds.set(image, fileId);
-      } catch (err) {
-        if (image) console.error(`Adminga mahsulot rasmi yuborilmadi (${chatId}):`, err?.message);
-        await safeSend(chatId, caption);
-      }
+    const list = unique
+      .map((image) => ({ image, item: photoMedia(image, fileIds) }))
+      .filter((p) => p.item);
+
+    if (!list.length) {
+      await safeSend(chatId, text, options);
+      continue;
     }
-    await safeSend(chatId, text, options);
+
+    const caption = captionFits ? { caption: text, parse_mode: 'HTML' } : {};
+    try {
+      let sent;
+      if (list.length === 1) {
+        const { media, fileOptions } = list[0].item;
+        sent = await bot.sendPhoto(chatId, media, caption, fileOptions);
+      } else {
+        const media = list.map((p, n) => ({ type: 'photo', ...p.item, ...(n === 0 ? caption : {}) }));
+        sent = await bot.sendMediaGroup(chatId, media);
+      }
+      rememberFileIds(list.map((p) => p.image), sent, fileIds);
+      if (!captionFits) await safeSend(chatId, text, options);
+    } catch (err) {
+      console.error(`Adminga buyurtma rasmi yuborilmadi (${chatId}):`, err?.message);
+      await safeSend(chatId, text, options);
+    }
   }
 }
 
