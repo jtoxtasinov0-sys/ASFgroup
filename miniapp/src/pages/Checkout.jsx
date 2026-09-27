@@ -52,14 +52,30 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
   }, []);
   const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const valid =
-    form.customerName.trim().length >= 2 &&
-    isPhoneValid(form.phone) &&
-    form.region &&
-    form.address.trim().length >= 3;
+  // To'ldirilmagan majburiy maydonlar qizil bo'lib, "To'ldiring" deb turadi
+  const errors = {
+    customerName: form.customerName.trim().length < 2 && t.fillField,
+    phone:
+      !isPhoneValid(form.phone) &&
+      (form.phone.replace(/\D/g, '').length > 3 ? t.phoneInvalid : t.fillField),
+    region: !form.region && t.fillField,
+    address: form.address.trim().length < 3 && t.fillField,
+  };
+  const valid = !Object.values(errors).some(Boolean);
+
+  const fieldClass = (key) => `field${errors[key] ? ' invalid' : ''}`;
+  const fieldError = (key) => errors[key] && <span className="field-error">{errors[key]}</span>;
 
   const submit = async () => {
-    if (!valid || busy) return;
+    if (busy) return;
+    if (!valid) {
+      // Birinchi to'ldirilmagan maydonga olib boradi
+      haptic('heavy');
+      const first = document.querySelector('.sheet .field.invalid');
+      first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      first?.querySelector('input, select')?.focus();
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -98,16 +114,17 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
             {t.orderTitle}
           </h2>
 
-          <div className="field">
+          <div className={fieldClass('customerName')}>
             <label>{t.yourName}</label>
             <input
               value={form.customerName}
               onChange={set('customerName')}
               placeholder={t.yourName}
             />
+            {fieldError('customerName')}
           </div>
 
-          <div className="field">
+          <div className={fieldClass('phone')}>
             <label>{t.yourPhone}</label>
             <input
               type="tel"
@@ -116,9 +133,10 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
               onChange={(e) => setForm((p) => ({ ...p, phone: phoneMask(e.target.value) }))}
               placeholder="+998 __ ___ __ __"
             />
+            {fieldError('phone')}
           </div>
 
-          <div className="field">
+          <div className={fieldClass('region')}>
             <label>{t.region}</label>
             <select value={form.region} onChange={set('region')}>
               <option value="">{t.regionPick}</option>
@@ -128,11 +146,13 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
                 </option>
               ))}
             </select>
+            {fieldError('region')}
           </div>
 
-          <div className="field">
+          <div className={fieldClass('address')}>
             <label>{t.address}</label>
             <input value={form.address} onChange={set('address')} placeholder={t.addressPh} />
+            {fieldError('address')}
           </div>
 
           <div className="field">
@@ -218,7 +238,7 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
         </div>
 
         <div className="sheet-cta">
-          <button className="btn" disabled={!valid || busy || !isTelegram} onClick={submit}>
+          <button className="btn" disabled={busy || !isTelegram} onClick={submit}>
             {busy ? t.sending : t.confirm}
           </button>
         </div>

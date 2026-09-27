@@ -1053,6 +1053,25 @@ img {
   resize: vertical;
 }
 
+/* To'ldirilmagan majburiy maydon */
+.field.invalid label {
+  color: #b42318;
+}
+
+.field.invalid input,
+.field.invalid select {
+  border-color: #e5484d;
+  background: #fff5f5;
+}
+
+.field-error {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b42318;
+}
+
 /* ---------- Profil ---------- */
 
 .profile-head {
