@@ -5,6 +5,7 @@ import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
 import { packsLeft, pairsLeft, soldOut } from '../lib/stock';
 import PriceTag, { OldPrice } from './PriceTag';
+import { retryImage } from '../lib/image';
 
 /** Kartochkadagi qoldiq: optomda komplekt, donada jami juftlar (hisoblanmasa — null) */
 function stockLeft(product, isWholesale) {
@@ -13,7 +14,7 @@ function stockLeft(product, isWholesale) {
   return product.sizes.reduce((sum, size) => sum + pairsLeft(product, size), 0);
 }
 
-export default function ProductCard({ product, lang, t, mode, inCart, onOpen, onQuickAdd }) {
+export default function ProductCard({ product, lang, t, mode, inCart, onOpen, onQuickAdd, priority }) {
   const currency = t.sum;
   const isWholesale = mode === 'wholesale';
   const discount = isWholesale ? 0 : discountPercent(product);
@@ -27,7 +28,11 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
         <img
           src={imageUrl(product.images[0])}
           alt={pick(product, 'name', lang)}
-          loading="lazy"
+          // Ekranda birinchi ko'rinadigan kartochkalar darhol yuklanadi
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : undefined}
+          decoding="async"
+          onError={retryImage}
           style={frameStyle(frameOf(product, product.images[0]))}
         />
         {discount > 0 && !out && <span className="sale-badge">−{discount}%</span>}

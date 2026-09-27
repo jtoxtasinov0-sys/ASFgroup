@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const config = require('./config/default');
 const { connectDatabase, disconnectDatabase } = require('./database/connection');
-const { ensureLocalFile } = require('./utils/upload');
+const { ensureLocalFile, warmUpFiles } = require('./utils/upload');
 const {
   createBot,
   startBot,
@@ -23,16 +23,25 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Yuklangan rasmlar (custom-*) nomi har safar yangi — ular hech qachon o'zgarmaydi,
+// shuning uchun telefon ularni bir yilgacha keshda saqlab, qayta yuklamaydi
+const cacheControl = (file) =>
+  path.basename(file).startsWith('custom-')
+    ? 'public, max-age=31536000, immutable'
+    : 'public, max-age=604800';
+
 // Rasmlar: http://localhost:5000/uploads/products/asf-101.jpg
 app.use(
   '/uploads',
-  express.static(path.join(__dirname, '..', 'uploads'), { maxAge: '7d' })
+  express.static(path.join(__dirname, '..', 'uploads'), {
+    setHeaders: (res, file) => res.set('Cache-Control', cacheControl(file)),
+  })
 );
 // Diskda yo'q bo'lsa (Render deploy'dan keyin) — bazadagi zaxiradan tiklaymiz
 app.get('/uploads/*', async (req, res) => {
   const file = await ensureLocalFile(decodeURIComponent(req.path));
   if (!file) return res.sendStatus(404);
-  res.set('Cache-Control', 'public, max-age=604800');
+  res.set('Cache-Control', cacheControl(file));
   return res.sendFile(file);
 });
 
@@ -108,6 +117,9 @@ async function start() {
   console.log('══════════════════════════════════════\n');
 
   await connectDatabase();
+
+  // Rasmlarni fonda diskka tiklab, og'irlarini siqib qo'yamiz (serverni kutdirmaydi)
+  warmUpFiles().catch(() => {});
 
   const bot = createBot();
   if (bot) registerBotHandlers(bot);

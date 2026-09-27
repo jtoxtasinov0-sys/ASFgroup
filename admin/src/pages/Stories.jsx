@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, date, imageUrl } from '../lib/api';
 import ImagePicker from '../components/ImagePicker';
+import { compressImages } from '../lib/image';
 
 function StoryForm({ story, products, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -36,9 +37,9 @@ function StoryForm({ story, products, onClose, onSaved }) {
     data.append('sortOrder', form.sortOrder);
     data.append('isActive', form.isActive);
     if (existing[0]) data.append('image', existing[0]);
-    files.forEach((file) => data.append('files', file));
-
     try {
+      // Og'ir rasmlar yuklashdan oldin kichraytiriladi — tez yuklanadi va tez ochiladi
+      (await compressImages(files)).forEach((file) => data.append('files', file));
       if (story) await api.updateStory(story.id, data);
       else await api.createStory(data);
       onSaved();

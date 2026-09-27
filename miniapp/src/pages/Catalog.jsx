@@ -115,9 +115,10 @@ export default function Catalog({
           </div>
         ) : (
           <div className="grid">
-            {filtered.map((product) => (
+            {filtered.map((product, i) => (
               <ProductCard
                 key={product.id}
+                priority={i < 4}
                 product={product}
                 lang={lang}
                 t={t}

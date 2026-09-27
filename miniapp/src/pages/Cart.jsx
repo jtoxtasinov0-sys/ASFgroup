@@ -8,6 +8,7 @@ import { itemQty } from '../lib/store';
 import { maxPacks, maxPairs } from '../lib/stock';
 import { haptic } from '../lib/telegram';
 import PriceTag, { OldPrice } from '../components/PriceTag';
+import { retryImage } from '../lib/image';
 
 /**
  * Server javob bermasa (uxlab yotgan yoki ulanish yo'q) savatcha bo'sh
@@ -138,7 +139,7 @@ export default function Cart({
     return (
       <div className="cart-item" key={item.key}>
         <div className="cart-thumb">
-          <img src={imageUrl(thumb)} alt="" style={frameStyle(frameOf(product, thumb), 1)} />
+          <img src={imageUrl(thumb)} alt="" onError={retryImage} style={frameStyle(frameOf(product, thumb), 1)} />
         </div>
 
         <div className="cart-info">

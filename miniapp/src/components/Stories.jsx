@@ -1,6 +1,7 @@
 import { imageUrl } from '../lib/api';
 import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
+import { retryImage } from '../lib/image';
 
 export default function Stories({ stories, lang, seen, onOpen }) {
   if (!stories.length) return null;
@@ -17,7 +18,7 @@ export default function Stories({ stories, lang, seen, onOpen }) {
           }}
         >
           <div className={`story-ring${seen.includes(story.id) ? ' seen' : ''}`}>
-            <img className="story-img" src={imageUrl(story.image)} alt="" loading="lazy" />
+            <img className="story-img" src={imageUrl(story.image)} alt="" loading="lazy" decoding="async" onError={retryImage} />
           </div>
           <div className="story-title">{pick(story, 'title', lang)}</div>
         </button>

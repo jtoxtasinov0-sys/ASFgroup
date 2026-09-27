@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api } from '../lib/api';
 import ImagePicker from './ImagePicker';
 import ImageEditor from './ImageEditor';
+import { compressImages } from '../lib/image';
 
 const ALL_SIZES = [39, 40, 41, 42, 43];
 
@@ -131,9 +132,9 @@ export default function ProductForm({ product, onClose, onSaved }) {
       'imageColors',
       JSON.stringify([...existing, ...files].map((key) => colors.get(key) || null))
     );
-    files.forEach((file) => data.append('files', file));
-
     try {
+      // Og'ir rasmlar yuklashdan oldin kichraytiriladi — tez yuklanadi va tez ochiladi
+      (await compressImages(files)).forEach((file) => data.append('files', file));
       if (product) await api.updateProduct(product.id, data);
       else await api.createProduct(data);
       onSaved();

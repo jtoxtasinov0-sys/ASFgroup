@@ -93,9 +93,10 @@ export default function Home({
               <h2 className="h2">{t.saleTitle}</h2>
             </div>
             <div className="grid">
-              {onSale.map((product) => (
+              {onSale.map((product, i) => (
                 <ProductCard
                   key={product.id}
+                  priority={i < 2}
                   product={product}
                   lang={lang}
                   t={t}

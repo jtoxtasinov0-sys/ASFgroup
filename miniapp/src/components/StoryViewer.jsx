@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { pick } from '../lib/i18n';
 import { haptic } from '../lib/telegram';
+import { retryImage } from '../lib/image';
 
 const DURATION = 5000;
 
@@ -58,7 +59,7 @@ export default function StoryViewer({ stories, startIndex, lang, t, onClose, onS
         {/* Rasm nisbati ekranga to'g'ri kelmasa, bo'sh joyni o'sha rasmning
             xiralashtirilgan nusxasi to'ldiradi — qora chiziqlar chiqmaydi */}
         <div className="viewer-bg" style={{ backgroundImage: `url("${src}")` }} />
-        <img className="viewer-img" src={src} alt={pick(story, 'title', lang)} />
+        <img className="viewer-img" src={src} alt={pick(story, 'title', lang)} onError={retryImage} />
         <div className="viewer-zone left" onClick={prev} />
         <div className="viewer-zone right" onClick={next} />
       </div>

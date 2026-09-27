@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { haptic } from '../lib/telegram';
+import { retryImage } from '../lib/image';
 
 const MAX_SCALE = 4;
 
@@ -138,6 +139,7 @@ export default function PhotoViewer({ images, index, onIndex, onClose }) {
           src={images[index]}
           alt=""
           draggable={false}
+          onError={retryImage}
           style={{
             transform: `translate(${view.x + swipe}px, ${view.y}px) scale(${view.s})`,
             transition: gesture.current ? 'none' : 'transform 0.2s ease',

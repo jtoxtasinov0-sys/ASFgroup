@@ -9,6 +9,7 @@ import { colorLabel, effectiveColor, productColors } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import PriceTag, { OldPrice } from './PriceTag';
 import PhotoViewer from './PhotoViewer';
+import { retryImage } from '../lib/image';
 
 const PACK_PRESETS = [1, 2, 3, 5, 10, 20, 50, 100];
 
@@ -172,6 +173,8 @@ export default function ProductSheet({
                     src={imageUrl(src)}
                     alt={pick(product, 'name', lang)}
                     loading={i === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    onError={retryImage}
                     draggable={false}
                     style={frameStyle(frameOf(product, src))}
                   />
@@ -211,6 +214,8 @@ export default function ProductSheet({
                   <img
                     src={imageUrl(src)}
                     alt=""
+                    decoding="async"
+                    onError={retryImage}
                     style={frameStyle(frameOf(product, src), 1)}
                   />
                 </button>
