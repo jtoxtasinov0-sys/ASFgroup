@@ -740,6 +740,36 @@ img {
   flex-shrink: 0;
 }
 
+/* Brauzerda oynani yopish ("orqaga") tugmasi — components/SheetClose.jsx */
+.sheet-close {
+  position: absolute;
+  top: 22px;
+  left: 26px;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--ink, #16243f);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(12, 17, 28, 0.22);
+  backdrop-filter: blur(6px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet-close:active {
+  transform: scale(0.94);
+}
+
+/* Sarlavha tugma ostida qolib ketmasin */
+.sheet-close ~ .sheet-scroll .sheet-title {
+  padding-left: 52px;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+
 .sheet-scroll {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;

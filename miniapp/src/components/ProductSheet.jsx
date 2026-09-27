@@ -9,6 +9,7 @@ import { colorLabel, effectiveColor, productColors } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import PriceTag, { OldPrice } from './PriceTag';
 import PhotoViewer from './PhotoViewer';
+import SheetClose from './SheetClose';
 import { retryImage } from '../lib/image';
 
 const PACK_PRESETS = [1, 2, 3, 5, 10, 20, 50, 100];
@@ -155,6 +156,7 @@ export default function ProductSheet({
       <div className="sheet-backdrop" onClick={onClose} />
       <div className="sheet">
         <div className="sheet-handle" />
+        <SheetClose onClose={onClose} label={t.close} />
 
         <div className="sheet-scroll">
           {/* Rasmlar: chapga / o'ngga surib almashtiriladi, bosilsa butun ekranda ochiladi */}

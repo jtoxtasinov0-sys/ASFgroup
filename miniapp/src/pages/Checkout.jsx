@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { isPhoneValid, phoneMask } from '../lib/format';
 import { haptic, notifySuccess } from '../lib/telegram';
+import SheetClose from '../components/SheetClose';
 
 export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess, onFailed }) {
   const initialName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
@@ -103,9 +104,10 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
       <div className="sheet-backdrop" onClick={busy ? undefined : onClose} />
       <div className="sheet">
         <div className="sheet-handle" />
+        {!busy && <SheetClose onClose={onClose} label={t.close} />}
 
         <div className="sheet-scroll">
-          <h2 className="h1" style={{ marginTop: 10, marginBottom: 16 }}>
+          <h2 className="h1 sheet-title" style={{ marginTop: 10, marginBottom: 16 }}>
             {t.orderTitle}
           </h2>
 

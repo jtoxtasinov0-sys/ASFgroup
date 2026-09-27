@@ -72,12 +72,12 @@ backend/
     ├── models/                # User, Product, Order, Story, Setting
     ├── controllers/           # botController, cartController (mijoz), adminController
     ├── routes/                # bot.routes, client.routes (/api), admin.routes (/api/admin)
-    ├── middlewares/auth.middleware.js  # Telegram initData HMAC tekshiruvi + admin JWT
+    ├── middlewares/auth.middleware.js  # Telegram initData HMAC tekshiruvi + brauzer veb-tokeni + admin JWT
     ├── services/payment.js    # karta, chek, Tasdiqlash/Rad etish
     ├── services/stock.js      # ombor: buyurtmada ayirish / bekor qilinsa qaytarish (tranzaksiyada)
     ├── utils/i18n.js          # bot matnlari (uz/ru), adminga xabar shablonlari
     ├── utils/colors.js        # rang kalitlari va qo'lda kiritilgan ranglar
-    ├── utils/upload.js        # multer, fayl yo'llari
+    ├── utils/upload.js        # multer, fayl yo'llari, siqish, bazada zaxira, kichik nusxalar (?w=)
     └── index.js               # Express, /uploads statik, /api/health, webhook yo'li, o'zini ping qilish
 ```
 
@@ -86,7 +86,7 @@ backend/
 ```
 miniapp/src/
 ├── pages/      Onboarding, ModeSelect, Home, Catalog, Cart, Checkout, Profile
-├── components/ BottomNav, ProductCard, ProductSheet, PriceTag, PhotoViewer, Stories, StoryViewer, PaymentScreen
+├── components/ BottomNav, ProductCard, ProductSheet, SheetClose, PriceTag, PhotoViewer, Stories, StoryViewer, PaymentScreen
 └── lib/        api (qayta urinish bilan), telegram (WebApp, haptic), i18n (uz/ru), store (savatcha), stock, colors, frame, image, format
 ```
 
@@ -169,6 +169,36 @@ Adminlar ro'yxati = `ADMIN_CHAT_IDS` (env, vergul bilan, guruh ID minus bilan) +
 - **BottomNav** — Bosh sahifa, Katalog, Savatcha (soni bilan), Profil
 - Telegram haptic, xavfsiz zona (safe-area), server uxlab qolsa — 3 marta qayta urinish va "Server uyg'onmoqda..." yozuvi
 - Brauzerda (Telegram tashqarisida, production emas) — "Demo Mijoz" nomidan ishlaydi
+
+### 5.1 Brauzerdan / telefon ekranidan ishlash (Telegramsiz)
+
+Mijoz saytni Chrome/Safari'da ochib, **"На экран «Домой»"** qilib oddiy ilova kabi ishlatishi mumkin. Bu to'liq ishlaydi:
+
+- **Buyurtma berish (veb-token):** Telegram imzosi (`initData`) bo'lmasa, Mini App `POST /api/web/session` dan
+  imzolangan JWT oladi (`role: 'web'`, `sub: "web_<tasodifiy hex>"`, 10 yil) va `localStorage` ga saqlaydi.
+  Himoyalangan so'rovlarga `X-Web-Token` sarlavhasi bilan yuboriladi; `telegramAuth` uni ham qabul qiladi
+  (`req.isWeb = true`). Katalog/story/config so'rovlari tokenni kutmaydi. Token eskirsa (401) — yangisi olinadi.
+  User jadvaliga `telegramId = "web_..."` bo'lib yoziladi; birinchi buyurtmadagi ism `firstName` ga qo'yiladi
+- **Bot xabarlari:** `safeSend` faqat raqamli chat ID ga yuboradi — `web_...` mijozga urinmaydi. Rassilka ham ularni
+  o'tkazib yuboradi. Admin xabarida Telegram havolasi o'rniga "🌐 Saytdan (Telegramsiz) — telefon orqali bog'laning"
+- **Matnlar:** brauzerda "botda xabar olasiz" o'rniga "«Buyurtmalarim» bo'limida ko'rasiz" (`receiptSentWeb`,
+  `payLaterHintWeb`); buyurtmadan keyin ilova yopilmaydi — **"Bosh sahifaga"** tugmasi chiqadi
+- **Orqaga tugmasi:** Telegramda tepada o'zining BackButton'i bor, brauzerda yo'q. Shuning uchun `SheetClose`
+  komponenti — pastdan chiqadigan oynalar (ProductSheet, Checkout) chap tepasida yumaloq **‹** tugma
+  (faqat `!isTelegram` da ko'rinadi; Checkout sarlavhasi `sheet-title` bilan surilib turadi)
+- **Ekrandagi belgi (ikonka):** `public/apple-touch-icon.png` (180×180), `icon-192.png`, `icon-512.png` — logodan
+  kvadrat qilib kesilgan, fon logoning foni bilan bir xil; `public/manifest.webmanifest` (`display: standalone`,
+  nom, ranglar) va `index.html` da `apple-touch-icon`, `manifest`, `apple-mobile-web-app-title/capable` teglari.
+  Eslatma: iPhone belgini qo'shilgan paytda saqlaydi — eski belgini o'chirib, qayta qo'shish kerak
+
+### 5.2 Rasmlar tez ochilishi
+
+- **Kichik nusxalar (thumbnail):** backend `GET /uploads/...?w=480` — `sharp` bilan WebP (160/320/480/800 px),
+  `uploads/_thumbs/` da keshlanadi (git'dan chetlatilgan). 322 KB → 45 KB. Mini App'da `imageUrl(path, width)`:
+  kartochka 480, story/savatcha 320, buyurtmalar 160; mahsulot oynasi va to'liq ekran — asl rasm
+- **Server uyg'onishini kutish:** `retryImage` ~1 daqiqa (1.5–25 s oraliq) qayta so'raydi; katalog serverdan
+  yangilanganda va ilova fondan qaytganda (`visibilitychange`) `reloadBrokenImages()` buzilgan rasmlarni darhol qayta yuklaydi
+- Yuklashda siqish (max 1600px), `custom-*` rasmlar 1 yil keshlanadi, rasmlar bazada (`StoredFile`) zaxiralanadi
 
 Dizayn: oq fon, bitta to'q urg'u rangi, yumaloq burchaklar (10–26px), yumshoq soyalar, minimalist.
 CSS o'zgaruvchilari `:root` da (`--navy`, `--red`, `--green`, `--ink`, `--muted`, `--line`, `--bg`, `--r-*`, `--shadow-*`) —
@@ -253,6 +283,10 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 | Adminga xabarda rang ko'rinmasdi, xabar ikkiga bo'linib kelardi | Rasmga rang biriktirilmagan bo'lsa "belgilanmagan" deb chiqadi; rasm va to'liq ma'lumot bitta xabarda |
 | Bot birinchi bo'lib odamga yoza olmaydi | Admin avval botga /start bosishi shart |
 | Mijoz matni HTML xabarni buzadi | Hamma mijoz matni `esc()` dan o'tkaziladi |
+| Ekranga qo'shilgan saytda (Chrome/Safari) buyurtma tugmasi o'chiq edi | Veb-token (5.1 bo'lim) — Telegramsiz ham buyurtma |
+| Ekrandagi belgi "A" harfi bo'lib chiqardi | `apple-touch-icon.png` + `manifest.webmanifest` boshidanoq qo'yilsin |
+| Brauzerda mahsulot oynasidan chiqib bo'lmasdi | `SheetClose` "‹" tugmasi (Telegramda BackButton bor, brauzerda yo'q) |
+| Server uxlaganda rasmlar "?" bo'lib qolardi, katta rasmlar sekin | Thumbnail `?w=` + uzoq qayta urinish + `reloadBrokenImages` |
 
 ---
 
@@ -264,6 +298,7 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 4. `schema.prisma` — mahsulot turiga moslab (razmer kerak bo'lmasa — olib tashla yoki "o'lcham" ga almashtir)
 5. Bot, API, Mini App, Admin panelni shu faylda yozilgan barcha imkoniyatlar bilan yoz
 6. i18n matnlarini brend va mahsulotga moslab yoz (uz + ru)
-7. CSS `:root` ranglarini anketadagi ranglarga almashtir, logoni `public/logo.png` ga qo'y
+7. CSS `:root` ranglarini anketadagi ranglarga almashtir, logoni `public/logo.png` ga qo'y;
+   logodan `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` yasab, `manifest.webmanifest` ni brendga moslab yoz
 8. Seed'ga namunaviy mahsulotlar (foydalanuvchi rasmlarini yuborsa — o'shalar bilan)
 9. Lokal sinab ko'r (preview), keyin DEPLOY.md bo'yicha foydalanuvchiga qadam-baqadam yo'l ko'rsat
