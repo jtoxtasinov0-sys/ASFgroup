@@ -1,0 +1,15 @@
+{
+  "name": "ASF GROUP",
+  "short_name": "ASF GROUP",
+  "description": "ASF GROUP — tayyor oyoq kiyim va zagatovka do'koni",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#012154",
+  "theme_color": "#16243F",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
