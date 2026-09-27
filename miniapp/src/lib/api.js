@@ -25,11 +25,16 @@ let activeApiUrl = resolveApiUrl();
 
 export const getApiUrl = () => activeApiUrl;
 
-/** Rasm manzilini to'liq URL'ga aylantiradi */
-export function imageUrl(path) {
+/**
+ * Rasm manzilini to'liq URL'ga aylantiradi.
+ * `width` berilsa — server shu enga mos kichik (WebP) nusxani beradi:
+ * kartochka va doirachalar uchun 300-600 KB o'rniga 10-45 KB.
+ */
+export function imageUrl(path, width) {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return `${activeApiUrl}${path}`;
+  const thumb = width && path.startsWith('/uploads/') ? `?w=${width}` : '';
+  return `${activeApiUrl}${path}${thumb}`;
 }
 
 /* ----------------------------------------------------------

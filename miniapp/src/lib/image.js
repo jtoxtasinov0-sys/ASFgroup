@@ -29,18 +29,40 @@ export async function compressImage(file, maxSide = 1600, quality = 0.85) {
 }
 
 /**
- * <img onError={retryImage}> — rasm yuklanmay qolsa (server endi uyg'onayotgan
- * yoki rasm bazadan tiklanayotgan bo'lsa) 1.5 va 4 soniyadan keyin qayta so'raydi.
- * Shunda kartochkada "?" belgisi qolib ketmaydi.
+ * <img onError={retryImage}> — rasm yuklanmay qolsa qayta so'raydi.
+ * Render'ning bepul serveri uxlab qolgan bo'lsa, uyg'onishi 30-60 soniya oladi —
+ * ilova esa katalogni keshdan darhol ko'rsatadi. Shuning uchun ~1 daqiqa davomida
+ * oraliqni uzaytirib urinamiz, kartochkada "?" belgisi qolib ketmaydi.
  */
-const RETRY_DELAYS = [1500, 4000];
+const RETRY_DELAYS = [1500, 3000, 6000, 10000, 15000, 25000];
+
+function bustedSrc(img, n) {
+  const src = img.src.replace(/([?&])r=\d+&?/, '$1').replace(/[?&]$/, '');
+  return `${src}${src.includes('?') ? '&' : '?'}r=${n}`;
+}
+
 export function retryImage(e) {
   const img = e.currentTarget;
   const tries = Number(img.dataset.retry || 0);
   if (tries >= RETRY_DELAYS.length || !img.src || img.src.startsWith('blob:')) return;
   img.dataset.retry = String(tries + 1);
-  const src = img.src.replace(/([?&])r=\d+&?/, '$1').replace(/[?&]$/, '');
-  setTimeout(() => {
-    img.src = `${src}${src.includes('?') ? '&' : '?'}r=${tries + 1}`;
+  clearTimeout(img._retryTimer);
+  img._retryTimer = setTimeout(() => {
+    if (img.isConnected) img.src = bustedSrc(img, tries + 1);
   }, RETRY_DELAYS[tries]);
+}
+
+/**
+ * Server javob bera boshlaganda (katalog yangilangach) chaqiriladi:
+ * yuklanmay qolgan rasmlarni kutib o'tirmay darhol qayta so'raydi.
+ */
+export function reloadBrokenImages() {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('img').forEach((img) => {
+    const broken = img.complete && img.naturalWidth === 0 && img.src && !img.src.startsWith('blob:');
+    if (!broken) return;
+    clearTimeout(img._retryTimer);
+    img.dataset.retry = '0';
+    img.src = bustedSrc(img, Date.now() % 100000);
+  });
 }

@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const config = require('./config/default');
 const { connectDatabase, disconnectDatabase } = require('./database/connection');
-const { ensureLocalFile, warmUpFiles } = require('./utils/upload');
+const { ensureLocalFile, ensureThumb, thumbWidth, warmUpFiles } = require('./utils/upload');
 const {
   createBot,
   startBot,
@@ -29,6 +29,17 @@ const cacheControl = (file) =>
   path.basename(file).startsWith('custom-')
     ? 'public, max-age=31536000, immutable'
     : 'public, max-age=604800';
+
+// Kichik nusxa: /uploads/products/asf-101.jpg?w=480 — katalog kartochkalari uchun
+app.get('/uploads/*', async (req, res, next) => {
+  const width = thumbWidth(req.query.w);
+  if (!width) return next();
+  const url = decodeURIComponent(req.path);
+  const thumb = await ensureThumb(url, width);
+  if (!thumb) return next(); // yasab bo'lmasa — asl rasm beriladi
+  res.set('Cache-Control', cacheControl(url));
+  return res.type('image/webp').sendFile(thumb);
+});
 
 // Rasmlar: http://localhost:5000/uploads/products/asf-101.jpg
 app.use(

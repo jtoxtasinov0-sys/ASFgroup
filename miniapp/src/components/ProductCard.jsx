@@ -26,7 +26,7 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
     <div className="card" onClick={() => onOpen(product)}>
       <div className={`card-img${out ? ' sold-out' : ''}`}>
         <img
-          src={imageUrl(product.images[0])}
+          src={imageUrl(product.images[0], 480)}
           alt={pick(product, 'name', lang)}
           // Ekranda birinchi ko'rinadigan kartochkalar darhol yuklanadi
           loading={priority ? 'eager' : 'lazy'}

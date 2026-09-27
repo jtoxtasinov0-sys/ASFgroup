@@ -4,3 +4,4 @@ uploads/products/custom-*
 uploads/stories/*
 !uploads/stories/.gitkeep
 uploads/receipts/*
+uploads/_thumbs/

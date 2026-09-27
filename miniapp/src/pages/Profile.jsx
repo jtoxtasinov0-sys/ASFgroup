@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
 import { date, money } from '../lib/format';
+import { retryImage } from '../lib/image';
 import { haptic } from '../lib/telegram';
 import PaymentScreen from '../components/PaymentScreen';
 
@@ -97,7 +98,7 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
 
                     {order.items.map((item) => (
                       <div className="order-line" key={`${item.productId}-${item.mode || 'retail'}`}>
-                        <img src={imageUrl(item.image)} alt="" />
+                        <img src={imageUrl(item.image, 160)} alt="" onError={retryImage} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 600 }}>
                             {lang === 'ru' && item.nameRu ? item.nameRu : item.name}

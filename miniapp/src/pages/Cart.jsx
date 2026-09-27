@@ -139,7 +139,7 @@ export default function Cart({
     return (
       <div className="cart-item" key={item.key}>
         <div className="cart-thumb">
-          <img src={imageUrl(thumb)} alt="" onError={retryImage} style={frameStyle(frameOf(product, thumb), 1)} />
+          <img src={imageUrl(thumb, 320)} alt="" onError={retryImage} style={frameStyle(frameOf(product, thumb), 1)} />
         </div>
 
         <div className="cart-info">

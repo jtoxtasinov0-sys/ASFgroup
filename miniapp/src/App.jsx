@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
 import { effectiveColor } from './lib/colors';
+import { reloadBrokenImages } from './lib/image';
 import { maxPacks, maxPairs } from './lib/stock';
 import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
@@ -128,6 +129,8 @@ export default function App() {
       setStories(storyList);
       writeBoot({ config: configData, products: productList, stories: storyList });
       setStatus('ready');
+      // Server endi javob beryapti — keshdan ko'rsatilganda yuklanmay qolgan rasmlarni qayta so'raymiz
+      setTimeout(reloadBrokenImages, 300);
     } catch (err) {
       // Keshdan ko'rsatilayotgan bo'lsa, xato ekraniga o'tkazmaymiz
       if (cached) return;
@@ -140,6 +143,10 @@ export default function App() {
     initTelegram();
     onApiWaking(setWaking);
     load();
+    // Ekrandagi ilova fondan qaytganda — yuklanmay qolgan rasmlarni qayta so'raymiz
+    const onVisible = () => document.visibilityState === 'visible' && reloadBrokenImages();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -125,6 +125,53 @@ async function restoreFromDb(url, abs) {
   }
 }
 
+/* ----------------------------------------------------------
+   Kichik rasmlar (thumbnail): katalog kartochkasi, story doirasi,
+   savatcha uchun to'liq 300-600 KB rasm shart emas. `?w=400` bilan
+   so'ralganda WebP formatda ~20-40 KB nusxa yasaladi va diskda
+   saqlanadi — keyingi safar darhol beriladi.
+   ---------------------------------------------------------- */
+const THUMB_WIDTHS = [160, 320, 480, 800];
+const THUMB_ROOT = path.join(ROOT, '_thumbs');
+const thumbing = new Map();
+
+/** So'ralgan enini ruxsat etilgan eng yaqin kattaroq o'lchamga yaxlitlaydi */
+function thumbWidth(w) {
+  const n = Number(w);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return THUMB_WIDTHS.find((x) => x >= n) || THUMB_WIDTHS[THUMB_WIDTHS.length - 1];
+}
+
+/** Kichik nusxaning diskdagi yo'lini qaytaradi (yasay olmasa null — asl rasm beriladi) */
+async function ensureThumb(url, width) {
+  if (!sharp || !width || url.startsWith('/uploads/_thumbs/')) return null;
+  const rel = url.replace('/uploads/', '');
+  const abs = path.join(THUMB_ROOT, String(width), `${rel}.webp`);
+  if (!abs.startsWith(THUMB_ROOT + path.sep)) return null;
+  if (fs.existsSync(abs)) return abs;
+
+  if (!thumbing.has(abs)) {
+    const job = (async () => {
+      const source = await ensureLocalFile(url);
+      if (!source || path.extname(source).toLowerCase() === '.gif') return null;
+      try {
+        const out = await sharp(source, { failOn: 'none' })
+          .rotate()
+          .resize(width, width, { fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 78 })
+          .toBuffer();
+        writeAtomic(abs, out);
+        return abs;
+      } catch (err) {
+        console.error(`Kichik rasm yasalmadi (${url}):`, err?.message);
+        return null;
+      }
+    })().finally(() => thumbing.delete(abs));
+    thumbing.set(abs, job);
+  }
+  return thumbing.get(abs);
+}
+
 /**
  * Server ishga tushganda (fonda): bazadagi barcha rasmlarni diskka tiklaydi va
  * avval siqilmay yuklangan og'ir rasmlarni kichraytiradi. Shunda deploy'dan
@@ -224,6 +271,8 @@ module.exports = {
   removeFile,
   storeFile,
   ensureLocalFile,
+  ensureThumb,
+  thumbWidth,
   warmUpFiles,
   mimeOf,
   UPLOAD_ROOT: ROOT,
