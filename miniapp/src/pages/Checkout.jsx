@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { isPhoneValid, phoneMask } from '../lib/format';
 import { haptic, isTelegram, notifySuccess } from '../lib/telegram';
 
 export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess, onFailed }) {
+  const initialName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
   const [form, setForm] = useState({
-    customerName: [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '',
+    customerName: initialName,
     phone: phoneMask(user?.phone || ''),
     region: '',
     address: '',
@@ -17,6 +18,38 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
   const [error, setError] = useState('');
 
   const regions = config?.regions || [];
+
+  // Oldin buyurtma bergan mijozga oxirgi buyurtmasidagi ism, telefon,
+  // viloyat va manzil avtomatik qo'yiladi — qaytadan yozib o'tirmaydi
+  useEffect(() => {
+    if (!isTelegram) return;
+    let alive = true;
+    api
+      .myOrders()
+      .then((orders) => {
+        const last = Array.isArray(orders) ? orders[0] : null;
+        if (!alive || !last) return;
+        // Viloyat boshqa tilda saqlangan bo'lishi mumkin — joriy tilga o'giramiz
+        const match = regions.find((r) => r.uz === last.region || r.ru === last.region);
+        const region = match ? (lang === 'ru' ? match.ru : match.uz) : '';
+        setForm((prev) => ({
+          ...prev,
+          // Mijoz o'zi yozishga ulgurgan bo'lsa — tegmaymiz
+          customerName:
+            prev.customerName.trim() && prev.customerName !== initialName
+              ? prev.customerName
+              : last.customerName || prev.customerName,
+          phone: isPhoneValid(prev.phone) ? prev.phone : phoneMask(last.phone || ''),
+          region: prev.region || region,
+          address: prev.address || last.address || '',
+        }));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const valid =
