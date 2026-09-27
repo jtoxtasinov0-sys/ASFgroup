@@ -158,6 +158,12 @@ Adminlar ro'yxati = `ADMIN_CHAT_IDS` (env, vergul bilan, guruh ID minus bilan) +
   optomda — komplekt soni (+/−), donada — razmer bo'yicha juft soni; ombor qoldig'i; "optomda N so'm arzon" maslahati
 - **Cart** — optom va dona bo'limlari alohida, narxlar **serverda qayta hisoblanadi** (`/api/cart/calculate`)
 - **Checkout** — ism, telefon, viloyat (ro'yxatdan), manzil, izoh, to'lov usuli: Naqd / Click / Kartaga o'tkazma
+  - **Qayta buyurtmada avto-to'ldirish:** oyna ochilganda `GET /orders/my` dan oxirgi buyurtma olinadi va ism,
+    telefon, viloyat (joriy tilga o'girilgan), manzil o'zi qo'yiladi. Mijoz yozib ulgurgan maydonga tegilmaydi.
+    Bazadan olinadi — telefon almashsa ham saqlanadi (localStorage emas)
+  - **To'ldirilmagan maydon qizil:** majburiy maydon (ism, telefon, viloyat, manzil) bo'sh bo'lsa — qizil ramka
+    va ostida "To'ldiring" / "Заполните это поле"; telefon chala bo'lsa — "Telefon raqamni to'liq kiriting".
+    Tasdiqlash tugmasi kulrang qotib turmaydi: bosilsa birinchi qizil maydonga scroll qilib, fokus beradi
 - **PaymentScreen** — karta raqami (nusxalash), summa, chek rasmini yuklash
 - **Profile** — ma'lumotlar, til, **Mening buyurtmalarim** (holat, to'lov holati, "qayta buyurtma"), kompaniya bilan bog'lanish
 - **BottomNav** — Bosh sahifa, Katalog, Savatcha (soni bilan), Profil
