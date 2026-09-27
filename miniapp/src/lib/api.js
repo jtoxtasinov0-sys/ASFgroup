@@ -85,11 +85,65 @@ async function fetchWithRetry(path, options) {
   }
 }
 
-async function request(method, path, body) {
+/* ----------------------------------------------------------
+   Brauzerda (Chrome, Safari, ekranga qo'shilgan ilova) Telegram
+   imzosi yo'q. Shunda serverdan veb-token olinadi va telefonda
+   saqlanadi — mijoz buyurtma bera oladi va o'z buyurtmalarini ko'radi.
+   ---------------------------------------------------------- */
+const WEB_TOKEN_KEY = 'asf_web_token';
+let webTokenMemory = '';
+let webTokenPromise = null;
+
+function readWebToken() {
+  try {
+    return localStorage.getItem(WEB_TOKEN_KEY) || webTokenMemory;
+  } catch (_) {
+    return webTokenMemory;
+  }
+}
+
+function saveWebToken(token) {
+  webTokenMemory = token;
+  try {
+    if (token) localStorage.setItem(WEB_TOKEN_KEY, token);
+    else localStorage.removeItem(WEB_TOKEN_KEY);
+  } catch (_) { /* xotira yopiq (maxfiy rejim) */ }
+}
+
+async function getWebToken() {
+  const saved = readWebToken();
+  if (saved) return saved;
+  if (!webTokenPromise) {
+    webTokenPromise = fetchWithRetry('/api/web/session', {
+      method: 'POST',
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        const token = json?.data?.token || '';
+        saveWebToken(token);
+        return token;
+      })
+      .catch(() => '')
+      .finally(() => {
+        webTokenPromise = null;
+      });
+  }
+  return webTokenPromise;
+}
+
+async function request(method, path, body, retried = false) {
+  const initData = getInitData();
   const headers = {
-    'X-Telegram-Init-Data': getInitData(),
+    'X-Telegram-Init-Data': initData,
     'ngrok-skip-browser-warning': 'true',
   };
+  // Katalog, storylar va sozlamalar ochiq — ular tokenni kutib turmaydi
+  const needsAuth = !/^\/(config|products|stories|cart)\b/.test(path);
+  if (!initData && needsAuth) {
+    const token = await getWebToken();
+    if (token) headers['X-Web-Token'] = token;
+  }
   // FormData (fayl yuklash) bo'lsa Content-Type ni brauzer o'zi qo'yadi
   const isForm = body instanceof FormData;
   if (body && !isForm) headers['Content-Type'] = 'application/json';
@@ -99,6 +153,12 @@ async function request(method, path, body) {
     headers,
     body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
   });
+
+  // Saqlangan veb-token eskirgan bo'lsa — yangisini olib, bir marta qayta urinamiz
+  if (res.status === 401 && !initData && needsAuth && !retried) {
+    saveWebToken('');
+    return request(method, path, body, true);
+  }
 
   let json;
   try {

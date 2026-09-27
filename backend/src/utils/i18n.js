@@ -181,7 +181,9 @@ const itemColorText = (i) => (i.color && colorName(i.color)) || 'belgilanmagan';
 function adminNewOrder(order) {
   const u = order.user || {};
   const tgName = [u.firstName, u.lastName].filter(Boolean).join(' ');
-  const tgLink = u.telegramId
+  const tgLink = String(u.telegramId || '').startsWith('web_')
+    ? "🌐 Saytdan (Telegramsiz) — telefon orqali bog'laning"
+    : u.telegramId
     ? `<a href="tg://user?id=${u.telegramId}">${esc(tgName || u.telegramId)}</a>` +
       (u.username ? ` (@${esc(u.username)})` : '')
     : '—';

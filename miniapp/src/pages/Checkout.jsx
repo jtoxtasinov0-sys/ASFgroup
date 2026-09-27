@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { isPhoneValid, phoneMask } from '../lib/format';
-import { haptic, isTelegram, notifySuccess } from '../lib/telegram';
+import { haptic, notifySuccess } from '../lib/telegram';
 
 export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess, onFailed }) {
   const initialName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
@@ -22,7 +22,6 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
   // Oldin buyurtma bergan mijozga oxirgi buyurtmasidagi ism, telefon,
   // viloyat va manzil avtomatik qo'yiladi — qaytadan yozib o'tirmaydi
   useEffect(() => {
-    if (!isTelegram) return;
     let alive = true;
     api
       .myOrders()
@@ -98,10 +97,6 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
       setBusy(false);
     }
   };
-
-  // Oddiy brauzerda (havola orqali) ochilganda Telegram imzosi yo'q —
-  // server buyurtmani qabul qilmaydi, shuning uchun botga yo'naltiramiz
-  const botLink = config?.botUsername ? `https://t.me/${config.botUsername}` : '';
 
   return (
     <>
@@ -212,23 +207,6 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
             <span>{t.onlyUz}</span>
           </div>
 
-          {!isTelegram && (
-            <div className="notice" style={{ background: '#fdecec', color: '#b42318' }}>
-              <span>⚠️</span>
-              <span>
-                {t.openInBot}
-                {botLink && (
-                  <>
-                    {' '}
-                    <a href={botLink} style={{ fontWeight: 700, color: 'inherit' }}>
-                      @{config.botUsername}
-                    </a>
-                  </>
-                )}
-              </span>
-            </div>
-          )}
-
           {error && (
             <div className="notice" style={{ background: '#fdecec', color: '#b42318' }}>
               <span>⚠️</span>
@@ -238,7 +216,7 @@ export default function Checkout({ t, lang, config, user, cartItems, onClose, on
         </div>
 
         <div className="sheet-cta">
-          <button className="btn" disabled={busy || !isTelegram} onClick={submit}>
+          <button className="btn" disabled={busy} onClick={submit}>
             {busy ? t.sending : t.confirm}
           </button>
         </div>

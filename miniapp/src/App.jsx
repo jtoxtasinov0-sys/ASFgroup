@@ -11,6 +11,7 @@ import {
   getTgUser,
   haptic,
   initTelegram,
+  isTelegram,
   notifySuccess,
   setBackButton,
 } from './lib/telegram';
@@ -355,6 +356,19 @@ export default function App() {
             onClick={() => openLink(success.payUrl)}
           >
             {t.payNow}
+          </button>
+        )}
+        {/* Brauzerda ilova o'zi yopilmaydi — do'konga qaytish tugmasi */}
+        {!isTelegram && (
+          <button
+            className="btn btn-ghost"
+            style={{ marginTop: 12, maxWidth: 320 }}
+            onClick={() => {
+              setSuccess(null);
+              setView('home');
+            }}
+          >
+            {t.toHome}
           </button>
         )}
       </div>

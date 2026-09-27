@@ -1,6 +1,6 @@
 const express = require('express');
 const cartController = require('../controllers/cartController');
-const { telegramAuth } = require('../middlewares/auth.middleware');
+const { telegramAuth, signWebToken } =require('../middlewares/auth.middleware');
 const { makeUploader } = require('../utils/upload');
 
 const router = express.Router();
@@ -14,8 +14,10 @@ router.get('/products/:id', cartController.getProduct);
 router.get('/stories', cartController.getStories);
 // Faqat bazadagi narxlar bilan hisoblaydi — shaxsiy ma'lumot yo'q
 router.post('/cart/calculate', cartController.calculate);
+// Brauzerda (Telegramsiz) ochilganda mijozga veb-token beriladi
+router.post('/web/session', (_req, res) => res.json({ ok: true, data: { token: signWebToken() } }));
 
-// Telegram imzosi talab qilinadigan yo'llar
+// Telegram imzosi yoki veb-token talab qilinadigan yo'llar
 router.post('/me', telegramAuth, cartController.me);
 router.patch('/profile', telegramAuth, cartController.updateProfile);
 router.post('/orders', telegramAuth, cartController.createOrder);

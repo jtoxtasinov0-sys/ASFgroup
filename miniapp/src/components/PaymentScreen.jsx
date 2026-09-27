@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
 import { money } from '../lib/format';
 import { compressImage } from '../lib/image';
-import { haptic, notifySuccess } from '../lib/telegram';
+import { haptic, isTelegram, notifySuccess } from '../lib/telegram';
 
 /** Matnni buferga nusxalaydi (Telegram WebView'da clipboard API bo'lmasa ham ishlaydi) */
 async function copyText(text) {
@@ -148,7 +148,7 @@ export default function PaymentScreen({ t, order, payment, company, fresh, onClo
         {status === 'done' && (
           <div className="notice ok">
             <span>✅</span>
-            <span>{t.receiptSent}</span>
+            <span>{isTelegram ? t.receiptSent : t.receiptSentWeb}</span>
           </div>
         )}
 
@@ -161,7 +161,7 @@ export default function PaymentScreen({ t, order, payment, company, fresh, onClo
 
         {status !== 'done' && (
           <p className="muted" style={{ textAlign: 'center', fontSize: 12.5, marginTop: 12 }}>
-            {t.payLaterHint}
+            {isTelegram ? t.payLaterHint : t.payLaterHintWeb}
           </p>
         )}
 

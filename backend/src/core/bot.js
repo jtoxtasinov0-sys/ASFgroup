@@ -128,7 +128,8 @@ function getBot() {
 
 /** Mijozga xabar yuborish (xato bo'lsa server yiqilmaydi) */
 async function safeSend(chatId, text, options = {}) {
-  if (!bot) return null;
+  // Brauzerdan buyurtma bergan mijozlarning ("web_...") Telegram chati yo'q
+  if (!bot || !/^-?\d+$/.test(String(chatId))) return null;
   try {
     return await bot.sendMessage(chatId, text, { parse_mode: 'HTML', ...options });
   } catch (err) {

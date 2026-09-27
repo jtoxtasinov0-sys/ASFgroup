@@ -321,9 +321,13 @@ const cartController = {
         });
       }
 
-      // Telefon raqamini profilga saqlab qo'yamiz
-      if (!user.phone) {
-        UserModel.update(user.telegramId, { phone: phone.trim() }).catch(() => {});
+      // Telefon raqamini profilga saqlab qo'yamiz. Brauzer mijozining Telegram
+      // ismi yo'q — admin panelda ko'rinishi uchun buyurtmadagi ismni yozamiz
+      const profile = {};
+      if (!user.phone) profile.phone = phone.trim();
+      if (req.isWeb && !user.firstName) profile.firstName = customerName.trim();
+      if (Object.keys(profile).length) {
+        UserModel.update(user.telegramId, profile).catch(() => {});
       }
 
       // Botdan mijozga tasdiq xabari
