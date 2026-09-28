@@ -177,6 +177,7 @@ async function setPaymentStatus(orderId, paymentStatus) {
 
   const data = { paymentStatus };
   if (paymentStatus === 'paid' && order.status === 'new') data.status = 'confirmed';
+  if (paymentStatus === 'paid') data.paidAt = new Date();
 
   const updated = await OrderModel.update(order.id, data);
 

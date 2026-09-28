@@ -65,11 +65,14 @@ const config = {
     { key: 'blue', uz: "Ko'k", ru: 'Синий', hex: '#1f4fa3' },
   ],
 
-  // Click orqali to'lov (my.click.uz). Ikkalasi ham berilsa — mijozga to'lov
-  // sahifasi ochiladi; berilmasa, Click tanlangan buyurtma bo'yicha menejer bog'lanadi.
+  // Click orqali to'lov (my.click.uz). SERVICE_ID va MERCHANT_ID berilsa — mijozga
+  // "Click bilan / Karta bilan to'lash" oynasi ochiladi. SECRET_KEY ham berilsa —
+  // Click to'lovni serverga o'zi xabar qiladi (Prepare/Complete) va buyurtma
+  // avtomatik "To'landi" bo'ladi. Berilmasa, Click tanlangan buyurtma bo'yicha menejer bog'lanadi.
   click: {
     serviceId: process.env.CLICK_SERVICE_ID || '',
     merchantId: process.env.CLICK_MERCHANT_ID || '',
+    secretKey: process.env.CLICK_SECRET_KEY || '',
   },
 
   // Kartaga o'tkazma (Uzcard / Humo). Admin panel → Sozlamalar ustun turadi,

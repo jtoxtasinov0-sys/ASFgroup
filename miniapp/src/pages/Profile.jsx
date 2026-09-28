@@ -4,11 +4,14 @@ import { date, money } from '../lib/format';
 import { retryImage } from '../lib/image';
 import { haptic } from '../lib/telegram';
 import PaymentScreen from '../components/PaymentScreen';
+import ClickPayScreen from '../components/ClickPayScreen';
 
 export default function Profile({ t, lang, setLang, user, config, onReorder }) {
   const [orders, setOrders] = useState(null);
   const [open, setOpen] = useState(false);
   const [paying, setPaying] = useState(null);
+  const [clickPaying, setClickPaying] = useState(null);
+  const [clickLoading, setClickLoading] = useState(null);
 
   const payEnabled = Boolean(config?.payment?.enabled);
   const canPay = (order) =>
@@ -16,6 +19,27 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
     order.paymentMethod === 'card' &&
     order.status !== 'cancelled' &&
     ['unpaid', 'rejected'].includes(order.paymentStatus);
+
+  const canClickPay = (order) =>
+    Boolean(config?.clickEnabled) &&
+    order.paymentMethod === 'click' &&
+    order.status !== 'cancelled' &&
+    order.paymentStatus !== 'paid';
+
+  const openClick = async (order) => {
+    haptic();
+    setClickLoading(order.id);
+    try {
+      setClickPaying(await api.clickLinks(order.id));
+    } catch (_) {
+      /* ulanmagan yoki tarmoq xatosi */
+    } finally {
+      setClickLoading(null);
+    }
+  };
+
+  const onClickPaid = (updated) =>
+    setOrders((list) => list?.map((o) => (o.id === updated.id ? { ...o, ...updated } : o)));
 
   const onUploaded = (updated) => {
     setPaying(updated);
@@ -82,6 +106,23 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
                     <div className="muted" style={{ marginBottom: 6 }}>
                       {date(order.createdAt)}
                     </div>
+
+                    {order.paymentMethod === 'click' && order.paymentStatus && (
+                      <div className="pay-line" style={{ marginTop: 0, marginBottom: 8 }}>
+                        <span className={`badge pay-${order.paymentStatus}`}>
+                          {t.payStatuses[order.paymentStatus] || order.paymentStatus}
+                        </span>
+                        {canClickPay(order) && (
+                          <button
+                            className="btn btn-sm"
+                            disabled={clickLoading === order.id}
+                            onClick={() => openClick(order)}
+                          >
+                            {t.payNow}
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {order.paymentMethod === 'card' && order.paymentStatus && (
                       <div className="pay-line" style={{ marginTop: 0, marginBottom: 8 }}>
@@ -159,6 +200,16 @@ export default function Profile({ t, lang, setLang, user, config, onReorder }) {
             </span>
           </a>
         </div>
+
+        {clickPaying && (
+          <ClickPayScreen
+            t={t}
+            order={clickPaying}
+            auto={Boolean(config?.clickAuto)}
+            onPaid={onClickPaid}
+            onClose={() => setClickPaying(null)}
+          />
+        )}
 
         {paying && (
           <PaymentScreen

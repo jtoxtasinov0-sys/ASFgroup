@@ -2183,3 +2183,189 @@ img {
   background: transparent;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ---------- Click to'lov oynasi ---------- */
+.pay-screen.cpay {
+  background: linear-gradient(180deg, #f3f1ff 0%, #f7f8fc 40%, #fff 100%);
+}
+.cpay .pay-scroll {
+  text-align: center;
+}
+.cpay-icon {
+  width: 64px;
+  height: 44px;
+  margin: 8px auto 16px;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #ffd23f, #f5b700);
+  position: relative;
+  box-shadow: 0 6px 18px rgba(245, 183, 0, 0.35);
+}
+.cpay-icon::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 8px;
+  background: #3a3a3a;
+}
+.cpay-icon i {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 9px;
+  height: 7px;
+  border-radius: 2px;
+  background: #fff;
+}
+.cpay-title {
+  font-size: 26px;
+  margin-bottom: 16px;
+}
+.cpay-sum {
+  border: 1.5px solid #cfe0ff;
+  background: #f1f6ff;
+  border-radius: 18px;
+  padding: 14px 12px 12px;
+  margin-bottom: 14px;
+}
+.cpay-sum small {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.cpay-sum b {
+  display: block;
+  font-size: 34px;
+  font-weight: 900;
+  color: #1a5fd6;
+  letter-spacing: -0.5px;
+  margin-top: 4px;
+}
+.cpay-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 7px;
+  border-radius: 30px;
+  border: 1.5px solid #c9ecd6;
+  background: #effaf3;
+  color: #14532d;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.cpay-tag span {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #22b35e;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 13px;
+}
+.cpay-box {
+  border: 1.5px solid #dde8fb;
+  background: #f5f9ff;
+  border-radius: 20px;
+  padding: 14px 14px 10px;
+  margin-bottom: 12px;
+}
+.cpay-box.green {
+  border-color: #cdeedd;
+  background: #f3fcf7;
+}
+.cpay-box p {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: #4b5565;
+}
+.cpay-box p.cpay-fast {
+  margin-top: 3px;
+  color: #c2410c;
+  font-weight: 800;
+}
+.cpay-btn {
+  width: 100%;
+  height: 54px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease;
+}
+.cpay-btn:active {
+  transform: scale(0.97);
+}
+.cpay-btn.cp-click {
+  background: linear-gradient(135deg, #3d9bff, #0a64e0);
+  box-shadow: 0 10px 22px rgba(10, 100, 224, 0.32);
+}
+.cpay-btn.cp-card {
+  background: linear-gradient(135deg, #2fd08b, #0f8f5a);
+  box-shadow: 0 10px 22px rgba(15, 143, 90, 0.3);
+}
+.cpay-ring {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  flex-shrink: 0;
+}
+.cpay-card {
+  width: 26px;
+  height: 18px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffd23f 0 30%, #3a3a3a 30% 48%, #ffd23f 48%);
+  flex-shrink: 0;
+}
+.cpay-wait {
+  margin-top: 16px;
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+.cpay-sand {
+  display: inline-block;
+  animation: cpay-flip 2s ease-in-out infinite;
+}
+@keyframes cpay-flip {
+  0%, 40% { transform: rotate(0); }
+  60%, 100% { transform: rotate(180deg); }
+}
+.cpay-code {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.cpay-code b {
+  color: var(--ink);
+  letter-spacing: 0.5px;
+}
+.cpay-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.cpay-done .cpay-sum {
+  width: 100%;
+  margin-top: 14px;
+}
+.cpay-pop {
+  animation: cpay-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+@keyframes cpay-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

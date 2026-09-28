@@ -22,6 +22,8 @@ router.post('/me', telegramAuth, cartController.me);
 router.patch('/profile', telegramAuth, cartController.updateProfile);
 router.post('/orders', telegramAuth, cartController.createOrder);
 router.get('/orders/my', telegramAuth, cartController.myOrders);
+router.get('/orders/:id/status', telegramAuth, cartController.orderStatus);
+router.get('/orders/:id/click', telegramAuth, cartController.clickLinks);
 router.post('/orders/:id/receipt', telegramAuth, receiptUpload, cartController.uploadReceipt);
 
 module.exports = router;

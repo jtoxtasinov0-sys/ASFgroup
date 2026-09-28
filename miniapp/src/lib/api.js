@@ -195,6 +195,8 @@ export const api = {
   calculate: (items) => request('POST', '/cart/calculate', { items }),
   createOrder: (payload) => request('POST', '/orders', payload),
   myOrders: () => request('GET', '/orders/my'),
+  orderStatus: (orderId) => request('GET', `/orders/${orderId}/status`),
+  clickLinks: (orderId) => request('GET', `/orders/${orderId}/click`),
   uploadReceipt: (orderId, file) => {
     const form = new FormData();
     form.append('file', file, file.name || 'receipt.jpg');
