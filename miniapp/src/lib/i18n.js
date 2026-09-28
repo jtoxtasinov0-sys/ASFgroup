@@ -137,6 +137,22 @@ export const dict = {
     orderNo: 'Buyurtma raqami',
     toHome: 'Bosh sahifaga',
 
+    // Telefon ekraniga qo'shish
+    installTitle: "ASF GROUP'ni telefon ekraniga qo'shing",
+    installBtn: "Ekranga qo'shish",
+    installIos: [
+      "Pastdagi ••• (yoki ⬆︎ «Поделиться») tugmasini bosing",
+      "«Поделиться» → «На экран «Домой»» ni tanlang",
+      "«Добавить» ni bosing",
+    ],
+    installIosNote: "«Добавить в закладки» emas — u faqat xatcho'p, ekranga chiqmaydi",
+    installAndroid: [
+      "Tepadagi ⋮ menyuni bosing",
+      "«Ekranga qo'shish» / «Добавить на главный экран» ni tanlang",
+    ],
+    installSafari: "iPhone'da ekranga faqat Safari orqali qo'shiladi — havolani Safari'da oching",
+    installClose: 'Yopish',
+
     // Kartaga o'tkazma
     payTitle: "Buyurtma to'lovi",
     payHint: "Quyidagi kartaga to'lovni amalga oshiring va chek rasmini yuklang",
@@ -310,6 +326,21 @@ export const dict = {
     successText: 'Наш менеджер свяжется с вами в ближайшее время',
     orderNo: 'Номер заказа',
     toHome: 'На главную',
+
+    installTitle: 'Добавьте ASF GROUP на экран телефона',
+    installBtn: 'Добавить на экран',
+    installIos: [
+      'Нажмите ••• внизу (или ⬆︎ «Поделиться»)',
+      '«Поделиться» → «На экран «Домой»»',
+      'Нажмите «Добавить»',
+    ],
+    installIosNote: 'Не «Добавить в закладки» — закладка на экране не появится',
+    installAndroid: [
+      'Нажмите меню ⋮ вверху',
+      'Выберите «Добавить на главный экран»',
+    ],
+    installSafari: 'На iPhone добавить на экран можно только через Safari — откройте ссылку в Safari',
+    installClose: 'Закрыть',
 
     payTitle: 'Оплата заказа',
     payHint: 'Переведите оплату на карту ниже и загрузите фото чека',

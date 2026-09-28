@@ -1,3 +1,4 @@
+import InstallHint from '../components/InstallHint';
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
 import { discountPercent } from '../lib/format';
@@ -41,6 +42,8 @@ export default function Home({
       <Stories stories={stories} lang={lang} seen={seenStories} onOpen={onOpenStory} />
 
       <div className="wrap">
+        <InstallHint t={t} />
+
         {/* Savdo turi — har safar bosh sahifada ko'rinib turadi (donaga o'chirilgan bo'lsa — yo'q) */}
         {onSetMode && (
         <div className="mode-switch">

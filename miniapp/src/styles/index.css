@@ -2124,3 +2124,62 @@ img {
   font-weight: 600;
   color: #b42318;
 }
+
+/* Brauzerda: ilovani telefon ekraniga qo'shish ko'rsatmasi */
+.install-hint {
+  position: relative;
+  margin-bottom: 14px;
+  padding: 14px 40px 14px 14px;
+  border-radius: var(--r-lg);
+  background: var(--navy-50);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.install-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.install-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.install-steps {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.install-steps li + li {
+  margin-top: 3px;
+}
+
+.install-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.install-btn {
+  margin-top: 10px;
+}
+
+.install-x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
