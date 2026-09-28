@@ -9,6 +9,7 @@ const { t, adminNewOrder } = require('../utils/i18n');
 const { productColors } = require('../utils/colors');
 const { fileUrl, removeFile } = require('../utils/upload');
 const { getPublicPayment, attachReceipt } = require('../services/payment');
+const click = require('../services/click');
 const { StockError, createOrderWithStock } = require('../services/stock');
 
 /* ---------- Yordamchi funksiyalar ---------- */
@@ -28,17 +29,14 @@ const colorImage = (product, color) =>
   product.images[0] ||
   null;
 
-/** Click to'lov sahifasi manzili (sozlanmagan bo'lsa null) */
-function clickPayUrl(order) {
-  const { serviceId, merchantId } = config.click;
-  if (!serviceId || !merchantId) return null;
-  const params = new URLSearchParams({
-    service_id: serviceId,
-    merchant_id: merchantId,
-    amount: String(order.total),
-    transaction_param: String(order.id),
-  });
-  return `https://my.click.uz/services/pay?${params}`;
+/**
+ * Click to'lov sahifalari. To'lovdan so'ng mijoz qaytadigan joy:
+ * Telegram'da — botga, brauzerda — do'kon sahifasiga
+ */
+function clickUrls(order, isWeb) {
+  const botName = config.bot.username || process.env.BOT_USERNAME || '';
+  const returnUrl = isWeb || !botName ? config.miniappUrl : `https://t.me/${botName}`;
+  return click.payUrls(order, /^https:/.test(returnUrl) ? returnUrl : null);
 }
 
 /**
@@ -148,7 +146,9 @@ const cartController = {
           regions: config.regions,
           sizes: config.sizes,
           colors: config.colors,
-          clickEnabled: Boolean(config.click.serviceId && config.click.merchantId),
+          clickEnabled: click.isEnabled(),
+          // Click to'lovni serverga o'zi xabar qiladimi (natija darhol ko'rinadi)
+          clickAuto: click.isAutoConfirm(),
           botUsername: config.bot.username || process.env.BOT_USERNAME || '',
           payment: await getPublicPayment(),
           // Admin donaga savdoni o'chirib qo'ygan bo'lsa — Mini App faqat optom ko'rsatadi
@@ -340,10 +340,10 @@ const cartController = {
       notifyAdminsWithPhotos(photos, adminNewOrder(order), { disable_web_page_preview: true })
         .catch((err) => console.error('Adminlarga buyurtma xabari yuborilmadi:', err?.message));
 
-      const payUrl = paymentMethod === 'click' ? clickPayUrl(order) : null;
+      const payUrls = paymentMethod === 'click' ? clickUrls(order, req.isWeb) : null;
       res.status(201).json({
         ok: true,
-        data: { ...order, payUrl, payment: paymentMethod === 'card' ? payment : undefined },
+        data: { ...order, payUrls, payment: paymentMethod === 'card' ? payment : undefined },
       });
     } catch (err) {
       next(err);
@@ -373,6 +373,40 @@ const cartController = {
       });
     } catch (err) {
       removeFile(url);
+      next(err);
+    }
+  },
+
+  /** Buyurtma to'lov holati — Click oynasi har bir necha soniyada so'raydi */
+  async orderStatus(req, res, next) {
+    try {
+      const order = await OrderModel.findById(req.params.id);
+      if (!order || order.user?.telegramId !== String(req.tgUser.id)) {
+        return res.status(404).json({ ok: false, message: 'Buyurtma topilmadi' });
+      }
+      res.json({
+        ok: true,
+        data: { id: order.id, status: order.status, paymentStatus: order.paymentStatus, total: order.total },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /** Keyinroq to'lash uchun Click havolalari ("Buyurtmalarim" dan) */
+  async clickLinks(req, res, next) {
+    try {
+      const order = await OrderModel.findById(req.params.id);
+      if (!order || order.user?.telegramId !== String(req.tgUser.id)) {
+        return res.status(404).json({ ok: false, message: 'Buyurtma topilmadi' });
+      }
+      if (order.paymentStatus === 'paid' || order.status === 'cancelled') {
+        return res.status(400).json({ ok: false, message: "Bu buyurtma uchun to'lov kerak emas" });
+      }
+      const payUrls = clickUrls(order, req.isWeb);
+      if (!payUrls) return res.status(400).json({ ok: false, message: 'Click ulanmagan' });
+      res.json({ ok: true, data: { ...order, payUrls } });
+    } catch (err) {
       next(err);
     }
   },

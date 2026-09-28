@@ -15,6 +15,7 @@ const {
 } = require('./core/bot');
 const registerBotHandlers = require('./routes/bot.routes');
 const clientRoutes = require('./routes/client.routes');
+const clickRoutes = require('./routes/click.routes');
 const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
@@ -66,6 +67,8 @@ if (config.bot.token) {
 }
 
 app.use('/api/admin', adminRoutes);
+// Click serveridan keladigan Prepare / Complete so'rovlari
+app.use('/api/click', clickRoutes);
 app.use('/api', clientRoutes);
 
 /* ----------------------------------------------------------

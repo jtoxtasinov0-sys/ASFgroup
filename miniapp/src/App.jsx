@@ -8,7 +8,6 @@ import { maxPacks, maxPairs } from './lib/stock';
 import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
   closeApp,
-  openLink,
   getTgUser,
   haptic,
   initTelegram,
@@ -18,6 +17,7 @@ import {
 } from './lib/telegram';
 
 import BottomNav from './components/BottomNav';
+import ClickPayScreen from './components/ClickPayScreen';
 import PaymentScreen from './components/PaymentScreen';
 import ProductSheet from './components/ProductSheet';
 import StoryViewer from './components/StoryViewer';
@@ -270,11 +270,8 @@ export default function App() {
     refreshProducts();
     setCheckout(false);
     setSuccess(order);
-    // Click tanlangan va sozlangan bo'lsa — to'lov sahifasi ochiladi
-    if (order.payUrl) {
-      setTimeout(() => openLink(order.payUrl), 600);
-      return;
-    }
+    // Click tanlangan va sozlangan bo'lsa — "Click / Karta bilan to'lash" oynasi ochiq qoladi
+    if (order.payUrls) return;
     // Kartaga o'tkazma — karta raqami va chek yuklash ekrani ochiq qoladi
     if (order.paymentMethod === 'card') return;
     // Mini App 2.5 soniyadan so'ng yopiladi — bot xabari Telegramda ko'rinadi
@@ -345,6 +342,21 @@ export default function App() {
     );
   }
 
+  if (success?.payUrls) {
+    return (
+      <ClickPayScreen
+        t={t}
+        order={success}
+        auto={Boolean(config?.clickAuto)}
+        onClose={() => {
+          setSuccess(null);
+          setView('home');
+          closeApp();
+        }}
+      />
+    );
+  }
+
   if (success) {
     return (
       <div className="success">
@@ -356,15 +368,6 @@ export default function App() {
             {t.orderNo} #{success.id}
           </b>
         </div>
-        {success.payUrl && (
-          <button
-            className="btn"
-            style={{ marginTop: 18, maxWidth: 320 }}
-            onClick={() => openLink(success.payUrl)}
-          >
-            {t.payNow}
-          </button>
-        )}
         {/* Brauzerda ilova o'zi yopilmaydi — do'konga qaytish tugmasi */}
         {!isTelegram && (
           <button

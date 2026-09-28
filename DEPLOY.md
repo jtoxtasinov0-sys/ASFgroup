@@ -95,6 +95,7 @@ Sahifani pastga aylantirib **Environment Variables** bo'limini toping.
 | `ADMIN_CHAT_IDS` | yangi buyurtma xabari boradigan chat ID'lar — 4-QISM ga qarang |
 | `CLICK_SERVICE_ID` | *shart emas* — Click kabinetidagi Service ID (pastdagi "Click orqali to'lov" ga qarang) |
 | `CLICK_MERCHANT_ID` | *shart emas* — Click kabinetidagi Merchant ID |
+| `CLICK_SECRET_KEY` | *shart emas* — Click kabinetidagi Secret Key (to'lov avtomatik tasdiqlanishi uchun) |
 | `ADMIN_URL` | *shart emas* — admin panel manzili, standart: `https://asf-admin-ten.vercel.app` |
 
 > 📌 **`DATABASE_URL` ni qayerdan olish kerak:**
@@ -279,11 +280,13 @@ admin paneldagi buyurtmada va bot xabarida ko'rinadi.
 
 - `CLICK_SERVICE_ID` va `CLICK_MERCHANT_ID` qo'yilmagan bo'lsa — Click tanlangan
   buyurtma bo'yicha menejer mijoz bilan bog'lanadi.
-- Ikkalasi ham qo'yilsa — buyurtmadan so'ng mijozga Click to'lov sahifasi
-  (`my.click.uz`) buyurtma summasi bilan ochiladi.
+- Ikkalasi ham qo'yilsa — buyurtmadan so'ng mijozga **"Click bilan to'lash"** va
+  **"Karta bilan to'lash"** oynasi ochiladi.
+- `CLICK_SECRET_KEY` ham qo'yilsa — Click to'lovni serverga o'zi xabar qiladi
+  (`/api/click/prepare`, `/api/click/complete`), buyurtma avtomatik "To'landi"
+  bo'ladi va Mini App'da natija darhol ochiladi.
 
-To'lov bo'lganini Click avtomatik xabar qilishi (Prepare/Complete) hozircha
-ulanmagan — to'lovni Click kabinetidan tekshirib, buyurtmani tasdiqlang.
+To'liq qo'llanma: [CLICK-ULASH.md](CLICK-ULASH.md).
 
 **Guruhga yuborish** (bir nechta menejer bo'lsa qulay): botni Telegram
 guruhga qo'shing, guruhda `/id` yozing va chiqqan raqamni (minus bilan

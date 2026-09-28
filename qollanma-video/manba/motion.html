@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>ASF GROUP — Ekranga qo'shish</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root{
+  --navy:#012154; --navy2:#16243f; --navy3:#0b3a8c; --red:#e11d2e; --ice:#eef1f7;
+  --ink:#0f1522; --muted:#6b7484; --ios:#0a84ff; --g:#1a73e8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--navy)}
+body{font-family:Montserrat,"Noto Color Emoji",sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;overflow:hidden;
+  background:radial-gradient(120% 80% at 50% 10%,#0a3b8f 0%,#022a6b 38%,#011a45 72%,#010f2b 100%)}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+#b1{width:720px;height:720px;left:-260px;top:-160px;background:#1d5fd1}
+#b2{width:620px;height:620px;right:-240px;top:900px;background:#e11d2e;opacity:.22}
+#b3{width:560px;height:560px;left:220px;top:1500px;background:#2f7cf6;opacity:.35}
+.hex{position:absolute;width:900px;height:900px;left:90px;top:520px;opacity:.07}
+.grain{position:absolute;inset:0;background:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 2px,transparent 2px 4px)}
+
+/* Brend satri */
+#brand{position:absolute;left:60px;top:54px;display:flex;align-items:center;gap:22px}
+#brandLogoSlot{width:84px;height:84px}
+#brandText b{display:block;font-size:34px;font-weight:800;letter-spacing:1px}
+#brandText span{display:block;font-size:22px;font-weight:600;color:rgba(255,255,255,.62);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+#platform{position:absolute;right:60px;top:74px;padding:12px 22px;border-radius:40px;
+  background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);font-size:24px;font-weight:700;letter-spacing:.5px}
+
+#bigLogo{position:absolute;left:0;top:0;width:360px;height:360px;border-radius:84px;overflow:hidden;
+  box-shadow:0 40px 120px rgba(0,0,0,.45),0 0 0 2px rgba(255,255,255,.12);transform-origin:0 0}
+#bigLogo img{width:100%;height:100%;display:block;transform:scale(1.02)}
+
+.intro{position:absolute;left:0;right:0;text-align:center}
+#introTitle{top:1000px;font-size:70px;font-weight:800;line-height:1.12;padding:0 70px}
+#introSub{top:1200px;font-size:34px;font-weight:600;color:rgba(255,255,255,.75)}
+#introSub i{font-style:normal;display:inline-block;padding:14px 30px;border-radius:50px;background:var(--red);color:#fff;box-shadow:0 12px 40px rgba(225,29,46,.45)}
+
+/* Sarlavhalar */
+.cap{position:absolute;left:70px;right:70px;top:196px}
+.badge{display:inline-flex;align-items:center;gap:12px;padding:10px 22px 10px 12px;border-radius:40px;background:var(--red);
+  font-size:24px;font-weight:800;letter-spacing:2px;box-shadow:0 10px 30px rgba(225,29,46,.4)}
+.badge em{font-style:normal;width:36px;height:36px;border-radius:50%;background:#fff;color:var(--red);display:grid;place-items:center;font-size:21px;letter-spacing:0}
+.badge.ok{background:#12a150;box-shadow:0 10px 30px rgba(18,161,80,.4)}
+.badge.ok em{color:#12a150}
+.title{margin-top:24px;font-size:60px;font-weight:800;line-height:1.15}
+.title .w{display:inline-block;white-space:pre}
+.sub{margin-top:18px;font-size:32px;font-weight:600;color:rgba(255,255,255,.72);line-height:1.3}
+.sub.warn{color:#ffb4bb}
+.sub.warn b{color:#fff;background:var(--red);padding:2px 12px;border-radius:10px}
+.q{color:#9cc3ff}
+
+/* Telefon */
+#phoneWrap{position:absolute;left:540px;top:600px;width:0;height:0}
+#phoneScale{position:absolute;left:-209px;top:0;transform:scale(1.4);transform-origin:209px 0}
+.phone{position:relative;width:418px;height:872px;border-radius:70px;padding:14px;
+  background:linear-gradient(145deg,#3a3f4a,#15181f 40%,#2b2f38);
+  box-shadow:0 60px 140px rgba(0,0,0,.55),0 0 0 2px #50555f inset,0 0 0 4px #0b0d12}
+.phone.sam{border-radius:52px;padding:11px;width:412px;height:866px;background:linear-gradient(145deg,#2c2f36,#0e1014 50%,#23262c)}
+.screen{position:relative;width:390px;height:844px;border-radius:56px;overflow:hidden;background:#fff;color:var(--ink);
+  font-family:-apple-system,"Liberation Sans",Montserrat,"Noto Color Emoji",sans-serif}
+.phone.sam .screen{border-radius:42px;font-family:"Liberation Sans",Montserrat,"Noto Color Emoji",sans-serif}
+.island{position:absolute;left:50%;top:11px;width:122px;height:35px;margin-left:-61px;background:#000;border-radius:20px;z-index:50}
+.punch{position:absolute;left:50%;top:12px;width:14px;height:14px;margin-left:-7px;background:#000;border-radius:50%;z-index:50;box-shadow:0 0 0 2px #111}
+.layer{position:absolute;left:0;top:0;width:390px;height:844px}
+
+/* Holat satri */
+.sb{position:absolute;left:0;right:0;top:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0 40px;font-weight:700;font-size:16px;z-index:5}
+.sb.sam{height:34px;padding:2px 18px 0 22px;font-size:13px;font-weight:600}
+.sb .ic{display:flex;gap:6px;align-items:center}
+.sb.light{color:#fff}
+
+/* Mini App nusxasi */
+.app{position:absolute;left:0;right:0;bottom:0;background:#fff;overflow:hidden}
+.a-head{display:flex;align-items:center;gap:10px;padding:10px 16px}
+.a-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.a-logo img{width:100%;height:100%}
+.a-hi{font-size:10px;letter-spacing:1.2px;color:var(--muted);font-weight:600}
+.a-name{font-size:19px;font-weight:800}
+.a-lang{margin-left:auto;border:1.5px solid #e3e6ee;border-radius:20px;padding:5px 11px;font-weight:800;font-size:12px}
+.a-wrap{padding:4px 16px}
+.a-hint{position:relative;background:var(--ice);border-radius:16px;padding:10px 12px;font-size:10.5px;line-height:1.35;margin-bottom:10px}
+.a-hint .h{display:flex;gap:8px;align-items:center;font-weight:800;font-size:11.5px}
+.a-hint .h img{width:28px;height:28px;border-radius:7px}
+.a-hint ol{padding-left:16px;margin-top:5px}
+.a-hint .x{position:absolute;right:10px;top:6px;color:#9aa1ad;font-size:16px}
+.a-hint .btn{display:inline-block;margin-top:7px;background:var(--navy2);color:#fff;padding:7px 14px;border-radius:12px;font-weight:700}
+.a-hero{position:relative;background:var(--navy2);color:#fff;border-radius:20px;padding:16px;overflow:hidden}
+.a-hero:after{content:"";position:absolute;right:-50px;top:-30px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.06)}
+.a-hero b{font-size:18px;font-weight:800}
+.a-hero p{font-size:11.5px;opacity:.75;margin:6px 0 12px}
+.a-hero span{display:inline-block;background:#fff;color:var(--navy2);font-weight:800;font-size:12px;padding:9px 16px;border-radius:20px}
+.a-cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.a-cat{border:1.5px solid #e8eaf0;border-radius:16px;padding:10px 12px;font-size:13px}
+.a-cat small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.a-sec{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 8px;font-weight:800;font-size:15px}
+.a-sec small{color:var(--muted);font-size:11px;font-weight:600}
+.a-prods{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a-prod{border-radius:16px;background:linear-gradient(160deg,#f3f4f7,#e6e8ee);height:150px;display:grid;place-items:center;font-size:62px;position:relative}
+.a-prod i{position:absolute;left:10px;bottom:8px;font-style:normal;font-size:11px;font-weight:800;background:#fff;border-radius:10px;padding:4px 8px}
+.a-nav{position:absolute;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid #eef0f4;padding:7px 0 6px;font-size:9.5px;font-weight:700;text-align:center;color:#8a93a3}
+.a-nav div:first-child{color:var(--navy2)}
+.a-nav span{display:block;font-size:19px;margin-bottom:2px}
+
+/* Safari */
+.saf{position:absolute;left:12px;right:12px;bottom:26px;height:54px;display:flex;gap:8px;align-items:center;z-index:6}
+.saf .r{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 6px 24px rgba(0,0,0,.18),0 0 0 .5px rgba(0,0,0,.08);display:grid;place-items:center;font-size:20px;font-weight:800;color:#222}
+.saf .u{flex:1;height:52px;border-radius:26px;background:rgba(255,255,255,.9);box-shadow:0 6px 24px rgba(0,0,0,.18),0 0 0 .5px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;gap:6px;font-size:14.5px;font-weight:600;color:#222;position:relative}
+.saf .u .ring{position:absolute;inset:-5px;border-radius:30px;border:3px solid var(--red)}
+.homebar{position:absolute;left:50%;bottom:8px;width:136px;height:5px;margin-left:-68px;border-radius:3px;background:#111;z-index:9}
+.homebar.l{background:#fff}
+
+/* iOS menyu */
+.imenu{position:absolute;right:10px;bottom:88px;width:300px;border-radius:26px;background:rgba(248,248,250,.93);
+  box-shadow:0 20px 60px rgba(0,0,0,.28),0 0 0 .5px rgba(0,0,0,.1);padding:8px 0;transform-origin:92% 100%;backdrop-filter:blur(20px);z-index:7}
+.it{position:relative;display:flex;align-items:center;gap:14px;padding:0 18px;height:46px;font-size:15.5px;color:#111}
+.it .ico{width:22px;text-align:center;font-size:17px;color:#333}
+.it .hl{position:absolute;inset:2px 8px;border-radius:14px;background:rgba(10,132,255,.18)}
+.it .hl.red{background:rgba(225,29,46,.14)}
+.it>*:not(.hl){position:relative}
+.it.sep{border-top:.5px solid rgba(0,0,0,.12)}
+.cross{position:absolute;left:10px;right:10px;top:50%;height:3px;background:var(--red);border-radius:2px;transform-origin:0 50%}
+.nob{position:absolute;right:14px;top:50%;margin-top:-13px;width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900;font-size:15px}
+
+/* Ulashish oynasi */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.35);z-index:7}
+.sheet{position:absolute;left:0;right:0;bottom:0;height:660px;background:#f2f2f7;border-radius:34px 34px 0 0;z-index:8;overflow:hidden}
+.sh-head{display:flex;align-items:center;gap:12px;padding:20px 20px 14px}
+.sh-head img{width:48px;height:48px;border-radius:12px}
+.sh-head b{display:block;font-size:16px}
+.sh-head small{color:#8a8a8e;font-size:13px}
+.sh-head .cl{margin-left:auto;width:30px;height:30px;border-radius:50%;background:#e3e3e8;display:grid;place-items:center;color:#8a8a8e;font-weight:800}
+.sh-apps{display:flex;gap:16px;padding:8px 20px 16px;border-bottom:.5px solid #d6d6db}
+.sh-app{width:62px;text-align:center;font-size:11px;color:#333}
+.sh-app div{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:28px;margin-bottom:6px;color:#fff}
+.sh-list{position:absolute;left:16px;right:16px;top:206px}
+.grp{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:14px}
+.grp .it{height:50px;justify-content:space-between;border-bottom:.5px solid #e4e4e9;font-size:16px}
+.grp .it:last-child{border-bottom:0}
+.grp .it .ico{order:2}
+
+/* Ekranga qo'shish oynasi (iOS) */
+.addv{position:absolute;left:0;right:0;top:48px;bottom:0;background:#f2f2f7;border-radius:14px 14px 0 0;z-index:9;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.addnav{display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 18px;font-size:16.5px}
+.addnav .c{color:var(--ios)}
+.addnav b{font-size:16.5px}
+.addnav .a{color:var(--ios);font-weight:700;position:relative;padding:6px 10px;margin-right:-10px;border-radius:12px}
+.addnav .a .hl{position:absolute;inset:0;border-radius:12px;background:rgba(10,132,255,.18)}
+.addcard{margin:18px 16px 8px;background:#fff;border-radius:14px;display:flex;gap:14px;padding:14px}
+.addcard img{width:64px;height:64px;border-radius:15px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.addcard .f{flex:1}
+.addcard .f div{padding:8px 0;font-size:16.5px;border-bottom:.5px solid #e4e4e9}
+.addcard .f div+div{border:0;color:#8a8a8e;font-size:14px}
+.caret{display:inline-block;width:2px;height:19px;background:var(--ios);vertical-align:-3px;margin-left:1px}
+.addnote{padding:4px 30px 18px;color:#8a8a8e;font-size:13px;line-height:1.35}
+.addrow{margin:0 16px;background:#fff;border-radius:14px;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:16px}
+.sw{width:51px;height:31px;border-radius:16px;background:#34c759;position:relative}
+.sw:after{content:"";position:absolute;right:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+
+/* Bosh ekran */
+.home{overflow:hidden}
+.wall{position:absolute;inset:0}
+.wall.ios{background:radial-gradient(90% 55% at 20% 15%,#5b7cff 0%,transparent 60%),radial-gradient(80% 50% at 85% 70%,#e0457b 0%,transparent 60%),linear-gradient(170deg,#1b2a6b,#3a1f6b 55%,#10183f)}
+.wall.sam{background:radial-gradient(90% 60% at 80% 20%,#27c3c7 0%,transparent 60%),radial-gradient(90% 60% at 10% 80%,#4a3cd6 0%,transparent 60%),linear-gradient(165deg,#0d2b5a,#1a1650 60%,#0a0f2e)}
+.grid{position:absolute;left:0;right:0;top:78px;display:grid;grid-template-columns:repeat(4,1fr);row-gap:26px;padding:0 14px}
+.grid.sam{top:292px;row-gap:22px;padding:0 18px}
+.ap{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:11.5px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);position:relative}
+.ap .i{width:62px;height:62px;border-radius:16px;display:grid;place-items:center;font-size:31px;box-shadow:0 4px 12px rgba(0,0,0,.25);overflow:hidden}
+.grid.sam .ap .i{width:58px;height:58px;border-radius:20px;font-size:28px}
+.ap .i img{width:100%;height:100%}
+.glow{position:absolute;left:50%;top:31px;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:18px;border:3px solid #fff;box-shadow:0 0 30px 6px rgba(255,255,255,.55)}
+.grid.sam .glow{top:29px;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:21px}
+.spark{position:absolute;left:50%;top:31px;width:8px;height:8px;margin:-4px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff}
+.dock{position:absolute;left:12px;right:12px;bottom:22px;height:92px;border-radius:34px;background:rgba(255,255,255,.22);backdrop-filter:blur(20px);display:grid;grid-template-columns:repeat(4,1fr);align-items:center;justify-items:center}
+.dock.sam{background:transparent;bottom:40px}
+.dock .i{width:62px;height:62px;border-radius:16px;display:grid;place-items:center;font-size:31px}
+.dock.sam .i{width:58px;height:58px;border-radius:20px}
+.search{position:absolute;left:50%;bottom:130px;width:92px;margin-left:-46px;height:30px;border-radius:15px;background:rgba(255,255,255,.25);font-size:12.5px;color:#fff;display:grid;place-items:center}
+.clock{position:absolute;left:28px;top:84px;color:#fff}
+.clock b{display:block;font-size:76px;font-weight:300;letter-spacing:-2px;font-family:"Liberation Sans",sans-serif}
+.clock span{font-size:16px;opacity:.9}
+
+.splash{position:absolute;background:var(--navy);display:grid;place-items:center;overflow:hidden;z-index:20}
+.splash img{width:62%;max-width:240px}
+
+/* Chrome (Samsung) */
+.ch-bar{position:absolute;left:0;right:0;top:34px;height:58px;display:flex;align-items:center;gap:10px;padding:0 10px 0 14px;background:#fff;z-index:6;border-bottom:1px solid #eceef1}
+.ch-bar .home-i{font-size:20px;color:#444}
+.ch-url{flex:1;height:40px;border-radius:22px;background:#f1f3f4;display:flex;align-items:center;gap:8px;padding:0 14px;font-size:14.5px;color:#202124;position:relative}
+.ch-url .ring{position:absolute;inset:-5px;border-radius:26px;border:3px solid var(--red)}
+.ch-tabs{width:22px;height:22px;border:2.2px solid #444;border-radius:5px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#444}
+.ch-dots{width:34px;height:40px;display:grid;place-items:center;position:relative}
+.ch-dots i{display:block;width:4.5px;height:4.5px;border-radius:50%;background:#444;box-shadow:0 -7px 0 #444,0 7px 0 #444}
+.ch-dots .hl{position:absolute;inset:0;border-radius:50%;background:rgba(26,115,232,.18)}
+.cmenu{position:absolute;right:6px;top:38px;width:282px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.28);padding:4px 0 8px;transform-origin:95% 0;z-index:8}
+.cm-top{display:flex;justify-content:space-around;height:50px;align-items:center;font-size:19px;color:#444;border-bottom:1px solid #eceef1;margin-bottom:4px}
+.cmenu .it{height:43px;font-size:15px;color:#202124;gap:16px}
+.cmenu .it .ico{color:#5f6368;font-size:16px}
+.cmenu .it .hl{inset:0;border-radius:0;background:rgba(26,115,232,.16)}
+.cdlg{position:absolute;left:30px;right:30px;top:300px;background:#fff;border-radius:28px;padding:24px 24px 14px;z-index:9;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.cdlg h3{font-size:22px;font-weight:500;color:#202124;margin-bottom:18px}
+.cdlg .row{display:flex;gap:14px;align-items:center}
+.cdlg .row img{width:52px;height:52px;border-radius:14px}
+.cdlg .row b{display:block;font-size:17px;font-weight:600;color:#202124}
+.cdlg .row small{color:#5f6368;font-size:13.5px}
+.cdlg .btns{display:flex;justify-content:flex-end;gap:6px;margin-top:22px}
+.cdlg .btns div{position:relative;padding:11px 16px;border-radius:22px;color:var(--g);font-weight:700;font-size:15px}
+.cdlg .btns div.p{background:var(--g);color:#fff}
+.cdlg .btns .hl{position:absolute;inset:0;border-radius:22px;background:rgba(255,255,255,.35)}
+.snack{position:absolute;left:14px;right:14px;bottom:70px;background:#303134;color:#fff;border-radius:10px;padding:14px 16px;font-size:14px;display:flex;gap:10px;align-items:center;z-index:9;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.snack img{width:24px;height:24px;border-radius:6px}
+.gest{position:absolute;left:50%;bottom:9px;width:120px;height:4px;margin-left:-60px;border-radius:3px;background:#222;z-index:9}
+.gest.l{background:#fff}
+
+/* Barmoq */
+#touch{position:absolute;left:0;top:0;width:0;height:0;z-index:40}
+#dot{position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.55);border:3px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 6px rgba(225,29,46,.35)}
+#rip{position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:50%;border:3px solid #fff}
+
+/* Yakun */
+#outroTitle{top:1010px;font-size:64px;font-weight:800}
+#outroSub{top:1110px;font-size:30px;font-weight:600;color:rgba(255,255,255,.72);letter-spacing:6px;text-transform:uppercase}
+#outroTip{top:1250px;padding:0 90px;font-size:32px;font-weight:600;line-height:1.35;color:#fff}
+#outroTip span{display:inline-block;padding:22px 34px;border-radius:30px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2)}
+#outroBot{top:1480px;font-size:34px;font-weight:700}
+#outroBot i{font-style:normal;display:inline-block;padding:16px 34px;border-radius:50px;background:#fff;color:var(--navy)}
+#bar{position:absolute;left:0;bottom:0;height:10px;width:0;background:linear-gradient(90deg,var(--red),#ff5a67)}
+#fade{position:absolute;inset:0;background:#010f2b;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div>
+  <svg class="hex" id="hex" viewBox="0 0 100 100"><polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="none" stroke="#fff" stroke-width="1.2"/><polygon points="50,15 80.5,32.5 80.5,67.5 50,85 19.5,67.5 19.5,32.5" fill="none" stroke="#fff" stroke-width=".6"/></svg>
+  <div class="grain"></div>
+
+  <div id="brand"><div id="brandLogoSlot"></div><div id="brandText"><b>ASF GROUP</b><span>Qo'llanma</span></div></div>
+  <div id="platform"></div>
+
+  <div class="intro" id="introTitle">Ilovani telefon ekraniga qo'shish</div>
+  <div class="intro" id="introSub"><i></i></div>
+
+  <div id="caps"></div>
+
+  <div id="phoneWrap"><div id="phoneScale"><div class="phone" id="phone"><div class="screen" id="scr"></div></div></div></div>
+
+  <div id="bigLogo"><img src="logo.png"></div>
+  <div class="intro" id="outroTitle">Sifat va ishonch</div>
+  <div class="intro" id="outroSub">ASF GROUP</div>
+  <div class="intro" id="outroTip"><span></span></div>
+  <div class="intro" id="outroBot"><i>Savollar: @asfgroupbot</i></div>
+  <div id="bar"></div>
+  <div id="fade"></div>
+</div>
+
+<script>
+const V = new URLSearchParams(location.search).get('v') || 'iphone';
+const IOS = V === 'iphone';
+const $ = (s, r = document) => r.querySelector(s);
+const scr = $('#scr');
+
+/* ================= Animatsiya dvigateli ================= */
+const E = {
+  io: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  out: t => 1 - Math.pow(1 - t, 3),
+  out5: t => 1 - Math.pow(1 - t, 5),
+  in: t => t * t * t,
+  lin: t => t,
+  back: t => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  step: t => t < 1 ? 0 : 1,
+};
+const tracks = new Map();
+const hooks = [];
+function k(el, prop, keys) {
+  if (typeof el === 'string') el = $(el);
+  if (!el) throw new Error('no el for ' + prop);
+  if (!tracks.has(el)) tracks.set(el, {});
+  const cur = tracks.get(el);
+  cur[prop] = (cur[prop] || []).concat(keys).sort((a, b) => a[0] - b[0]);
+}
+function at(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) {
+    const b = keys[i];
+    if (t < b[0]) {
+      const a = keys[i - 1];
+      const p = (t - a[0]) / (b[0] - a[0] || 1);
+      return a[1] + (b[1] - a[1]) * E[b[2] || 'io'](p);
+    }
+  }
+  return keys[keys.length - 1][1];
+}
+const TF = ['x', 'y', 's', 'r', 'sx', 'sy'];
+function render(t) {
+  for (const [el, props] of tracks) {
+    const v = { x: 0, y: 0, s: 1, r: 0, sx: 1, sy: 1 };
+    let tf = false;
+    for (const p in props) { v[p] = at(props[p], t); if (TF.includes(p)) tf = true; }
+    if (tf) el.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.s * v.sx},${v.s * v.sy}) rotate(${v.r}deg)`;
+    if ('o' in props) { el.style.opacity = v.o; el.style.visibility = v.o <= 0.001 ? 'hidden' : 'visible'; }
+    if ('blur' in props) el.style.filter = v.blur > .05 ? `blur(${v.blur}px)` : 'none';
+    if ('w' in props) el.style.width = v.w + 'px';
+  }
+  hooks.forEach(h => h(t));
+}
+/** Paydo bo'lish / yo'qolish */
+function show(el, tin, tout, o = {}) {
+  const { d = .5, dy = 0, dx = 0, s0 = 1, blur = 0, dOut = .4, dyOut = 0, sOut = 1, ease = 'out5' } = o;
+  const O = [[tin, 0], [tin + d, 1, ease]];
+  if (tout != null) O.push([tout, 1], [tout + dOut, 0, 'io']);
+  k(el, 'o', O);
+  if (dy || dyOut) { const Y = [[tin, dy], [tin + d, 0, ease]]; if (tout != null) Y.push([tout, 0], [tout + dOut, dyOut, 'in']); k(el, 'y', Y); }
+  if (dx) k(el, 'x', [[tin, dx], [tin + d, 0, ease]]);
+  if (s0 !== 1 || sOut !== 1) { const S = [[tin, s0], [tin + d, 1, ease]]; if (tout != null) S.push([tout, 1], [tout + dOut, sOut, 'in']); k(el, 's', S); }
+  if (blur) { const B = [[tin, blur], [tin + d, 0, ease]]; if (tout != null) B.push([tout, 0], [tout + dOut, blur, 'in']); k(el, 'blur', B); }
+}
+const hide = (el, t) => k(el, 'o', [[0, 0], [t, 0]]);
+
+/* ================= Umumiy qismlar ================= */
+const statusBar = (light, sam) => `
+  <div class="sb ${sam ? 'sam' : ''} ${light ? 'light' : ''}">
+    <span>${sam ? '12:45' : '9:41'}</span>
+    <span class="ic">
+      <svg width="${sam ? 15 : 18}" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg>
+      ${sam ? '<b style="font-size:11px">LTE</b>' : '<svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5l2.3-2.6a3.2 3.2 0 00-4.6 0zM4.1 7.2a5.6 5.6 0 017.8 0l1.6-1.8a8 8 0 00-11 0zM.8 3.6a10.3 10.3 0 0114.4 0L16.8 1.8a12.7 12.7 0 00-17.6 0z" fill="currentColor"/></svg>'}
+      <svg width="${sam ? 22 : 27}" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="17" height="8" rx="2" fill="currentColor"/><rect x="25" y="4.5" width="2" height="4" rx="1" fill="currentColor" opacity=".45"/></svg>
+    </span>
+  </div>`;
+
+const appPage = (hint) => `
+  <div class="a-head">
+    <div class="a-logo"><img src="logo.png"></div>
+    <div><div class="a-hi">ASSALOMU ALAYKUM</div><div class="a-name">Mehmon 👋</div></div>
+    <div class="a-lang">UZ</div>
+  </div>
+  <div class="a-wrap">
+    ${hint === 'ios' ? `<div class="a-hint"><span class="x">×</span><div class="h"><img src="apple-touch-icon.png">ASF GROUP'ni telefon ekraniga qo'shing</div>
+      <ol><li>Pastdagi ••• tugmasini bosing</li><li>«Поделиться» → «На экран «Домой»»</li><li>«Добавить» ni bosing</li></ol></div>` : ''}
+    ${hint === 'android' ? `<div class="a-hint"><span class="x">×</span><div class="h"><img src="apple-touch-icon.png">ASF GROUP'ni telefon ekraniga qo'shing</div>
+      <ol><li>Tepadagi ⋮ menyuni bosing</li><li>«Добавить на главный экран» ni tanlang</li></ol></div>` : ''}
+    <div class="a-hero"><b>📦 Optom (komplekt)</b><p>Komplekt bilan: har bir razmerdan bittadan.</p><span>Katalogni ochish</span></div>
+    <div class="a-cats"><div class="a-cat">👞<br><b>Tayyor oyoq kiyim</b><small>Tayyor holda sotiladi</small></div><div class="a-cat">🧵<br><b>Zagatovka</b><small>Poyabzal ustki qismi</small></div></div>
+    <div class="a-sec">Ommabop modellar <small>Barchasi →</small></div>
+    <div class="a-prods"><div class="a-prod">👞<i>140 000</i></div><div class="a-prod">🥾<i>140 000</i></div></div>
+  </div>
+  <div class="a-nav" style="bottom:${hint === 'ios' ? 84 : hint === 'android' ? 22 : 22}px"><div><span>🏠</span>Bosh sahifa</div><div><span>🔍</span>Katalog</div><div><span>🛒</span>Savatcha</div><div><span>👤</span>Profil</div></div>`;
+
+const icon = (bg, glyph, label) => `<div class="ap"><div class="i" style="background:${bg}">${glyph}</div><span>${label}</span></div>`;
+const asfIcon = `<div class="ap" id="asfApp"><div class="glow" id="glow"></div>${Array.from({ length: 8 }, (_, i) => `<div class="spark" id="sp${i}"></div>`).join('')}<div class="i" id="asfI"><img src="apple-touch-icon.png"></div><span>ASF GROUP</span></div>`;
+
+/* ================= Sarlavhalar ================= */
+function caption(t0, t1, badge, title, sub, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'cap';
+  // So'zlarga bo'lamiz, «...» bo'laklar butunligicha qoladi
+  const tmp = document.createElement('div');
+  tmp.innerHTML = title;
+  const words = [...tmp.childNodes].flatMap(n => n.nodeType === 3
+    ? n.textContent.split(/\s+/).filter(Boolean).map(w => `<span class="w">${w} </span>`)
+    : [`<span class="w">${n.outerHTML} </span>`]).join('');
+  el.innerHTML = `<div class="badge ${cls}"><em>${cls === 'ok' ? '✓' : badge}</em>${cls === 'ok' ? 'TAYYOR' : badge + '-QADAM'}</div>
+    <div class="title">${words}</div>${sub ? `<div class="sub ${sub.startsWith('!') ? 'warn' : ''}">${sub.replace(/^!/, '')}</div>` : ''}`;
+  $('#caps').appendChild(el);
+  const b = $('.badge', el);
+  show(b, t0, t1, { d: .55, dy: 26, s0: .7, blur: 6, dyOut: -20 });
+  el.querySelectorAll('.w').forEach((w, i) => show(w, t0 + .12 + i * .06, t1, { d: .6, dy: 40, blur: 10, dyOut: -24, dOut: .35 }));
+  const s = $('.sub', el);
+  if (s) show(s, t0 + .45, t1, { d: .6, dy: 24, blur: 6, dyOut: -16 });
+  return el;
+}
+const q = (s) => `<span class="q">«${s}»</span>`;
+
+/* ================= Barmoq ================= */
+const touch = document.createElement('div');
+touch.id = 'touch';
+touch.innerHTML = '<div id="rip"></div><div id="dot"></div>';
+const taps = [];
+function finger(path) {
+  // path: [t, x, y, tap?]
+  k(touch, 'x', path.map(p => [p[0], p[1], 'io']));
+  k(touch, 'y', path.map(p => [p[0], p[2], 'io']));
+  path.filter(p => p[3]).forEach(p => taps.push(p[0]));
+}
+hooks.push((t) => {
+  const dot = $('#dot'), rip = $('#rip');
+  let ds = 1, rs = 1, ro = 0;
+  for (const tt of taps) {
+    const d = t - tt;
+    if (d > -0.15 && d < 0.2) ds = Math.min(ds, d < 0 ? 1 - .25 * E.out((d + .15) / .15) : .75 + .25 * E.out(d / .2));
+    if (d >= 0 && d < .65) { rs = 1 + 1.8 * E.out(d / .65); ro = .9 * (1 - d / .65); }
+  }
+  dot.style.transform = `scale(${ds})`;
+  rip.style.transform = `scale(${rs})`;
+  rip.style.opacity = ro;
+});
+const hl = (el, t, hold = .5) => k($('.hl', el) || el, 'o', [[0, 0], [t - .06, 0], [t + .06, 1, 'out'], [t + hold, 1], [t + hold + .35, 0]]);
+
+/* ================= Joy (koordinata) ================= */
+function pos(el) {
+  const r = el.getBoundingClientRect(), s = scr.getBoundingClientRect(), f = s.width / 390;
+  return [(r.left - s.left + r.width / 2) / f, (r.top - s.top + r.height / 2) / f];
+}
+
+/* ================= Fon harakati ================= */
+hooks.push((t) => {
+  $('#b1').style.transform = `translate(${Math.sin(t * .35) * 80}px,${Math.cos(t * .28) * 60}px)`;
+  $('#b2').style.transform = `translate(${Math.cos(t * .3) * 90}px,${Math.sin(t * .25) * 80}px)`;
+  $('#b3').style.transform = `translate(${Math.sin(t * .22 + 1) * 110}px,${Math.cos(t * .31) * 50}px)`;
+  $('#hex').style.transform = `rotate(${t * 3}deg) scale(${1 + Math.sin(t * .4) * .03})`;
+});
+
+/* ================= Umumiy kirish va yakun ================= */
+function introOutro(T, phoneIn, outro, tip) {
+  $('#platform').textContent = IOS ? ' iPhone · Safari' : 'Samsung · Chrome';
+  $('#introSub i').textContent = IOS ? 'iPhone uchun qo\'llanma' : 'Samsung (Android) uchun qo\'llanma';
+  $('#outroTip span').innerHTML = tip;
+
+  // Katta logo: markazda paydo bo'ladi -> brend satriga uchadi -> yakunda qaytadi
+  const L = $('#bigLogo');
+  const cx = 360, cy = 560, bx = 60, by = 54, bs = 84 / 360;
+  k(L, 'o', [[0, 0], [.7, 1, 'out']]);
+  k(L, 's', [[0, .55], [1.1, 1, 'back'], [phoneIn - .5, 1], [phoneIn + .5, bs, 'io'], [outro, bs], [outro + 1, .78, 'io']]);
+  k(L, 'x', [[0, cx], [phoneIn - .5, cx], [phoneIn + .5, bx, 'io'], [outro, bx], [outro + 1, 540 - 180 * .78, 'io']]);
+  k(L, 'y', [[0, cy + 30], [1.1, cy, 'out'], [phoneIn - .5, cy], [phoneIn + .5, by, 'io'], [outro, by], [outro + 1, 620, 'io']]);
+  k(L, 'r', [[0, -8], [1.1, 0, 'back']]);
+  show('#introTitle', .5, phoneIn - .7, { d: .8, dy: 50, blur: 12, dyOut: -30 });
+  show('#introSub', 1.0, phoneIn - .7, { d: .7, dy: 40, s0: .8, dyOut: -30 });
+  show('#brandText', phoneIn + .2, outro - .2, { d: .6, dx: -30 });
+  show('#platform', phoneIn + .3, outro - .2, { d: .6, dx: 30 });
+  // Telefon
+  k('#phoneWrap', 'y', [[0, 1500], [phoneIn - .2, 1500], [phoneIn + 1, 0, 'out5'], [outro - .2, 0], [outro + .7, 1500, 'in']]);
+  k('#phoneWrap', 'r', [[phoneIn - .2, 8], [phoneIn + 1.1, 0, 'out5'], [outro - .2, 0], [outro + .7, -6, 'in']]);
+  // Yakun
+  show('#outroTitle', outro + .7, null, { d: .8, dy: 40, blur: 10 });
+  show('#outroSub', outro + .9, null, { d: .8, dy: 30 });
+  show('#outroTip', outro + 1.3, null, { d: .8, dy: 40, s0: .92 });
+  show('#outroBot', outro + 1.8, null, { d: .8, dy: 40, s0: .85, ease: 'back' });
+  k('#fade', 'o', [[0, 1], [.5, 0, 'out'], [T - .6, 0], [T, 1, 'in']]);
+  hooks.push(t => { $('#bar').style.width = (1080 * Math.min(1, t / T)) + 'px'; });
+}
+
+/* ================= Bosh ekran belgisi paydo bo'lishi ================= */
+function asfPop(t0) {
+  const I = $('#asfI');
+  k(I, 's', [[0, 0], [t0, 0], [t0 + .7, 1, 'back']]);
+  k(I, 'o', [[0, 0], [t0, 0], [t0 + .2, 1, 'out']]);
+  k($('#asfApp span'), 'o', [[0, 0], [t0 + .3, 0], [t0 + .7, 1]]);
+  const g = $('#glow');
+  k(g, 'o', [[0, 0], [t0 + .4, 0], [t0 + .7, 1, 'out'], [t0 + 1.4, .2], [t0 + 1.9, 1], [t0 + 2.6, .15], [t0 + 3.1, .9], [t0 + 3.8, 0]]);
+  k(g, 's', [[t0 + .4, .9], [t0 + .9, 1.18, 'out'], [t0 + 1.4, 1.05], [t0 + 1.9, 1.18], [t0 + 2.6, 1.05], [t0 + 3.1, 1.18], [t0 + 3.8, 1.3]]);
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2 + .3, d = 58 + (i % 2) * 18;
+    const sp = $('#sp' + i);
+    k(sp, 'x', [[t0 + .35, 0], [t0 + 1.2, Math.cos(a) * d, 'out']]);
+    k(sp, 'y', [[t0 + .35, 0], [t0 + 1.2, Math.sin(a) * d, 'out']]);
+    k(sp, 'o', [[0, 0], [t0 + .35, 0], [t0 + .45, 1], [t0 + 1.25, 0]]);
+    k(sp, 's', [[t0 + .35, 1.4], [t0 + 1.2, .3]]);
+  }
+}
+
+/** Ilova belgidan ochiladi: navy oyna belgidan butun ekranga kengayadi */
+function launch(t0, fromEl, radius0) {
+  const sp = document.createElement('div');
+  sp.className = 'splash';
+  sp.innerHTML = '<img src="logo.png">';
+  scr.appendChild(sp);
+  const r = fromEl.getBoundingClientRect(), s = scr.getBoundingClientRect(), f = s.width / 390;
+  const a = { x: (r.left - s.left) / f, y: (r.top - s.top) / f, w: r.width / f, h: r.height / f };
+  hooks.push(t => {
+    const p = E.io(Math.max(0, Math.min(1, (t - t0) / .6)));
+    sp.style.visibility = t < t0 ? 'hidden' : 'visible';
+    sp.style.left = a.x * (1 - p) + 'px';
+    sp.style.top = a.y * (1 - p) + 'px';
+    sp.style.width = a.w + (390 - a.w) * p + 'px';
+    sp.style.height = a.h + (844 - a.h) * p + 'px';
+    sp.style.borderRadius = radius0 + (IOS ? 56 : 42 - radius0) * p + 'px';
+    sp.style.opacity = t < t0 + 1.4 ? 1 : Math.max(0, 1 - (t - t0 - 1.4) / .45);
+    $('img', sp).style.transform = `scale(${.25 + .75 * p})`;
+  });
+}
+
+/* ================= iPhone ================= */
+function buildIphone() {
+  $('#phone').insertAdjacentHTML('afterbegin', '');
+  scr.insertAdjacentHTML('beforeend', `<div class="island"></div>
+  <div class="layer" id="pg">${statusBar(false)}
+    <div class="app" style="top:54px">${appPage('ios')}</div>
+    <div class="saf"><div class="r">‹</div><div class="u"><div class="ring" id="uring"></div><span style="font-size:12px">🔒</span>asf-miniapp.vercel.app</div><div class="r" id="dots">•••</div></div>
+    <div class="homebar"></div>
+  </div>
+  <div class="imenu" id="menu">
+    <div class="it"><span class="ico">文</span>Перевести сайт…</div>
+    <div class="it sep" id="miShare"><div class="hl"></div><span class="ico">⬆︎</span>Поделиться</div>
+    <div class="it" id="miBook"><div class="hl red"></div><span class="ico">📖</span>Добавить в: Закладки<div class="cross" id="cross"></div><div class="nob" id="nob">✕</div></div>
+    <div class="it"><span class="ico">🗂</span>Добавить закладку в папку…</div>
+    <div class="it sep"><span class="ico">🔍</span>Найти на странице</div>
+    <div class="it"><span class="ico">🔎</span>Масштаб страницы</div>
+    <div class="it"><span class="ico">👁</span>Скрыть отвлекающие объекты</div>
+  </div>
+  <div class="dim" id="dim"></div>
+  <div class="sheet" id="sheet">
+    <div class="sh-head"><img src="apple-touch-icon.png"><div><b>ASF GROUP</b><small>asf-miniapp.vercel.app</small></div><div class="cl">✕</div></div>
+    <div class="sh-apps">
+      <div class="sh-app"><div style="background:linear-gradient(#5ac8fa,#007aff)">📡</div>AirDrop</div>
+      <div class="sh-app"><div style="background:linear-gradient(#37aee2,#1e96c8)">✈️</div>Telegram</div>
+      <div class="sh-app"><div style="background:linear-gradient(#5ff777,#1fbf3a)">💬</div>Сообщения</div>
+      <div class="sh-app"><div style="background:linear-gradient(#6fb6ff,#1a7cf5)">✉️</div>Почта</div>
+    </div>
+    <div class="sh-list" id="shList">
+      <div class="grp"><div class="it">Скопировать<span class="ico">⧉</span></div></div>
+      <div class="grp">
+        <div class="it">Добавить в список для чтения<span class="ico">👓</span></div>
+        <div class="it">Добавить закладку<span class="ico">📖</span></div>
+        <div class="it">Добавить в избранное<span class="ico">☆</span></div>
+        <div class="it">Найти на странице<span class="ico">🔍</span></div>
+        <div class="it" id="shHome"><div class="hl"></div><b style="font-weight:600">На экран «Домой»</b><span class="ico">⊞</span></div>
+        <div class="it">Разметка<span class="ico">✎</span></div>
+        <div class="it">Напечатать<span class="ico">🖨</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="addv" id="addv">
+    <div class="addnav"><span class="c">Отменить</span><b>На экран «Домой»</b><span class="a" id="addBtn"><div class="hl"></div><span style="position:relative">Добавить</span></span></div>
+    <div class="addcard"><img src="apple-touch-icon.png"><div class="f"><div>ASF GROUP<span class="caret" id="caret"></span></div><div>https://asf-miniapp.vercel.app/</div></div></div>
+    <div class="addnote">На экран «Домой» будет добавлен значок для быстрого доступа к этому веб-сайту.</div>
+    <div class="addrow">Открыть как веб-приложение<div class="sw"></div></div>
+  </div>
+  <div class="layer home" id="home"><div class="wall ios"></div>${statusBar(true)}
+    <div class="grid" id="grid">
+      ${icon('linear-gradient(#fff,#e9e9ee)', '🗓️', 'Календарь')}${icon('linear-gradient(#fdfdfd,#e5e5ea)', '🖼️', 'Фото')}${icon('linear-gradient(#8e8e93,#48484a)', '📷', 'Камера')}${icon('linear-gradient(#5ac8fa,#007aff)', '🌤️', 'Погода')}
+      ${icon('linear-gradient(#2c2c2e,#000)', '🕐', 'Часы')}${icon('linear-gradient(#34c759,#0a9d3a)', '🗺️', 'Карты')}${icon('linear-gradient(#ffd60a,#ff9f0a)', '📝', 'Заметки')}${icon('linear-gradient(#ff6482,#ff2d55)', '🎵', 'Музыка')}
+      ${icon('linear-gradient(#0a84ff,#0040dd)', '🅰️', 'App Store')}${icon('linear-gradient(#8e8e93,#636366)', '⚙️', 'Настройки')}${icon('linear-gradient(#37aee2,#1e96c8)', '✈️', 'Telegram')}${icon('linear-gradient(#ff453a,#c7001e)', '▶️', 'YouTube')}
+      ${icon('linear-gradient(#ffcc00,#ff9500)', '🗒️', 'Напоминания')}${icon('linear-gradient(#5e5ce6,#3634a3)', '🎙️', 'Подкасты')}${icon('linear-gradient(#30d158,#248a3d)', '💵', 'Банк')}${icon('linear-gradient(#ff9f0a,#ff375f)', '🛍️', 'Uzum')}
+      ${icon('linear-gradient(#64d2ff,#0a84ff)', '📁', 'Файлы')}${asfIcon}
+    </div>
+    <div class="search">🔍 Поиск</div>
+    <div class="dock"><div class="i" style="background:linear-gradient(#5ff777,#1fbf3a)">📞</div><div class="i" style="background:linear-gradient(#fff,#e5e5ea)">🧭</div><div class="i" style="background:linear-gradient(#5ff777,#1fbf3a)">💬</div><div class="i" style="background:linear-gradient(#6fb6ff,#1a7cf5)">✉️</div></div>
+    <div class="homebar l"></div>
+  </div>
+  <div class="layer" id="app" style="background:#fff">${statusBar(false)}<div class="app" style="top:54px">${appPage(null)}</div><div class="homebar"></div></div>`);
+  scr.appendChild(touch);
+
+  // Koordinatalar (hech qanday transform qo'llanmagan holatda o'lchanadi)
+  const P = {
+    center: [230, 470],
+    url: pos($('#uring')),
+    dots: pos($('#dots')),
+    share: pos($('#miShare')),
+    book: pos($('#miBook')),
+    home: pos($('#shHome')),
+    add: pos($('#addBtn')),
+    asf: pos($('#asfI')),
+  };
+  const SCROLL = -70;
+  P.home[1] += SCROLL;
+
+  const T = 34;
+  const phoneIn = 3.0, outro = 30.2;
+  introOutro(T, phoneIn, outro, `Saytda chiqqan <b>ko'k kartadagi</b> ko'rsatma ham shu yo'lni eslatadi 💡`);
+
+  // 1-qadam: Safari'da ochish
+  caption(3.6, 7.3, 1, 'Havolani Safari\'da oching', `asf-miniapp.vercel.app — Telegram'da havolani bosib ${q('Открыть в браузере')} tanlang`);
+  k('#uring', 'o', [[0, 0], [4.8, 0], [5.2, 1, 'out'], [5.8, .35], [6.2, 1], [6.8, 0]]);
+  k('#uring', 's', [[4.8, 1.12], [5.2, 1, 'out']]);
+
+  // 2-qadam: ••• tugmasi
+  caption(7.3, 10.9, 2, 'Pastdagi ••• tugmasini bosing', 'Safari pastki panelining o\'ng tomonida');
+  k(touch, 'o', [[0, 0], [7.5, 0], [7.9, 1, 'out'], [27.3, 1], [27.6, 0]]);
+  // 3-qadam: Поделиться (закладки emas!)
+  caption(10.9, 15.1, 3, `${q('Поделиться')} ni tanlang`, `!⚠️ ${q('Добавить в закладки')} <b>EMAS</b> — u ekranga chiqmaydi`);
+  // 4-qadam
+  caption(15.1, 19.0, 4, `${q('На экран «Домой»')} ni bosing`, 'Ro\'yxatni biroz pastga suring');
+  // 5-qadam
+  caption(19.0, 22.4, 5, `${q('Добавить')} ni bosing`, 'Nomi avtomatik: ASF GROUP');
+  caption(22.4, 26.2, 0, 'ASF GROUP belgisi ekraningizda!', 'Endi uni boshqa ilovalar qatorida topasiz', 'ok');
+  caption(26.2, 30.0, 0, 'Bir bosishda oching', 'Brauzersiz, to\'liq ekranda — xuddi haqiqiy ilovadek', 'ok');
+
+  finger([
+    [7.5, P.center[0], P.center[1] + 60],
+    [8.0, P.center[0], P.center[1]],
+    [9.0, P.dots[0], P.dots[1], true],
+    [10.4, P.dots[0], P.dots[1]],
+    [11.4, P.book[0] - 40, P.book[1]],
+    [12.9, P.book[0] - 40, P.book[1]],
+    [13.6, P.share[0] - 30, P.share[1], true],
+    [15.2, P.share[0] - 30, P.share[1]],
+    [16.1, P.home[0] + 40, P.home[1] + 140],
+    [16.8, P.home[0] + 40, P.home[1]],
+    [17.6, P.home[0] + 40, P.home[1], true],
+    [19.2, P.home[0] + 40, P.home[1]],
+    [20.2, P.add[0], P.add[1]],
+    [20.8, P.add[0], P.add[1], true],
+    [22.0, P.add[0] - 60, P.add[1] + 300],
+    [24.8, P.asf[0] + 40, P.asf[1] + 110],
+    [26.2, P.asf[0], P.asf[1]],
+    [26.7, P.asf[0], P.asf[1], true],
+  ]);
+
+  // Menyu
+  const menu = $('#menu');
+  k(menu, 'o', [[0, 0], [9.05, 0], [9.3, 1, 'out'], [13.85, 1], [14.1, 0]]);
+  k(menu, 's', [[9.05, .35], [9.55, 1, 'back'], [13.85, 1], [14.1, .9]]);
+  hl($('#miBook'), 11.5, 1.3);
+  k('#cross', 'sx', [[0, 0], [11.6, 0], [12.0, 1, 'out']]);
+  k('#cross', 'o', [[0, 0], [11.55, 0], [11.6, 1]]);
+  k('#nob', 's', [[0, 0], [11.9, 0], [12.3, 1, 'back']]);
+  k('#miBook', 'x', [[12.0, 0], [12.08, -6, 'lin'], [12.16, 6, 'lin'], [12.24, -5, 'lin'], [12.32, 4, 'lin'], [12.4, 0, 'lin']]);
+  hl($('#miShare'), 13.6, .3);
+
+  // Ulashish oynasi
+  k('#dim', 'o', [[0, 0], [13.9, 0], [14.3, 1], [20.9, 1], [21.3, 0]]);
+  k('#sheet', 'y', [[0, 700], [13.9, 700], [14.55, 0, 'out5']]);
+  k('#sheet', 'o', [[0, 0], [13.89, 0], [13.9, 1], [21.0, 1], [21.3, 0]]);
+  k('#shList', 'y', [[15.6, 0], [16.4, SCROLL, 'io']]);
+  hl($('#shHome'), 17.6, .4);
+  k('#sheet', 's', [[17.9, 1], [18.4, .94, 'out'], [21.0, .94]]);
+
+  // Qo'shish oynasi
+  k('#addv', 'y', [[0, 850], [17.9, 850], [18.55, 0, 'out5'], [20.95, 0], [21.5, 850, 'in']]);
+  k('#caret', 'o', [18.6, 19.1, 19.6, 20.1, 20.6].flatMap(t => [[t, 1], [t + .25, 0, 'step']]).concat([[0, 0]]));
+  hl($('#addBtn'), 20.8, .2);
+
+  // Sahifa yopilib, bosh ekran ochiladi
+  k('#pg', 's', [[21.1, 1], [21.7, .82, 'io']]);
+  k('#pg', 'o', [[21.1, 1], [21.7, 0, 'io']]);
+  k('#home', 'o', [[0, 0], [21.2, 0], [21.7, 1, 'out']]);
+  k('#home', 's', [[21.2, 1.25], [22.0, 1, 'out5']]);
+  asfPop(22.3);
+  k('#asfI', 's', [[26.55, 1], [26.7, .88, 'out'], [26.9, 1, 'out']]);
+  launch(26.85, $('#asfI'), 16);
+  k('#app', 'o', [[0, 0], [28.1, 0], [28.3, 1]]);
+  // Kamerani biroz yaqinlashtirish
+  k('#phoneWrap', 's', [[3, 1], [9, 1], [10, 1.04, 'io'], [21, 1.04], [22, 1, 'io']]);
+  return T;
+}
+
+/* ================= Samsung ================= */
+function buildSamsung() {
+  $('#phone').classList.add('sam');
+  scr.insertAdjacentHTML('beforeend', `<div class="punch"></div>
+  <div class="layer" id="pg">${statusBar(false, true)}
+    <div class="ch-bar"><span class="home-i">⌂</span><div class="ch-url"><div class="ring" id="uring"></div><span style="font-size:12px">🔒</span>asf-miniapp.vercel.app</div><div class="ch-tabs">1</div><div class="ch-dots" id="dots"><div class="hl"></div><i></i></div></div>
+    <div class="app" style="top:92px">${appPage('android')}</div>
+    <div class="gest"></div>
+  </div>
+  <div class="cmenu" id="menu">
+    <div class="cm-top"><span>→</span><span>☆</span><span>⤓</span><span>ⓘ</span><span>↻</span></div>
+    <div class="it"><span class="ico">＋</span>Новая вкладка</div>
+    <div class="it"><span class="ico">🕶</span>Новая вкладка инкогнито</div>
+    <div class="it"><span class="ico">🕘</span>История</div>
+    <div class="it"><span class="ico">⤓</span>Загрузки</div>
+    <div class="it"><span class="ico">★</span>Закладки</div>
+    <div class="it"><span class="ico">🗂</span>Недавние вкладки</div>
+    <div class="it"><span class="ico">⤴</span>Поделиться…</div>
+    <div class="it"><span class="ico">🔍</span>Найти на странице</div>
+    <div class="it"><span class="ico">文</span>Перевести…</div>
+    <div class="it" id="miHome"><div class="hl"></div><span class="ico">📲</span><b style="font-weight:700">Добавить на главный экран</b></div>
+    <div class="it"><span class="ico">🖥</span>Версия для ПК</div>
+    <div class="it"><span class="ico">⚙</span>Настройки</div>
+  </div>
+  <div class="dim" id="dim"></div>
+  <div class="cdlg" id="dlg">
+    <h3>Установить приложение</h3>
+    <div class="row"><img src="apple-touch-icon.png"><div><b>ASF GROUP</b><small>asf-miniapp.vercel.app</small></div></div>
+    <div class="btns"><div>Отмена</div><div class="p" id="instBtn"><div class="hl"></div><span style="position:relative">Установить</span></div></div>
+  </div>
+  <div class="snack" id="snack"><img src="apple-touch-icon.png">ASF GROUP добавлено на главный экран</div>
+  <div class="layer home" id="home"><div class="wall sam"></div>${statusBar(true, true)}
+    <div class="clock"><b>12:45</b><span>Пн, 28 сентября · ☀️ 24°</span></div>
+    <div class="grid sam" id="grid">
+      ${icon('linear-gradient(#ff5a8a,#e0245e)', '🛍️', 'Galaxy Store')}${icon('linear-gradient(#ffe066,#ffb700)', '📝', 'Samsung Notes')}${icon('linear-gradient(#8e9aaf,#5c677d)', '⚙️', 'Настройки')}${icon('linear-gradient(#ff7aa2,#c2185b)', '🌸', 'Галерея')}
+      ${icon('linear-gradient(#ff6b6b,#d62839)', '📷', 'Камера')}${icon('linear-gradient(#ff9f43,#ee5a24)', '👤', 'Контакты')}${icon('linear-gradient(#fff,#e8eaed)', '▶️', 'Play Маркет')}${icon('linear-gradient(#ff453a,#c7001e)', '📺', 'YouTube')}
+      ${icon('linear-gradient(#37aee2,#1e96c8)', '✈️', 'Telegram')}${icon('linear-gradient(#5f6caf,#3b4a8f)', '🧮', 'Калькулятор')}${icon('linear-gradient(#34c759,#0a9d3a)', '📅', 'Календарь')}${icon('linear-gradient(#7d5fff,#5f27cd)', '💳', 'Samsung Pay')}
+      ${asfIcon}
+    </div>
+    <div class="dock sam"><div class="i" style="background:linear-gradient(#34c759,#0a9d3a)">📞</div><div class="i" style="background:linear-gradient(#4f8cff,#1a5fd6)">💬</div><div class="i" style="background:conic-gradient(#ea4335 0 33%,#fbbc05 0 66%,#34a853 0);border-radius:50%;box-shadow:inset 0 0 0 14px transparent"><span style="display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#4285f4;border:4px solid #fff"></span></div><div class="i" style="background:linear-gradient(#ff6b6b,#d62839)">📷</div></div>
+    <div class="gest l"></div>
+  </div>
+  <div class="layer" id="app" style="background:#fff">${statusBar(false, true)}<div class="app" style="top:34px">${appPage(null)}</div><div class="gest"></div></div>`);
+  scr.appendChild(touch);
+
+  const P = {
+    center: [210, 500],
+    dots: pos($('#dots')),
+    home: pos($('#miHome')),
+    inst: pos($('#instBtn')),
+    asf: pos($('#asfI')),
+    gest: [195, 830],
+  };
+
+  const T = 35;
+  const phoneIn = 3.0, outro = 31.2;
+  introOutro(T, phoneIn, outro, `Saytda <b>«Ekranga qo'shish»</b> tugmasi chiqsa — shunchaki uni bosing 💡`);
+
+  caption(3.6, 7.3, 1, 'Havolani Chrome\'da oching', `asf-miniapp.vercel.app — Telegram'da havolani bosib ${q('Открыть в браузере')} tanlang`);
+  k('#uring', 'o', [[0, 0], [4.8, 0], [5.2, 1, 'out'], [5.8, .35], [6.2, 1], [6.8, 0]]);
+  k('#uring', 's', [[4.8, 1.1], [5.2, 1, 'out']]);
+  caption(7.3, 10.8, 2, 'Tepadagi ⋮ tugmasini bosing', 'Manzil qatorining o\'ng tomonida');
+  caption(10.8, 14.8, 3, `${q('Добавить на главный экран')} ni tanlang`, `Ba'zi telefonlarda: ${q('Установить приложение')}`);
+  caption(14.8, 18.8, 4, `${q('Установить')} ni bosing`, `Yoki ${q('Добавить')} — telefon so'rasa, yana bir marta tasdiqlang`);
+  caption(18.8, 22.4, 5, 'Bosh ekranga qayting', 'Pastdagi chiziqni yuqoriga suring yoki «Домой» tugmasini bosing');
+  caption(22.4, 27.0, 0, 'ASF GROUP belgisi ekraningizda!', 'Endi uni boshqa ilovalar qatorida topasiz', 'ok');
+  caption(27.0, 31.0, 0, 'Bir bosishda oching', 'Brauzersiz, to\'liq ekranda — xuddi haqiqiy ilovadek', 'ok');
+
+  k(touch, 'o', [[0, 0], [7.5, 0], [7.9, 1, 'out'], [28.1, 1], [28.4, 0]]);
+  finger([
+    [7.5, P.center[0], P.center[1] + 60],
+    [8.0, P.center[0], P.center[1]],
+    [9.0, P.dots[0], P.dots[1], true],
+    [10.6, P.dots[0], P.dots[1]],
+    [11.8, P.home[0] - 20, P.home[1] + 90],
+    [12.6, P.home[0] - 20, P.home[1]],
+    [13.6, P.home[0] - 20, P.home[1], true],
+    [15.0, P.home[0] - 20, P.home[1]],
+    [16.0, P.inst[0], P.inst[1]],
+    [16.8, P.inst[0], P.inst[1], true],
+    [18.9, P.inst[0] - 60, P.inst[1] + 200],
+    [19.8, P.gest[0], P.gest[1] - 10],
+    [20.2, P.gest[0], P.gest[1] - 10],
+    [20.9, P.gest[0], P.gest[1] - 230],
+    [23.0, P.gest[0], P.gest[1] - 280],
+    [25.6, P.asf[0] + 60, P.asf[1] + 120],
+    [27.0, P.asf[0], P.asf[1]],
+    [27.5, P.asf[0], P.asf[1], true],
+  ]);
+  // Chiziqni surish izi
+  k('.gest', 'sx', [[20.2, 1], [20.5, 1.4], [20.9, 1]]);
+
+  hl($('#dots'), 9.0, .3);
+  const menu = $('#menu');
+  k(menu, 'o', [[0, 0], [9.05, 0], [9.3, 1, 'out'], [13.9, 1], [14.15, 0]]);
+  k(menu, 's', [[9.05, .4], [9.55, 1, 'back'], [13.9, 1], [14.15, .92]]);
+  hl($('#miHome'), 13.6, .3);
+
+  k('#dim', 'o', [[0, 0], [14.0, 0], [14.3, 1], [17.1, 1], [17.4, 0]]);
+  k('#dlg', 'o', [[0, 0], [14.05, 0], [14.35, 1, 'out'], [17.1, 1], [17.35, 0]]);
+  k('#dlg', 's', [[14.05, .85], [14.55, 1, 'back'], [17.1, 1], [17.35, .9]]);
+  hl($('#instBtn'), 16.8, .2);
+  k('#snack', 'y', [[0, 140], [17.4, 140], [17.9, 0, 'out5'], [20.2, 0], [20.5, 140]]);
+
+  k('#pg', 's', [[20.3, 1], [21.0, .8, 'io']]);
+  k('#pg', 'y', [[20.3, 0], [21.0, -120, 'io']]);
+  k('#pg', 'o', [[20.3, 1], [21.0, 0, 'io']]);
+  k('#home', 'o', [[0, 0], [20.4, 0], [20.9, 1, 'out']]);
+  k('#home', 's', [[20.4, 1.2], [21.4, 1, 'out5']]);
+  asfPop(22.6);
+  k('#asfI', 's', [[27.35, 1], [27.5, .88, 'out'], [27.7, 1, 'out']]);
+  launch(27.65, $('#asfI'), 20);
+  k('#app', 'o', [[0, 0], [28.9, 0], [29.1, 1]]);
+  k('#phoneWrap', 's', [[3, 1], [9, 1], [10, 1.04, 'io'], [20, 1.04], [21, 1, 'io']]);
+  return T;
+}
+
+window.DURATION = IOS ? buildIphone() : buildSamsung();
+// Sarlavhalar, logotip va barmoq boshlang'ich holati
+window.render = render;
+window.READY = document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))));
+const ts = new URLSearchParams(location.search).get('t');
+render(ts ? +ts : 0);
+</script>
+</body>
+</html>

@@ -83,6 +83,8 @@ model Order {
   paymentStatus String    @default("unpaid") /// unpaid | pending (chek yuborilgan) | paid | rejected
   receiptUrl    String? /// Kartaga o'tkazma cheki rasmi
   receiptAt     DateTime? /// Chek yuborilgan vaqt
+  clickTransId  String? /// Click tranzaksiya raqami (click_trans_id)
+  paidAt        DateTime? /// To'lov tasdiqlangan vaqt (Click avtomatik yoki admin)
   status      String   @default("new") /// new | confirmed | delivered | cancelled
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
