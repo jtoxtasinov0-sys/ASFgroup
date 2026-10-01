@@ -25,6 +25,9 @@ const { storeFile, fileUrl, UPLOAD_ROOT } = require('../src/utils/upload');
 
 const CATALOG_VERSION = 'asf-2026-10';
 const CATALOG_KEY = 'catalogVersion';
+// Muqova (birinchi rasm) tartibi katalogdagidek qilinadi — bir marta
+const COVERS_VERSION = 'v1';
+const COVERS_KEY = 'catalogCovers';
 const RETAIL_PRICE = 350000;
 
 const CATALOG_DIR = path.join(__dirname, 'catalog');
@@ -35,12 +38,15 @@ const IMAGES_DIR = path.join(CATALOG_DIR, 'images');
  * ga yozadi va storeFile orqali siqib, bazaga zaxiralaydi.
  * Nomi rasm tarkibidan olinadi — qayta ishga tushsa, xuddi shu manzil chiqadi.
  */
-async function uploadImage(file) {
-  const src = path.join(IMAGES_DIR, file);
-  const data = fs.readFileSync(src);
+function storedName(file) {
+  const data = fs.readFileSync(path.join(IMAGES_DIR, file));
   const hash = crypto.createHash('sha1').update(data).digest('hex').slice(0, 16);
   const ext = (path.extname(file) || '.jpg').toLowerCase();
-  const name = `custom-${hash}${ext}`;
+  return { data, name: `custom-${hash}${ext}` };
+}
+
+async function uploadImage(file) {
+  const { data, name } = storedName(file);
   const dest = path.join(UPLOAD_ROOT, 'products', name);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, data);
@@ -85,15 +91,47 @@ function toProduct(raw, index, urlOf) {
   };
 }
 
+const readCatalog = () =>
+  JSON.parse(fs.readFileSync(path.join(CATALOG_DIR, 'products.json'), 'utf8'));
+
+/**
+ * Katalog avval yozilgan bo'lsa: mahsulotning birinchi rasmi (muqova)
+ * katalogdagi birinchi rasm qilinadi. Boshqa maydonlarga tegilmaydi.
+ */
+async function syncCovers() {
+  const marker = await prisma.setting.findUnique({ where: { key: COVERS_KEY } });
+  if (marker?.value === COVERS_VERSION) return;
+
+  let changed = 0;
+  for (const raw of readCatalog()) {
+    const product = await prisma.product.findUnique({ where: { article: raw.article } });
+    if (!product || !raw.images.length) continue;
+    const cover = fileUrl('products', storedName(path.basename(raw.images[0])).name);
+    if (!product.images.includes(cover) || product.images[0] === cover) continue;
+    await prisma.product.update({
+      where: { id: product.id },
+      data: { images: [cover, ...product.images.filter((url) => url !== cover)] },
+    });
+    changed += 1;
+  }
+  await prisma.setting.upsert({
+    where: { key: COVERS_KEY },
+    update: { value: COVERS_VERSION },
+    create: { key: COVERS_KEY, value: COVERS_VERSION },
+  });
+  console.log(`🖼  Muqova rasmlari yangilandi: ${changed} ta mahsulot`);
+}
+
 async function main() {
   const force = process.env.SEED_FORCE === '1';
   const marker = await prisma.setting.findUnique({ where: { key: CATALOG_KEY } });
   if (marker?.value === CATALOG_VERSION && !force) {
     console.log(`🌱 Katalog (${CATALOG_VERSION}) allaqachon yozilgan — tegilmadi.`);
+    await syncCovers();
     return;
   }
 
-  const catalog = JSON.parse(fs.readFileSync(path.join(CATALOG_DIR, 'products.json'), 'utf8'));
+  const catalog = readCatalog();
 
   console.log('🖼  Rasmlar yuklanmoqda...');
   const urls = new Map();
@@ -126,6 +164,7 @@ async function main() {
     });
     return count;
   }, { timeout: 60000 });
+  await syncCovers();
 
   const ready = products.filter((p) => p.category === 'ready').length;
   const upper = products.length - ready;

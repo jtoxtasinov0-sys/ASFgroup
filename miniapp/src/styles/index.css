@@ -1819,6 +1819,71 @@ img {
   color: var(--muted);
 }
 
+/* Mahsulot oynasida rasm ostidagi rang kartochkalari */
+.color-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 0 2px;
+  scrollbar-width: none;
+}
+
+.color-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.color-thumb {
+  flex: 0 0 auto;
+  width: 76px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.color-thumb.active {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 2px rgba(22, 36, 63, 0.12);
+}
+
+.color-thumb-img {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+
+.color-thumb-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.color-thumb-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.color-thumb-name .color-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
 .color-art {
   margin-left: 8px;
   font-size: 12px;

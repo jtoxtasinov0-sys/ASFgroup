@@ -50,12 +50,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T2_1.jpg",
-      "/uploads/products/ASF-T2_2.jpg"
+      "/uploads/products/ASF-T2_2.jpg",
+      "/uploads/products/ASF-T2_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T2_1.jpg": "black",
-      "/uploads/products/ASF-T2_2.jpg": "black"
+      "/uploads/products/ASF-T2_2.jpg": "black",
+      "/uploads/products/ASF-T2_1.jpg": "black"
     },
     "price": 140000,
     "wholesalePrice": 140000,
@@ -76,8 +76,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T2",
         "images": [
-          "/uploads/products/ASF-T2_1.jpg",
-          "/uploads/products/ASF-T2_2.jpg"
+          "/uploads/products/ASF-T2_2.jpg",
+          "/uploads/products/ASF-T2_1.jpg"
         ]
       }
     ],
@@ -93,12 +93,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T3_1.jpg",
-      "/uploads/products/ASF-T3_2.jpg"
+      "/uploads/products/ASF-T3_2.jpg",
+      "/uploads/products/ASF-T3_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T3_1.jpg": "black",
-      "/uploads/products/ASF-T3_2.jpg": "black"
+      "/uploads/products/ASF-T3_2.jpg": "black",
+      "/uploads/products/ASF-T3_1.jpg": "black"
     },
     "price": 140000,
     "wholesalePrice": 140000,
@@ -119,8 +119,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T3",
         "images": [
-          "/uploads/products/ASF-T3_1.jpg",
-          "/uploads/products/ASF-T3_2.jpg"
+          "/uploads/products/ASF-T3_2.jpg",
+          "/uploads/products/ASF-T3_1.jpg"
         ]
       }
     ],
@@ -136,12 +136,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T4_1.jpg",
-      "/uploads/products/ASF-T4_2.jpg"
+      "/uploads/products/ASF-T4_2.jpg",
+      "/uploads/products/ASF-T4_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T4_1.jpg": "black",
-      "/uploads/products/ASF-T4_2.jpg": "black"
+      "/uploads/products/ASF-T4_2.jpg": "black",
+      "/uploads/products/ASF-T4_1.jpg": "black"
     },
     "price": 170000,
     "wholesalePrice": 170000,
@@ -162,8 +162,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T4",
         "images": [
-          "/uploads/products/ASF-T4_1.jpg",
-          "/uploads/products/ASF-T4_2.jpg"
+          "/uploads/products/ASF-T4_2.jpg",
+          "/uploads/products/ASF-T4_1.jpg"
         ]
       }
     ],
@@ -179,12 +179,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T5_1.jpg",
-      "/uploads/products/ASF-T5_2.jpg"
+      "/uploads/products/ASF-T5_2.jpg",
+      "/uploads/products/ASF-T5_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T5_1.jpg": "black",
-      "/uploads/products/ASF-T5_2.jpg": "black"
+      "/uploads/products/ASF-T5_2.jpg": "black",
+      "/uploads/products/ASF-T5_1.jpg": "black"
     },
     "price": 170000,
     "wholesalePrice": 170000,
@@ -205,8 +205,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T5",
         "images": [
-          "/uploads/products/ASF-T5_1.jpg",
-          "/uploads/products/ASF-T5_2.jpg"
+          "/uploads/products/ASF-T5_2.jpg",
+          "/uploads/products/ASF-T5_1.jpg"
         ]
       }
     ],
@@ -222,12 +222,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T6_1.jpg",
-      "/uploads/products/ASF-T6_2.jpg"
+      "/uploads/products/ASF-T6_2.jpg",
+      "/uploads/products/ASF-T6_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T6_1.jpg": "black",
-      "/uploads/products/ASF-T6_2.jpg": "black"
+      "/uploads/products/ASF-T6_2.jpg": "black",
+      "/uploads/products/ASF-T6_1.jpg": "black"
     },
     "price": 350000,
     "wholesalePrice": 350000,
@@ -248,8 +248,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T6",
         "images": [
-          "/uploads/products/ASF-T6_1.jpg",
-          "/uploads/products/ASF-T6_2.jpg"
+          "/uploads/products/ASF-T6_2.jpg",
+          "/uploads/products/ASF-T6_1.jpg"
         ]
       }
     ],
@@ -308,12 +308,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T8_1.jpg",
-      "/uploads/products/ASF-T8_2.jpg"
+      "/uploads/products/ASF-T8_2.jpg",
+      "/uploads/products/ASF-T8_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T8_1.jpg": "black",
-      "/uploads/products/ASF-T8_2.jpg": "black"
+      "/uploads/products/ASF-T8_2.jpg": "black",
+      "/uploads/products/ASF-T8_1.jpg": "black"
     },
     "price": 140000,
     "wholesalePrice": 140000,
@@ -334,8 +334,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T8",
         "images": [
-          "/uploads/products/ASF-T8_1.jpg",
-          "/uploads/products/ASF-T8_2.jpg"
+          "/uploads/products/ASF-T8_2.jpg",
+          "/uploads/products/ASF-T8_1.jpg"
         ]
       }
     ],
@@ -351,12 +351,12 @@
     "color": "to'q ko'k",
     "colorRu": "тёмно-синий",
     "images": [
-      "/uploads/products/ASF-T9_1.jpg",
-      "/uploads/products/ASF-T9_2.jpg"
+      "/uploads/products/ASF-T9_2.jpg",
+      "/uploads/products/ASF-T9_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T9_1.jpg": "blue",
-      "/uploads/products/ASF-T9_2.jpg": "blue"
+      "/uploads/products/ASF-T9_2.jpg": "blue",
+      "/uploads/products/ASF-T9_1.jpg": "blue"
     },
     "price": 140000,
     "wholesalePrice": 140000,
@@ -377,8 +377,8 @@
         "nameRu": "тёмно-синий",
         "article": "ASF-T9",
         "images": [
-          "/uploads/products/ASF-T9_1.jpg",
-          "/uploads/products/ASF-T9_2.jpg"
+          "/uploads/products/ASF-T9_2.jpg",
+          "/uploads/products/ASF-T9_1.jpg"
         ]
       }
     ],
@@ -394,12 +394,12 @@
     "color": "to'q ko'k",
     "colorRu": "тёмно-синий",
     "images": [
-      "/uploads/products/ASF-T10_1.jpg",
-      "/uploads/products/ASF-T10_2.jpg"
+      "/uploads/products/ASF-T10_2.jpg",
+      "/uploads/products/ASF-T10_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T10_1.jpg": "blue",
-      "/uploads/products/ASF-T10_2.jpg": "blue"
+      "/uploads/products/ASF-T10_2.jpg": "blue",
+      "/uploads/products/ASF-T10_1.jpg": "blue"
     },
     "price": 140000,
     "wholesalePrice": 140000,
@@ -420,8 +420,8 @@
         "nameRu": "тёмно-синий",
         "article": "ASF-T10",
         "images": [
-          "/uploads/products/ASF-T10_1.jpg",
-          "/uploads/products/ASF-T10_2.jpg"
+          "/uploads/products/ASF-T10_2.jpg",
+          "/uploads/products/ASF-T10_1.jpg"
         ]
       }
     ],
@@ -529,12 +529,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T13_1.jpg",
-      "/uploads/products/ASF-T13_2.jpg"
+      "/uploads/products/ASF-T13_2.jpg",
+      "/uploads/products/ASF-T13_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T13_1.jpg": "black",
-      "/uploads/products/ASF-T13_2.jpg": "black"
+      "/uploads/products/ASF-T13_2.jpg": "black",
+      "/uploads/products/ASF-T13_1.jpg": "black"
     },
     "price": 170000,
     "wholesalePrice": 170000,
@@ -555,8 +555,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T13",
         "images": [
-          "/uploads/products/ASF-T13_1.jpg",
-          "/uploads/products/ASF-T13_2.jpg"
+          "/uploads/products/ASF-T13_2.jpg",
+          "/uploads/products/ASF-T13_1.jpg"
         ]
       }
     ],
@@ -572,12 +572,12 @@
     "color": "qora",
     "colorRu": "чёрный",
     "images": [
-      "/uploads/products/ASF-T14_1.jpg",
-      "/uploads/products/ASF-T14_2.jpg"
+      "/uploads/products/ASF-T14_2.jpg",
+      "/uploads/products/ASF-T14_1.jpg"
     ],
     "imageColors": {
-      "/uploads/products/ASF-T14_1.jpg": "black",
-      "/uploads/products/ASF-T14_2.jpg": "black"
+      "/uploads/products/ASF-T14_2.jpg": "black",
+      "/uploads/products/ASF-T14_1.jpg": "black"
     },
     "price": 170000,
     "wholesalePrice": 170000,
@@ -598,8 +598,8 @@
         "nameRu": "чёрный",
         "article": "ASF-T14",
         "images": [
-          "/uploads/products/ASF-T14_1.jpg",
-          "/uploads/products/ASF-T14_2.jpg"
+          "/uploads/products/ASF-T14_2.jpg",
+          "/uploads/products/ASF-T14_1.jpg"
         ]
       }
     ],
