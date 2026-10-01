@@ -26,7 +26,7 @@ export default function Login({ onSuccess }) {
       <div className="login">
         <div className="login-card" style={{ textAlign: 'center' }}>
           <img src="/logo.png" alt="ASF GROUP" />
-          <h1>ASF GROUP</h1>
+          <h1>ASF ADMIN</h1>
           <p>Telegram orqali kirilmoqda...</p>
           <div className="spinner" style={{ margin: '16px auto 0' }} />
         </div>
@@ -51,7 +51,7 @@ export default function Login({ onSuccess }) {
     <div className="login">
       <form className="login-card" onSubmit={submit}>
         <img src="/logo.png" alt="ASF GROUP" />
-        <h1>ASF GROUP</h1>
+        <h1>ASF ADMIN</h1>
         <p>SIFAT VA ISHONCH</p>
 
         {error && <div className="alert">{error}</div>}

@@ -13,7 +13,8 @@ if (tg?.initData) {
     if (tg.isVersionAtLeast?.('7.7')) tg.disableVerticalSwipes();
     // Eski Telegram'da surishni o'chirib bo'lmaydi — hech bo'lmasa yopishdan oldin so'raydi
     else tg.enableClosingConfirmation?.();
-    tg.setHeaderColor?.('#16243F');
+    tg.setHeaderColor?.('#F3F6FC');
+    tg.setBackgroundColor?.('#F3F6FC');
   } catch (_) {
     /* eski Telegram versiyalari */
   }

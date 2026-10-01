@@ -241,7 +241,7 @@ export default function Orders({ stats, reload }) {
           <span>Yetkazilgan</span>
           <b style={{ color: 'var(--green)' }}>{stats?.delivered ?? '—'}</b>
         </div>
-        <div className="stat">
+        <div className="stat stat-hero">
           <span>Umumiy summa</span>
           <b>{stats ? `${money(stats.revenue)} so'm` : '—'}</b>
         </div>
