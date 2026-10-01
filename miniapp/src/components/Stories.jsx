@@ -12,6 +12,8 @@ export default function Stories({ stories, lang, seen, onOpen }) {
         <button
           key={story.id}
           className="story"
+          // Doirachalar ketma-ket "otilib" chiqadi
+          style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
           onClick={() => {
             haptic();
             onOpen(index);

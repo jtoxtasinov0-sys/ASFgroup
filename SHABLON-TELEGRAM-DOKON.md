@@ -19,7 +19,7 @@
 | Shior (slogan) | `__________` (ASF da: SIFAT VA ISHONCH) |
 | Nima sotiladi | `__________` (ASF da: poyabzal — tayyor oyoq kiyim va zagatovka) |
 | Logo | `logo.png` faylini loyihaga tashlayman |
-| Asosiy rang (urg'u) | `#______` (ASF da: to'q ko'k `#16243f`) |
+| Asosiy rang (urg'u) | `#______` (ASF da: logodagi to'q ko'k `#0b2257` → gradient `#163a85` → `#2c5fd0`) |
 | Qo'shimcha rang | `#______` (ASF da: qizil `#e11d2e` — chegirma, "tugagan") |
 | Kategoriyalar | masalan: `ready` = Tayyor oyoq kiyim, `upper` = Zagatovka |
 | Teglar (filtr) | masalan: Klassik, Sport, Mokasin, Yozgi, Qishki... |
@@ -86,8 +86,11 @@ backend/
 ```
 miniapp/src/
 ├── pages/      Onboarding, ModeSelect, Home, Catalog, Cart, Checkout, Profile
-├── components/ BottomNav, ProductCard, ProductSheet, SheetClose, PriceTag, PhotoViewer, Stories, StoryViewer, PaymentScreen
-└── lib/        api (qayta urinish bilan), telegram (WebApp, haptic), i18n (uz/ru), store (savatcha), stock, colors, frame, image, format
+├── components/ BottomNav, ProductCard, ProductSheet, SheetClose, PriceTag, PhotoViewer, Stories, StoryViewer, PaymentScreen,
+│               Icon (SVG ikonkalar), ModeCards (Optom/Donaga rasmli kartalar), OfferCarousel ("Maxsus taklif" bannerlari)
+├── lib/        api (qayta urinish bilan), telegram (WebApp, haptic), i18n (uz/ru), store (savatcha), stock, colors, frame, image, format,
+│               fly (savatga uchish animatsiyasi, savatcha sakrashi, "Savatchaga qo'shildi" xabari)
+└── public/     logo.png, pair.jpg (1 juft — mahsulot rasmi bo'lmasa zaxira), ikonkalar, manifest
 ```
 
 ### Admin panel tuzilishi
@@ -150,9 +153,11 @@ Adminlar ro'yxati = `ADMIN_CHAT_IDS` (env, vergul bilan, guruh ID minus bilan) +
 ## 5. Mini App (mijoz) imkoniyatlari
 
 - **Onboarding** — 3 slayd (logo, qanday ishlaydi, optom/dona), bir marta ko'rsatiladi; til almashtirish UZ/RU
-- **ModeSelect** — kirganda "Ulgurji (optom)" yoki "Donaga" tanlash; keyin istalgan payt tepadagi tab bilan almashtiriladi.
+- **ModeSelect** — kirganda "Ulgurji (optom)" yoki "Donaga" tanlash (**rasmli kartalar**, 5.3 ga qara);
+  keyin istalgan payt bosh sahifadagi shu kartalar bilan almashtiriladi.
   Admin donaga savdoni o'chirsa — faqat optom ko'rinadi
-- **Home** — salomlashish (Telegram ismi), Stories doiralari, hero banner, kategoriya kartalari, mashhur mahsulotlar
+- **Home** — "Salom, **Ism**" (ism gradient rangda) + shior, Stories doiralari, Optom/Donaga kartalari,
+  aylanuvchi **"Maxsus taklif"** bannerlari, rasmli **Bo'limlar** ("14 ta model"), chegirmalar, ommabop modellar
 - **Catalog** — kategoriya, teg filtrlari, qidiruv, mahsulot kartalari (narx, eski narx, "tugagan", qoldiq)
 - **ProductSheet** (pastdan chiqadigan oyna) — rasmlar karuseli, **rang tanlash** (rasm rangiga qarab), to'liq ekran PhotoViewer,
   optomda — komplekt soni (+/−), donada — razmer bo'yicha juft soni; ombor qoldig'i; "optomda N so'm arzon" maslahati
@@ -166,7 +171,9 @@ Adminlar ro'yxati = `ADMIN_CHAT_IDS` (env, vergul bilan, guruh ID minus bilan) +
     Tasdiqlash tugmasi kulrang qotib turmaydi: bosilsa birinchi qizil maydonga scroll qilib, fokus beradi
 - **PaymentScreen** — karta raqami (nusxalash), summa, chek rasmini yuklash
 - **Profile** — ma'lumotlar, til, **Mening buyurtmalarim** (holat, to'lov holati, "qayta buyurtma"), kompaniya bilan bog'lanish
-- **BottomNav** — Bosh sahifa, Katalog, Savatcha (soni bilan), Profil
+- **BottomNav** — suzib turuvchi oq "tabletka": Asosiy, Katalog, **o'rtada katta yumaloq savatcha tugmasi** (soni bilan),
+  Qidiruv (katalogni ochib, qidiruv maydoniga kursor qo'yadi), Profil. Bo'lim almashganda sahifa tepaga qaytadi
+- **Stories / StoryViewer** — 5.4 ga qara
 - Telegram haptic, xavfsiz zona (safe-area), server uxlab qolsa — 3 marta qayta urinish va "Server uyg'onmoqda..." yozuvi
 - Brauzerda (Telegram tashqarisida, production emas) — "Demo Mijoz" nomidan ishlaydi
 
@@ -200,9 +207,60 @@ Mijoz saytni Chrome/Safari'da ochib, **"На экран «Домой»"** qilib 
   yangilanganda va ilova fondan qaytganda (`visibilitychange`) `reloadBrokenImages()` buzilgan rasmlarni darhol qayta yuklaydi
 - Yuklashda siqish (max 1600px), `custom-*` rasmlar 1 yil keshlanadi, rasmlar bazada (`StoredFile`) zaxiralanadi
 
-Dizayn: oq fon, bitta to'q urg'u rangi, yumaloq burchaklar (10–26px), yumshoq soyalar, minimalist.
-CSS o'zgaruvchilari `:root` da (`--navy`, `--red`, `--green`, `--ink`, `--muted`, `--line`, `--bg`, `--r-*`, `--shadow-*`) —
-**yangi brendda faqat shu ranglarni almashtirish kifoya**.
+### 5.3 Dizayn tizimi va animatsiyalar ("wow" ko'rinish)
+
+Uslub — zamonaviy yetkazib berish ilovalari (Uber/Yandex Go) dizayni, lekin **brend logosi ranglarida**:
+
+- **Ranglar** (`index.css` oxiridagi "YANGI DIZAYN" bloki, `:root`):
+  `--navy` (logo rangi), `--navy-700`, `--blue`, `--navy-50` (och fon), `--grad` (navy → blue 135° gradient),
+  `--ink`, `--muted`, `--line`, `--bg` (`#f3f6fc` — havorang-oq), `--red` (faqat chegirma/tugagan), `--green` (qo'shildi ✓).
+  **Yangi brendda faqat shu o'zgaruvchilarni almashtirish kifoya** — hamma tugma, banner, halqa, soya shulardan oladi.
+  Telegram sarlavha/fon rangi (`telegram.js`), `theme-color` (`index.html`) va `manifest.webmanifest` ham brend rangiga
+- **Fon:** ikki yumshoq radial gradient + yuqori o'ng burchakda brend gradientidagi "to'lqin" shakli (`.bg-blob`,
+  sekin aylanib-kattalashib turadi) — namunadagi qizil burchak shaklining analogi
+- **Kartochkalar:** oq, burchak 22–26px, ko'kimtir yumshoq soya (`--shadow-card`), chegarasiz; bosilganda 0.96 ga
+  "prujina" bilan kichrayadi (`--ease-spring`)
+- **Shrift:** Manrope (Google Fonts, 500–800), sarlavhalar 800, harflar oralig'i −0.02…−0.03em
+- **Ikonkalar:** emoji emas — `Icon.jsx` dagi chiziqli SVG (home, grid, bag, user, plus, check, arrow, search, box, swap)
+- **Optom / Donaga kartalari** (`ModeCards.jsx`): ikkita yonma-yon karta (kirish ekranida — katta, ustma-ust).
+  Optomda — katalogdagi 3 ta mahsulot rasmi yelpig'ichdek + "Komplekt" yorlig'i + "×5" (razmerlar soni);
+  Donaga — **bitta juft** oyoq kiyim rasmi + "1 juft" yorlig'i. Tanlangani gradient fonga o'tadi, rasmlar yoyiladi,
+  strelka 45° buriladi. Rasm bo'lmasa — `public/pair.jpg`
+- **"Maxsus taklif" bannerlari** (`OfferCarousel.jsx`): gradient karta, chapda yorliq + 2 qatorli sarlavha + matn +
+  oq "Katalogni ochish →" tugmasi, o'ngda **suzib turuvchi** qiya mahsulot rasmi va aylanib turuvchi punktir halqa.
+  Slaydlar: savdo turiga mos taklif, chegirma bo'lsa "−N% gacha", "Yangi kolleksiya". Har 4.5 s o'zi aylanadi
+  (mijoz surishni boshlasa — to'xtaydi), pastda nuqtalar (faoli cho'zilgan)
+- **Paydo bo'lish:** sarlavha, kartalar, banner `rise` (pastdan ko'tarilib), mahsulot kartochkalari ketma-ket
+  45 ms kechikish bilan; story doirachalari `popIn`
+- **Savatga qo'shish animatsiyasi** (`lib/fly.js`) — eng muhim "wow" joy:
+  1. "+" bosilganda tugma burilib-sakraydi (`addPop`) va atrofidan yashil to'lqin tarqaladi, keyin yashil "✓" bo'ladi
+  2. Mahsulot rasmining nusxasi yoy bo'ylab (avval yuqoriga, keyin pastga, aylanib-kichrayib) pastki savatcha
+     tugmasiga **uchadi** (Web Animations API, 780 ms). Nishon — `[data-cart-target]` atributli element
+  3. Yetib kelganda savatcha tugmasi silkinadi (`cartBump`), atrofga 8 ta ko'k **uchqun** sochiladi, qizil son
+     "otilib" yangilanadi
+  4. Pastda qora "✓ Savatchaga qo'shildi" xabari chiqib, 1.8 s da yo'qoladi
+  - Mahsulot oynasidan (ProductSheet) qo'shganda ham — ko'rinib turgan rasm uchadi (oyna yopilsa ham nusxa qoladi)
+  - `quickAdd` savatga haqiqatan qo'shsagina `true` qaytaradi — oyna ochilgan holatda (tugagan, allaqachon savatda) uchmaydi
+- **Tugmalar:** gradient, burchak 18px, rangli soya; bosilganda 0.97. Narx yorlig'i — och ko'k "tabletka"
+  (chegirmada — och qizil)
+- **`prefers-reduced-motion`** yoqilgan telefonlarda hamma animatsiya o'chadi (uchish o'rniga faqat sakrash + xabar),
+  **story vaqt chizig'i bundan mustasno** (aks holda storylar darhol o'tib ketadi)
+
+### 5.4 Storylar (Instagram uslubida)
+
+- **Doirachalar:** 74px, ko'rilmaganlarida brend gradientidagi **aylanib turuvchi halqa** va yengil nur;
+  ko'rilganlari kulrang. Ketma-ket "otilib" chiqadi, bosilganda kichrayadi. Ko'rilganlar `localStorage` da
+- **Ko'ruvchi (StoryViewer):**
+  - Ochilish — markazdan kattalashib (`storyOpen`); har story almashganda rasm yumshoq paydo bo'lib, sekin
+    kattalashadi (Ken Burns); ekranga sig'masa — orqada o'sha rasmning xiralashtirilgan nusxasi
+  - Tepada vaqt chiziqlari (5 s); **chiziq animatsiyasi tugashi = keyingi story** (`onAnimationEnd`) —
+    shuning uchun pauza aniq ishlaydi
+  - **Bosib turish — pauza** (chiziq va rasm to'xtaydi, matnlar xiralashadi); qo'yib yuborish "keyingisi" deb sanalmaydi
+  - Chap 35% — oldingi, o'ng 35% — keyingi; **pastga surish — yopish** (ekran surilib-kichrayadi)
+  - Tepada logo + "ASF GROUP" + shior, shisha effektli × tugma
+  - Storyga mahsulot bog'langan bo'lsa — pastda shisha (blur) kartochka: mahsulot rasmi, nomi, narxi va
+    "turtib" turuvchi oq → tugma; bosilsa mahsulot oynasi ochiladi. Bog'lanmagan bo'lsa — katta sarlavha
+  - Keyingi story rasmi oldindan yuklanadi
 
 ---
 
@@ -287,6 +345,9 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 | Ekrandagi belgi "A" harfi bo'lib chiqardi | `apple-touch-icon.png` + `manifest.webmanifest` boshidanoq qo'yilsin |
 | Brauzerda mahsulot oynasidan chiqib bo'lmasdi | `SheetClose` "‹" tugmasi (Telegramda BackButton bor, brauzerda yo'q) |
 | Server uxlaganda rasmlar "?" bo'lib qolardi, katta rasmlar sekin | Thumbnail `?w=` + uzoq qayta urinish + `reloadBrokenImages` |
+| Rangli mahsulot savatga qo'shilsa ham kartada "+" qolib ketardi | "Savatda" tekshiruvi ham rang bilan: `cartKey(mode, id, effectiveColor(product, null))` |
+| Pastki menyuda uzun nom ("Bosh sahifa") ikki qatorga tushardi | Qisqa nom ("Asosiy") + `white-space: nowrap; text-overflow: ellipsis` |
+| "Animatsiyani kamaytirish" yoqilgan telefonda storylar bir zumda o'tib ketishi mumkin | Story chizig'iga `animation-duration` ni `!important` bilan qaytarish |
 
 ---
 
@@ -298,7 +359,10 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 4. `schema.prisma` — mahsulot turiga moslab (razmer kerak bo'lmasa — olib tashla yoki "o'lcham" ga almashtir)
 5. Bot, API, Mini App, Admin panelni shu faylda yozilgan barcha imkoniyatlar bilan yoz
 6. i18n matnlarini brend va mahsulotga moslab yoz (uz + ru)
-7. CSS `:root` ranglarini anketadagi ranglarga almashtir, logoni `public/logo.png` ga qo'y;
+7. CSS `:root` ranglarini (`--navy`, `--navy-700`, `--blue`, `--navy-50`, `--grad`, `--bg`) anketadagi ranglarga
+   almashtir — 5.3 dagi dizayn va animatsiyalarning **hammasi** saqlanib qolsin (uchish, bannerlar, rasmli
+   Optom/Donaga kartalari, suzuvchi menyu, storylar). Mahsulot birligiga moslab yorliqlarni o'zgartir
+   ("1 juft" → "1 dona", "Komplekt" → "Quti" va h.k.). Logoni `public/logo.png` ga qo'y;
    logodan `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` yasab, `manifest.webmanifest` ni brendga moslab yoz
 8. Seed'ga namunaviy mahsulotlar (foydalanuvchi rasmlarini yuborsa — o'shalar bilan)
 9. Lokal sinab ko'r (preview), keyin DEPLOY.md bo'yicha foydalanuvchiga qadam-baqadam yo'l ko'rsat
