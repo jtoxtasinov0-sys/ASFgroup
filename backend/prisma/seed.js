@@ -21,7 +21,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { prisma } = require('../src/database/connection');
-const { storeFile, fileUrl, UPLOAD_ROOT } = require('../src/utils/upload');
+const { storeFile, fileUrl, removeFile, UPLOAD_ROOT } = require('../src/utils/upload');
 
 const CATALOG_VERSION = 'asf-2026-10';
 const CATALOG_KEY = 'catalogVersion';
@@ -29,6 +29,9 @@ const CATALOG_KEY = 'catalogVersion';
 const COVERS_VERSION = 'v1';
 const COVERS_KEY = 'catalogCovers';
 const RETAIL_PRICE = 350000;
+// Storylar hozirgi tayyor oyoq kiyimlardan qayta yaratiladi — bir marta
+const STORIES_VERSION = 'ready-2026-10';
+const STORIES_KEY = 'storiesVersion';
 
 const CATALOG_DIR = path.join(__dirname, 'catalog');
 const IMAGES_DIR = path.join(CATALOG_DIR, 'images');
@@ -45,12 +48,12 @@ function storedName(file) {
   return { data, name: `custom-${hash}${ext}` };
 }
 
-async function uploadImage(file) {
+async function uploadImage(file, folder = 'products') {
   const { data, name } = storedName(file);
-  const dest = path.join(UPLOAD_ROOT, 'products', name);
+  const dest = path.join(UPLOAD_ROOT, folder, name);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, data);
-  const url = fileUrl('products', name);
+  const url = fileUrl(folder, name);
   await storeFile(url);
   const stored = await prisma.storedFile.count({ where: { path: url } });
   if (!stored) throw new Error(`Rasm bazaga saqlanmadi: ${file}`);
@@ -122,12 +125,61 @@ async function syncCovers() {
   console.log(`🖼  Muqova rasmlari yangilandi: ${changed} ta mahsulot`);
 }
 
+/**
+ * Eski storylar o'chiriladi va har bir tayyor oyoq kiyim uchun yangi story yaratiladi:
+ * rasm — mahsulotning ikkinchi (boshqa burchakdan) rasmi, sarlavha — model nomi,
+ * story mahsulotga bog'lanadi. Rasm uploads/stories ga alohida nusxa qilinadi —
+ * Admin paneldan story o'chirilsa, mahsulot rasmiga tegilmaydi.
+ * Bir marta ishlaydi (STORIES_VERSION) — keyin Admin paneldagi o'zgarishlar saqlanadi.
+ */
+async function syncStories() {
+  const marker = await prisma.setting.findUnique({ where: { key: STORIES_KEY } });
+  if (marker?.value === STORIES_VERSION && process.env.SEED_FORCE !== '1') return;
+
+  const ready = readCatalog().filter((raw) => raw.category === 'ready' && raw.images.length);
+  const stories = [];
+  for (const raw of ready) {
+    const product = await prisma.product.findUnique({ where: { article: raw.article } });
+    if (!product || !product.isActive) continue;
+    const src = raw.images[1] || raw.images[0];
+    stories.push({
+      title: raw.name,
+      titleRu: raw.nameRu || raw.name,
+      image: await uploadImage(path.basename(src), 'stories'),
+      productId: product.id,
+      isActive: true,
+      sortOrder: stories.length,
+    });
+  }
+
+  const old = await prisma.story.findMany();
+  await prisma.$transaction([
+    prisma.story.deleteMany({}),
+    prisma.story.createMany({ data: stories }),
+    prisma.setting.upsert({
+      where: { key: STORIES_KEY },
+      update: { value: STORIES_VERSION },
+      create: { key: STORIES_KEY, value: STORIES_VERSION },
+    }),
+  ]);
+  // Eski story rasmlari — faqat stories papkasidagilar, yangi nusxalarga tegilmaydi
+  const keep = new Set(stories.map((s) => s.image));
+  const stale = old
+    .map((story) => story.image)
+    .filter((url) => url?.startsWith('/uploads/stories/') && !keep.has(url));
+  stale.forEach(removeFile);
+  // removeFile bazadagi zaxirani kutmasdan o'chiradi — seed tugashidan oldin aniq o'chsin
+  await prisma.storedFile.deleteMany({ where: { path: { in: stale } } });
+  console.log(`📸 Storylar yangilandi: ${old.length} ta eski o'chirildi, ${stories.length} ta yangi`);
+}
+
 async function main() {
   const force = process.env.SEED_FORCE === '1';
   const marker = await prisma.setting.findUnique({ where: { key: CATALOG_KEY } });
   if (marker?.value === CATALOG_VERSION && !force) {
     console.log(`🌱 Katalog (${CATALOG_VERSION}) allaqachon yozilgan — tegilmadi.`);
     await syncCovers();
+    await syncStories();
     return;
   }
 
@@ -165,6 +217,7 @@ async function main() {
     return count;
   }, { timeout: 60000 });
   await syncCovers();
+  await syncStories();
 
   const ready = products.filter((p) => p.category === 'ready').length;
   const upper = products.length - ready;

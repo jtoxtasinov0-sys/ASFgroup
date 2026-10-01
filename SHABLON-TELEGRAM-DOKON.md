@@ -263,6 +263,12 @@ Uslub — zamonaviy yetkazib berish ilovalari (Uber/Yandex Go) dizayni, lekin **
   - Storyga mahsulot bog'langan bo'lsa — pastda shisha (blur) kartochka: mahsulot rasmi, nomi, narxi va
     "turtib" turuvchi oq → tugma; bosilsa mahsulot oynasi ochiladi. Bog'lanmagan bo'lsa — katta sarlavha
   - Keyingi story rasmi oldindan yuklanadi
+- **Boshlang'ich storylar seed'dan:** `syncStories()` (`prisma/seed.js`) eski storylarni o'chirib, har bir faol
+  **tayyor mahsulot** uchun story yaratadi — rasm mahsulotning ikkinchi (boshqa burchakdagi) rasmi, sarlavha model
+  nomi (uz/ru), story mahsulotga bog'lanadi. Rasm `uploads/stories/` ga **alohida nusxa** qilinadi va bazaga
+  zaxiralanadi: Admin paneldan story o'chirilsa `removeFile` mahsulot rasmini o'chirib yubormasin.
+  Bir marta ishlaydi (`storiesVersion` sozlamasi) — keyin Admin paneldagi o'zgarishlar saqlanadi;
+  katalog yangilanganda versiyani almashtirib qayta yaratiladi
 
 ---
 
@@ -380,6 +386,7 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 | Rangli mahsulot savatga qo'shilsa ham kartada "+" qolib ketardi | "Savatda" tekshiruvi ham rang bilan: `cartKey(mode, id, effectiveColor(product, null))` |
 | Pastki menyuda uzun nom ("Bosh sahifa") ikki qatorga tushardi | Qisqa nom ("Asosiy") + `white-space: nowrap; text-overflow: ellipsis` |
 | "Animatsiyani kamaytirish" yoqilgan telefonda storylar bir zumda o'tib ketishi mumkin | Story chizig'iga `animation-duration` ni `!important` bilan qaytarish |
+| Katalog yangilangach storylarda eski mahsulotlar qolib ketdi | Seed'da `syncStories()` — storylar hozirgi tayyor mahsulotlardan qayta yaratiladi (versiya bilan, bir marta) |
 | Admin va do'kon ekranda bir xil belgi bilan chiqib, adashtirardi | Admin belgisida "ASF ADMIN" yozuvi, qisqa nom "ASF Admin" |
 
 ---
