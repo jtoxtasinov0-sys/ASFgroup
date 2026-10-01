@@ -36,7 +36,6 @@ export default function Home({
     () => (isWholesale ? [] : products.filter((p) => discountPercent(p) > 0)),
     [products, isWholesale]
   );
-  const popular = products.slice(0, 12);
   const ready = products.filter((p) => p.category === 'ready');
   const upper = products.filter((p) => p.category === 'upper');
 
@@ -154,31 +153,6 @@ export default function Home({
           </div>
         )}
 
-        {popular.length > 0 && (
-          <div className="section">
-            <div className="section-head">
-              <h2 className="h2">{t.popular}</h2>
-              <button className="link" onClick={() => goCatalog()}>
-                {t.seeAll} <Icon name="arrow" size={13} stroke={2.4} />
-              </button>
-            </div>
-            <div className="grid">
-              {popular.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  index={i}
-                  product={product}
-                  lang={lang}
-                  t={t}
-                  mode={mode}
-                  inCart={Boolean(cart[cartKey(mode, product.id, effectiveColor(product, null))])}
-                  onOpen={onOpenProduct}
-                  onQuickAdd={onQuickAdd}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
