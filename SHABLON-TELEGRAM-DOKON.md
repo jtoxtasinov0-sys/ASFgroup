@@ -19,6 +19,7 @@
 | Shior (slogan) | `__________` (ASF da: SIFAT VA ISHONCH) |
 | Nima sotiladi | `__________` (ASF da: poyabzal — tayyor oyoq kiyim va zagatovka) |
 | Logo | `logo.png` faylini loyihaga tashlayman |
+| Fonsiz brend rasmlari | 3 ta rasm: **optom** (ASF da: logoli karobkalar), **dona** (ASF da: bitta juft loafer), **yangi kolleksiya** (ASF da: qora zagatovka). Fon bo'lsa — o'zim olib tashlayman (5.5) |
 | Asosiy rang (urg'u) | `#______` (ASF da: logodagi to'q ko'k `#0b2257` → gradient `#163a85` → `#2c5fd0`) |
 | Qo'shimcha rang | `#______` (ASF da: qizil `#e11d2e` — chegirma, "tugagan") |
 | Kategoriyalar | masalan: `ready` = Tayyor oyoq kiyim, `upper` = Zagatovka |
@@ -225,12 +226,18 @@ Uslub — zamonaviy yetkazib berish ilovalari (Uber/Yandex Go) dizayni, lekin **
 - **Shrift:** Manrope (Google Fonts, 500–800), sarlavhalar 800, harflar oralig'i −0.02…−0.03em
 - **Ikonkalar:** emoji emas — `Icon.jsx` dagi chiziqli SVG (home, grid, bag, user, plus, check, arrow, search, box, swap)
 - **Optom / Donaga kartalari** (`ModeCards.jsx`): ikkita yonma-yon karta (kirish ekranida — katta, ustma-ust).
-  Optomda — katalogdagi 3 ta mahsulot rasmi yelpig'ichdek + "Komplekt" yorlig'i + "×5" (razmerlar soni);
-  Donaga — **bitta juft** oyoq kiyim rasmi + "1 juft" yorlig'i. Tanlangani gradient fonga o'tadi, rasmlar yoyiladi,
-  strelka 45° buriladi. Rasm bo'lmasa — `public/pair.jpg`
+  Rasmlar katalogdan emas — **fonsiz brend rasmlari** (5.5): optomda — logoli **karobkalar** + "Komplekt" yorlig'i +
+  "×5" (razmerlar soni); Donaga — **bitta juft** oyoq kiyim + "1 juft" yorlig'i. Ramkasiz, `object-fit: contain`,
+  `drop-shadow` soya va ostida yumshoq "pol soyasi" (ellips). Tanlangan karta gradient fonga o'tadi, rasm biroz
+  kattalashib to'g'rilanadi, strelka 45° buriladi. Kirish ekranida (`.large`) yorliq kattaroq — rasm pastroq turadi
 - **"Maxsus taklif" bannerlari** (`OfferCarousel.jsx`): gradient karta, chapda yorliq + 2 qatorli sarlavha + matn +
-  oq "Katalogni ochish →" tugmasi, o'ngda **suzib turuvchi** qiya mahsulot rasmi va aylanib turuvchi punktir halqa.
-  Slaydlar: savdo turiga mos taklif, chegirma bo'lsa "−N% gacha", "Yangi kolleksiya". Har 4.5 s o'zi aylanadi
+  oq "Katalogni ochish →" tugmasi, o'ngda **suzib turuvchi** qiya rasm va aylanib turuvchi punktir halqa.
+  Slaydlar:
+  1. Savdo turiga mos taklif — optomda **karobkalar**, donada **oyoq kiyim** (fonsiz, `slide.cutout`)
+  2. Chegirma bo'lsa "−N% gacha" — chegirmadagi mahsulot rasmi (oq ramkali, `slide.image`)
+  3. "Yangi kolleksiya" — fonsiz **zagatovka** (`OFFER_ART.upper`). Rasm qora bo'lgani uchun `dark: true`:
+     orqasida yorug' radial nur (`.offer-art.dark::before`) va ingichka oq chet — to'q ko'k fonda yo'qolmaydi
+  Fonsiz rasm (`img.cutout`) ramkasiz, `object-fit: contain`, `drop-shadow`. Har 4.5 s o'zi aylanadi
   (mijoz surishni boshlasa — to'xtaydi), pastda nuqtalar (faoli cho'zilgan)
 - **Paydo bo'lish:** sarlavha, kartalar, banner `rise` (pastdan ko'tarilib), mahsulot kartochkalari ketma-ket
   45 ms kechikish bilan; story doirachalari `popIn`
@@ -269,6 +276,35 @@ Uslub — zamonaviy yetkazib berish ilovalari (Uber/Yandex Go) dizayni, lekin **
   zaxiralanadi: Admin paneldan story o'chirilsa `removeFile` mahsulot rasmini o'chirib yubormasin.
   Bir marta ishlaydi (`storiesVersion` sozlamasi) — keyin Admin paneldagi o'zgarishlar saqlanadi;
   katalog yangilanganda versiyani almashtirib qayta yaratiladi
+
+### 5.5 Fonsiz brend rasmlari (optom / dona / yangi kolleksiya)
+
+- **Fayllar** `miniapp/public/` da: `mode-box.webp` (optom), `mode-shoe.webp` (dona), `offer-upper.webp`
+  (yangi kolleksiya). Manzillar bir joyda — `ModeCards.jsx` dagi `MODE_ART` va `OFFER_ART`; `Home.jsx` bannerga
+  shulardan oladi. Bu rasmlar `public/` dan olinadi — `imageUrl()` dan **o'tkazilmaydi** (u backend manzilini qo'shadi)
+- **Oldindan yuklash:** `preloadImages()` (`lib/image.js`) ilova ochilishi bilan uchalasini yuklaydi
+- **Tayyorlash** (foydalanuvchi rasm yuborganda): shaffof qilib kesish, ortiqcha chetini qirqish, eni ≤720 px,
+  WebP 86% sifat (50–80 KB). Ko'p rasmlarda "katakli fon" haqiqiy shaffoflik emas — **rasmning o'ziga chizilgan**
+  (RGB, alfa yo'q). Uni olib tashlash (Pillow + numpy + scipy):
+
+  ```python
+  from PIL import Image, ImageFilter
+  import numpy as np
+  from scipy import ndimage
+  img = Image.open('kirish.png').convert('RGB')
+  a = np.asarray(img).astype(int)
+  mn, mx = a.min(2), a.max(2)
+  bg = (mn > 212) & ((mx - mn) < 14)            # och kulrang/oq, rangsiz piksellar
+  lab, _ = ndimage.label(bg)                      # faqat chetga tutashgan fon bo'laklari
+  edge = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+  alpha = np.where(np.isin(lab, list(edge)), 0, 255).astype(np.uint8)
+  alpha = Image.fromarray(alpha).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(1.2))
+  img.putalpha(alpha)
+  img = img.crop(img.getbbox()); img.thumbnail((720, 720), Image.LANCZOS)
+  img.save('miniapp/public/mode-box.webp', quality=86)
+  ```
+  Rasm allaqachon RGBA (haqiqiy shaffof) bo'lsa — faqat `crop(getbbox())` + `thumbnail` + WebP.
+  Natijani to'q ko'k fonga qo'yib tekshir: chetida oq "hoshiya" qolmasin
 
 ---
 
@@ -387,6 +423,9 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 | Pastki menyuda uzun nom ("Bosh sahifa") ikki qatorga tushardi | Qisqa nom ("Asosiy") + `white-space: nowrap; text-overflow: ellipsis` |
 | "Animatsiyani kamaytirish" yoqilgan telefonda storylar bir zumda o'tib ketishi mumkin | Story chizig'iga `animation-duration` ni `!important` bilan qaytarish |
 | Katalog yangilangach storylarda eski mahsulotlar qolib ketdi | Seed'da `syncStories()` — storylar hozirgi tayyor mahsulotlardan qayta yaratiladi (versiya bilan, bir marta) |
+| Optom/Donaga kartasida katalogdan tasodifiy rasm chiqib, ma'nosi tushunarsiz edi | Fonsiz brend rasmlari: optom — karobka, dona — bitta juft (5.5) |
+| Yuborilgan PNG'da "katakli fon" ko'rinib qoldi | U rasmga chizilgan — chetdan tutashgan och kulrang piksellarni shaffof qilish (5.5) |
+| Qora mahsulot to'q ko'k bannerda ko'rinmay qoldi | `dark: true` — orqasida yorug' nur va ingichka oq chet |
 | Admin va do'kon ekranda bir xil belgi bilan chiqib, adashtirardi | Admin belgisida "ASF ADMIN" yozuvi, qisqa nom "ASF Admin" |
 
 ---
@@ -405,5 +444,7 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
    ("1 juft" → "1 dona", "Komplekt" → "Quti" va h.k.). Admin panelga ham xuddi shu ranglar (6.1) va
    ekranga qo'shish (6.2, "<BREND> ADMIN" belgisi bilan). Logoni `public/logo.png` ga qo'y;
    logodan `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` yasab, `manifest.webmanifest` ni brendga moslab yoz
-8. Seed'ga namunaviy mahsulotlar (foydalanuvchi rasmlarini yuborsa — o'shalar bilan)
+8. Seed'ga namunaviy mahsulotlar (foydalanuvchi rasmlarini yuborsa — o'shalar bilan).
+   Optom / dona / yangi kolleksiya uchun **fonsiz brend rasmlarini** so'ra va 5.5 bo'yicha tayyorla
+   (optom — mahsulot birligiga mos: karobka, quti, qop...; dona — bitta mahsulot)
 9. Lokal sinab ko'r (preview), keyin DEPLOY.md bo'yicha foydalanuvchiga qadam-baqadam yo'l ko'rsat
