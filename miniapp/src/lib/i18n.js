@@ -4,7 +4,7 @@ export const dict = {
     onb1Title: 'Poyabzal kerakmi?',
     onb1Text: "ASF GROUP — o'z ishlab chiqarishimiz. Tayyor oyoq kiyim va zagatovka bir joyda.",
     onb2Title: 'Bu qanday ishlaydi?',
-    onb2Text: 'Optomga — komplekt sonini, donaga — razmerlarni tanlang va buyurtma bering. Qolganini biz qilamiz.',
+    onb2Text: 'Ulgurji — komplekt sonini, donaga — razmerlarni tanlang va buyurtma bering. Qolganini biz qilamiz.',
     onb3Title: 'Optom va donaga',
     onb3Text: "39–43 razmerlar. O'zbekiston bo'ylab yetkazib beramiz.",
     start: 'Boshlash',

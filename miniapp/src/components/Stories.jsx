@@ -20,7 +20,7 @@ export default function Stories({ stories, lang, seen, onOpen }) {
           }}
         >
           <div className={`story-ring${seen.includes(story.id) ? ' seen' : ''}`}>
-            <img className="story-img" src={imageUrl(story.image, 320)} alt="" loading="lazy" decoding="async" onError={retryImage} />
+            <img className="story-img" src={imageUrl(story.image, 320)} alt="" decoding="async" onError={retryImage} />
           </div>
           <div className="story-title">{pick(story, 'title', lang)}</div>
         </button>

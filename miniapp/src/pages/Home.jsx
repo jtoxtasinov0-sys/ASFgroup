@@ -101,7 +101,7 @@ export default function Home({
             <button className="cat-card" onClick={() => goCatalog('ready')}>
               <span className="cat-art">
                 {firstImage(ready) && (
-                  <img src={imageUrl(firstImage(ready), 320)} alt="" loading="lazy" onError={retryImage} />
+                  <img src={imageUrl(firstImage(ready), 320)} alt="" onError={retryImage} />
                 )}
               </span>
               <b>{t.catReady}</b>
@@ -115,7 +115,7 @@ export default function Home({
               <button className="cat-card" onClick={() => goCatalog('upper')}>
                 <span className="cat-art">
                   {firstImage(upper) && (
-                    <img src={imageUrl(firstImage(upper), 320)} alt="" loading="lazy" onError={retryImage} />
+                    <img src={imageUrl(firstImage(upper), 320)} alt="" onError={retryImage} />
                   )}
                 </span>
                 <b>{t.catUpper}</b>

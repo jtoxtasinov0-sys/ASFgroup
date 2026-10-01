@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
 import { effectiveColor } from './lib/colors';
-import { reloadBrokenImages } from './lib/image';
+import { preloadImages, reloadBrokenImages } from './lib/image';
 import { maxPacks, maxPairs } from './lib/stock';
 import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
@@ -101,6 +101,7 @@ export default function App() {
       setProducts(cached.products);
       setStories(cached.stories || []);
       setStatus('ready');
+      preloadImages(cached);
     } else {
       setStatus('loading');
     }
@@ -131,6 +132,7 @@ export default function App() {
       setStories(storyList);
       writeBoot({ config: configData, products: productList, stories: storyList });
       setStatus('ready');
+      preloadImages({ products: productList, stories: storyList });
       // Server endi javob beryapti — keshdan ko'rsatilganda yuklanmay qolgan rasmlarni qayta so'raymiz
       setTimeout(reloadBrokenImages, 300);
     } catch (err) {

@@ -1,3 +1,5 @@
+import { imageUrl } from './api';
+
 /**
  * Telefondan olingan katta rasmni yuklashdan oldin kichraytiradi (JPEG, max 1600px).
  * Chekdagi yozuvlar o'qiladigan darajada qoladi, yuklash esa tezlashadi.
@@ -65,4 +67,34 @@ export function reloadBrokenImages() {
     img.dataset.retry = '0';
     img.src = bustedSrc(img, Date.now() % 100000);
   });
+}
+
+/* ----------------------------------------------------------
+   Ilova ochilishi bilan (onboarding / tanlov ekrani ko'rinib
+   turganda) rasmlar fonda yuklab olinadi. Bosh sahifa va katalog
+   ochilganda ular brauzer keshidan darhol chiqadi.
+   URL'lar komponentlardagi bilan bir xil bo'lishi shart (eni ham).
+   ---------------------------------------------------------- */
+const preloaded = new Set();
+const preloadRefs = [];
+
+function preload(src) {
+  if (!src || preloaded.has(src)) return;
+  preloaded.add(src);
+  const img = new Image();
+  img.decoding = 'async';
+  // Server uxlab yotgan bo'lsa — keyingi chaqiruvda (yangi katalog kelganda) qayta urinamiz
+  img.onerror = () => preloaded.delete(src);
+  img.src = src;
+  // GC rasmni yuklanish tugamasdan tashlab yubormasin
+  preloadRefs.push(img);
+}
+
+export function preloadImages({ products = [], stories = [] } = {}) {
+  const withImg = products.filter((p) => p.images?.length);
+  // Avval birinchi ko'rinadiganlar: tanlov kartochkalari, storylar, birinchi kartochkalar
+  withImg.slice(0, 4).forEach((p) => preload(imageUrl(p.images[0], 320)));
+  stories.forEach((s) => preload(imageUrl(s.image, 320)));
+  withImg.forEach((p) => preload(imageUrl(p.images[0], 480)));
+  withImg.forEach((p) => preload(imageUrl(p.images[0], 320)));
 }

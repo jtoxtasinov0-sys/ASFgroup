@@ -41,8 +41,8 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
           ref={imgRef}
           src={imageUrl(product.images[0], 480)}
           alt={pick(product, 'name', lang)}
-          // Ekranda birinchi ko'rinadigan kartochkalar darhol yuklanadi
-          loading={priority ? 'eager' : 'lazy'}
+          // Rasmlar ilova ochilganda oldindan yuklanadi — kutib turmasdan ko'rsatamiz
+          loading="eager"
           fetchpriority={priority ? 'high' : undefined}
           decoding="async"
           onError={retryImage}
