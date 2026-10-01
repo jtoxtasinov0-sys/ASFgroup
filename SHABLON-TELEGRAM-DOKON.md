@@ -98,8 +98,10 @@ miniapp/src/
 ```
 admin/src/
 ├── pages/      Login, Orders, Products, Stock, Stories, Users, Broadcast, Settings
-├── components/ ProductForm, ImagePicker, ImageEditor (rasmni kesish/joylash)
-└── lib/        api, colors, frame
+├── components/ ProductForm, ImagePicker, ImageEditor (rasmni kesish/joylash),
+│               Icon (SVG ikonkalar), InstallHint (ekranga qo'shish ko'rsatmasi)
+└── lib/        api, colors, frame, install (ekranga qo'shish — Mini App'dagi bilan bir xil)
+admin/public/   logo.png, manifest.webmanifest, apple-touch-icon.png, icon-192.png, icon-512.png ("ASF ADMIN" belgisi)
 ```
 
 ---
@@ -277,6 +279,36 @@ Uslub — zamonaviy yetkazib berish ilovalari (Uber/Yandex Go) dizayni, lekin **
 - **📣 Rassilka** — matn + ixtiyoriy rasm, avval **🧪 Sinov** (faqat adminlarga), jarayon ko'rinib turadi
 - **⚙️ Sozlamalar** — to'lov kartasi (raqam, Uzcard/Humo, egasi), **donaga savdoni o'chirish/yoqish**
 
+### 6.1 Admin panel dizayni (Mini App bilan bir xil uslub)
+
+- Xuddi Mini App'dagi ranglar va shrift: `styles.css` oxiridagi "YANGI DIZAYN" bloki, `:root` da `--navy`, `--blue`,
+  `--grad`, `--bg`, `--shadow` va h.k. — **yangi brendda ikkala ilovada bir xil qiymat qo'yiladi**. Manrope shrifti
+- **Kirish sahifasi:** havorang fon, ikki burchakda sekin aylanuvchi brend gradientidagi "to'lqin" shakllari,
+  o'rtada shisha (blur) kartochka, logo "otilib" chiqadi, sarlavha "ASF ADMIN"
+- **Yon menyu (kompyuter):** chetdan ajralgan, burchaklari 28px gradient panel, pastida yorug' doira bezagi;
+  emoji o'rniga SVG ikonkalar; faol bo'lim — oq "tabletka"; yangi buyurtmalar soni qizil, sekin "urib" turadi;
+  pastda "Ekranga qo'shish" (punktir) va "Chiqish"
+- **Telefon (≤860px):** menyu tepada yopishib turuvchi gradient panelga aylanadi — logo + "ASF ADMIN",
+  "Ekranga qo'shish", chiqish belgisi, ostida surib ko'riladigan bo'lim "tabletkalari"
+- **Statistika:** oq kartochkalar ketma-ket paydo bo'ladi, sichqoncha olib borilsa ko'tariladi;
+  **"Umumiy summa" — gradient kartochka** (telefonda to'liq enida)
+- Jadval, filtr "chip"lari, tugmalar (gradient, prujinali bosilish), modal oynalar (xira fon + "sakrab" ochilish,
+  × tugmasi aylanadi) — hammasi Mini App uslubida. Har bo'lim ochilganda yumshoq ko'tarilib paydo bo'ladi
+- Telegram ichida ochilganda sarlavha/fon rangi `#F3F6FC`
+
+### 6.2 Admin panelni ekranga qo'shish (ilova kabi)
+
+- `admin/public/manifest.webmanifest`: nom "ASF GROUP — Admin", qisqa nom **"ASF Admin"**, `display: standalone`
+- **Belgi:** Mini App ikonkasi asosida, lekin "ASF GROUP" yozuvi o'rniga ko'k yumaloq shakl ichida
+  **"ASF ADMIN"** — telefon ekranida do'kon ilovasidan ajralib turadi. ImageMagick bilan yasaldi:
+  logo ostidagi yozuvlar fon rangi bilan bo'yaladi, ustiga `--blue` rangli yumaloq to'rtburchak va oq "ASF ADMIN" matni
+  (512 → 192 va 180 px). `index.html` da `apple-touch-icon`, `manifest`, `apple-mobile-web-app-title = ASF Admin`
+- **InstallHint** kartochkasi (sahifa tepasida, yopsa qayta chiqmaydi): Chrome/Edge'da — "Ekranga qo'shish"
+  tugmasi brauzerning o'z oynasini ochadi; Android'da va iPhone Safari'da — qadam-baqadam ko'rsatma;
+  iPhone'dagi boshqa brauzerda — "Safari'da oching". Yon menyudagi **"Ekranga qo'shish"** tugmasi yopilgan
+  ko'rsatmani ham qayta chiqaradi. Telegram ichida va allaqachon o'rnatilgan bo'lsa — ko'rinmaydi
+- Mini App bilan aralashmasligi uchun "yopildi" belgisi alohida kalitda (`asf_admin_install_hint_closed`)
+
 ---
 
 ## 7. Biznes mantig'i (muhim qoidalar)
@@ -348,6 +380,7 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 | Rangli mahsulot savatga qo'shilsa ham kartada "+" qolib ketardi | "Savatda" tekshiruvi ham rang bilan: `cartKey(mode, id, effectiveColor(product, null))` |
 | Pastki menyuda uzun nom ("Bosh sahifa") ikki qatorga tushardi | Qisqa nom ("Asosiy") + `white-space: nowrap; text-overflow: ellipsis` |
 | "Animatsiyani kamaytirish" yoqilgan telefonda storylar bir zumda o'tib ketishi mumkin | Story chizig'iga `animation-duration` ni `!important` bilan qaytarish |
+| Admin va do'kon ekranda bir xil belgi bilan chiqib, adashtirardi | Admin belgisida "ASF ADMIN" yozuvi, qisqa nom "ASF Admin" |
 
 ---
 
@@ -362,7 +395,8 @@ Frontendlar: `VITE_API_URL=https://______.onrender.com` (`.env.production` da ha
 7. CSS `:root` ranglarini (`--navy`, `--navy-700`, `--blue`, `--navy-50`, `--grad`, `--bg`) anketadagi ranglarga
    almashtir — 5.3 dagi dizayn va animatsiyalarning **hammasi** saqlanib qolsin (uchish, bannerlar, rasmli
    Optom/Donaga kartalari, suzuvchi menyu, storylar). Mahsulot birligiga moslab yorliqlarni o'zgartir
-   ("1 juft" → "1 dona", "Komplekt" → "Quti" va h.k.). Logoni `public/logo.png` ga qo'y;
+   ("1 juft" → "1 dona", "Komplekt" → "Quti" va h.k.). Admin panelga ham xuddi shu ranglar (6.1) va
+   ekranga qo'shish (6.2, "<BREND> ADMIN" belgisi bilan). Logoni `public/logo.png` ga qo'y;
    logodan `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` yasab, `manifest.webmanifest` ni brendga moslab yoz
 8. Seed'ga namunaviy mahsulotlar (foydalanuvchi rasmlarini yuborsa — o'shalar bilan)
 9. Lokal sinab ko'r (preview), keyin DEPLOY.md bo'yicha foydalanuvchiga qadam-baqadam yo'l ko'rsat
