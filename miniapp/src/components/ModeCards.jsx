@@ -1,22 +1,17 @@
-import { imageUrl } from '../lib/api';
-import { retryImage } from '../lib/image';
 import { haptic } from '../lib/telegram';
 import Icon from './Icon';
 
-/** Rasm uchun mahsulotlar: avval tayyor oyoq kiyim, keyin qolganlari */
-function pickImages(products, count) {
-  const ready = products.filter((p) => p.category !== 'upper' && p.images?.length);
-  const list = ready.length >= count ? ready : products.filter((p) => p.images?.length);
-  return list.slice(0, count).map((p) => imageUrl(p.images[0], 320));
-}
+/** Fonsiz brend rasmlari (public/ ichida) */
+export const MODE_ART = {
+  wholesale: '/mode-box.webp',
+  retail: '/mode-shoe.webp',
+};
 
 /**
  * Optom / Donaga tanlov kartochkalari:
- * optomda — bir nechta juft (komplekt), donada — bitta juft oyoq kiyim
+ * optomda — ASF GROUP karobkalari (komplekt), donada — bitta juft oyoq kiyim
  */
 export default function ModeCards({ t, products = [], mode, onPick, large = false }) {
-  const pack = pickImages(products, 3);
-  const single = pickImages(products.slice(3), 1)[0] || pack[0] || '/pair.jpg';
   const packSize = products.find((p) => p.category !== 'upper')?.sizes?.length || 5;
 
   const choose = (value) => {
@@ -33,10 +28,8 @@ export default function ModeCards({ t, products = [], mode, onPick, large = fals
         <span className="mode-chip">
           <Icon name="box" size={13} stroke={2.2} /> {t.modeCardWholesale}
         </span>
-        <span className="mode-art pack">
-          {(pack.length ? pack : ['/pair.jpg', '/pair.jpg', '/pair.jpg']).map((src, i) => (
-            <img key={i} src={src} alt="" className={`pack-${i}`} onError={retryImage} />
-          ))}
+        <span className="mode-art cutout box">
+          <img src={MODE_ART.wholesale} alt="" decoding="async" />
           <span className="mode-count">×{packSize}</span>
         </span>
         <span className="mode-info">
@@ -56,8 +49,8 @@ export default function ModeCards({ t, products = [], mode, onPick, large = fals
         onClick={() => choose('retail')}
       >
         <span className="mode-chip">{t.modeCardRetail}</span>
-        <span className="mode-art single">
-          <img src={single} alt="" onError={retryImage} />
+        <span className="mode-art cutout shoe">
+          <img src={MODE_ART.retail} alt="" decoding="async" />
         </span>
         <span className="mode-info">
           <b>{t.modeRetail}</b>
