@@ -58,7 +58,7 @@ export default function OfferCarousel({ t, slides, onAction }) {
               </button>
             </div>
             {slide.cutout ? (
-              <div className="offer-art">
+              <div className={`offer-art${slide.dark ? ' dark' : ''}`}>
                 <span className="offer-ring" aria-hidden="true" />
                 <img className="cutout" src={slide.cutout} alt="" decoding="async" />
               </div>

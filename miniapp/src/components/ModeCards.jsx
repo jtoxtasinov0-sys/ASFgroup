@@ -7,6 +7,11 @@ export const MODE_ART = {
   retail: '/mode-shoe.webp',
 };
 
+/** "Maxsus taklif" bannerlari uchun fonsiz rasmlar */
+export const OFFER_ART = {
+  upper: '/offer-upper.webp',
+};
+
 /**
  * Optom / Donaga tanlov kartochkalari:
  * optomda — ASF GROUP karobkalari (komplekt), donada — bitta juft oyoq kiyim

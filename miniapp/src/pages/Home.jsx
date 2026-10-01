@@ -3,7 +3,7 @@ import { imageUrl } from '../lib/api';
 import InstallHint from '../components/InstallHint';
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
-import ModeCards, { MODE_ART } from '../components/ModeCards';
+import ModeCards, { MODE_ART, OFFER_ART } from '../components/ModeCards';
 import OfferCarousel from '../components/OfferCarousel';
 import Icon from '../components/Icon';
 import { discountPercent } from '../lib/format';
@@ -60,7 +60,8 @@ export default function Home({
       });
     }
     const fresh = products.slice(-6).reverse();
-    list.push({ key: 'new', title: t.offerNewTitle, text: t.offerNewText, image: firstImage(fresh) });
+    // Yangi kolleksiya — fonsiz zagatovka rasmi (qora, shuning uchun orqasida yorug' nur)
+    list.push({ key: 'new', title: t.offerNewTitle, text: t.offerNewText, cutout: OFFER_ART.upper, dark: true });
     return list;
   }, [products, onSale, isWholesale, t]);
 
