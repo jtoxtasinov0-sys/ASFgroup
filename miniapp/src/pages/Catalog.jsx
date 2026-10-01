@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Icon from '../components/Icon';
 import ProductCard from '../components/ProductCard';
 import { cartKey } from '../lib/store';
+import { effectiveColor } from '../lib/colors';
 import { haptic } from '../lib/telegram';
 
 export default function Catalog({
@@ -11,6 +13,7 @@ export default function Catalog({
   category,
   setCategory,
   mode,
+  focusSearch,
   onChangeMode,
   cart,
   onOpenProduct,
@@ -18,6 +21,12 @@ export default function Catalog({
 }) {
   const [tag, setTag] = useState('all');
   const [search, setSearch] = useState('');
+  const searchRef = useRef(null);
+
+  // Pastki menyudagi "Qidiruv" bosilganda
+  useEffect(() => {
+    if (focusSearch) searchRef.current?.focus();
+  }, [focusSearch]);
 
   // Donaga savdoda zagatovka yo'q — faqat optom
   const categories = (config?.categories || []).filter(
@@ -46,7 +55,8 @@ export default function Catalog({
 
   return (
     <div className="page">
-      <div className="wrap" style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}>
+      <div className="bg-blob small" aria-hidden="true" />
+      <div className="wrap" style={{ position: 'relative', paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <h1 className="h1">{t.navCatalog}</h1>
           {onChangeMode ? (
@@ -61,12 +71,16 @@ export default function Catalog({
             <span className="mode-pill wholesale">{t.modeBadgeWholesale}</span>
           )}
         </div>
-        <input
-          style={{ marginTop: 12 }}
-          placeholder={t.search}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <label className="search-box">
+          <Icon name="search" size={19} />
+          <input
+            ref={searchRef}
+            type="search"
+            placeholder={t.search}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </label>
       </div>
 
       {/* Kategoriyalar */}
@@ -121,12 +135,13 @@ export default function Catalog({
             {filtered.map((product, i) => (
               <ProductCard
                 key={product.id}
+                index={i}
                 priority={i < 4}
                 product={product}
                 lang={lang}
                 t={t}
                 mode={mode}
-                inCart={Boolean(cart[cartKey(mode, product.id)])}
+                inCart={Boolean(cart[cartKey(mode, product.id, effectiveColor(product, null))])}
                 onOpen={onOpenProduct}
                 onQuickAdd={onQuickAdd}
               />

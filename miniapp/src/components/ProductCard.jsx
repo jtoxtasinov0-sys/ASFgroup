@@ -1,4 +1,7 @@
+import { useRef, useState } from 'react';
 import { imageUrl } from '../lib/api';
+import { flyToCart } from '../lib/fly';
+import Icon from './Icon';
 import { frameOf, frameStyle } from '../lib/frame';
 import { discountPercent, money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
@@ -15,7 +18,9 @@ function stockLeft(product, isWholesale) {
   return product.sizes.reduce((sum, size) => sum + pairsLeft(product, size), 0);
 }
 
-export default function ProductCard({ product, lang, t, mode, inCart, onOpen, onQuickAdd, priority }) {
+export default function ProductCard({ product, lang, t, mode, inCart, onOpen, onQuickAdd, priority, index = 0 }) {
+  const imgRef = useRef(null);
+  const [pop, setPop] = useState(false);
   const currency = t.sum;
   const isWholesale = mode === 'wholesale';
   const discount = isWholesale ? 0 : discountPercent(product);
@@ -25,9 +30,15 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
   const colors = productColors(product);
 
   return (
-    <div className="card" onClick={() => onOpen(product)}>
+    <div
+      className="card"
+      // Kartochkalar ketma-ket, yengil kechikish bilan paydo bo'ladi
+      style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+      onClick={() => onOpen(product)}
+    >
       <div className={`card-img${out ? ' sold-out' : ''}`}>
         <img
+          ref={imgRef}
           src={imageUrl(product.images[0], 480)}
           alt={pick(product, 'name', lang)}
           // Ekranda birinchi ko'rinadigan kartochkalar darhol yuklanadi
@@ -41,15 +52,19 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
         {out && <span className="soldout-badge">{t.soldOut}</span>}
         {!out && (
         <button
-          className={`card-add${inCart ? ' added' : ''}`}
+          className={`card-add${inCart ? ' added' : ''}${pop ? ' pop' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             haptic('medium');
-            onQuickAdd(product);
+            if (onQuickAdd(product)) {
+              flyToCart(imgRef.current, t.addedToCart);
+              setPop(true);
+              setTimeout(() => setPop(false), 600);
+            }
           }}
           aria-label={t.addToCart}
         >
-          {inCart ? '✓' : '+'}
+          <Icon name={inCart ? 'check' : 'plus'} size={18} stroke={2.6} />
         </button>
         )}
       </div>

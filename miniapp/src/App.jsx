@@ -75,6 +75,8 @@ export default function App() {
 
   const [view, setView] = useState('home');
   const [category, setCategory] = useState('all');
+  // Har oshganda katalogdagi qidiruv maydoniga kursor qo'yiladi
+  const [searchFocus, setSearchFocus] = useState(0);
 
   const [sheetProduct, setSheetProduct] = useState(null);
   const [storyIndex, setStoryIndex] = useState(null);
@@ -229,26 +231,27 @@ export default function App() {
     const color = effectiveColor(product, null);
     if (cart.cart[cartKey(mode, product.id, color)]) {
       setSheetProduct(product);
-      return;
+      return false;
     }
     // Omborda qolmagan bo'lsa — mahsulot oynasi ochiladi (u yerda "Tugagan" ko'rinadi)
     if (mode === 'wholesale') {
       if (maxPacks(product, cart.items, null) < 1) {
         setSheetProduct(product);
-        return;
+        return false;
       }
       cart.setPacks(product.id, 1, color);
       notifySuccess();
-      return;
+      return true;
     }
     const available = product.sizes.filter((s) => maxPairs(product, s, cart.items, null) > 0);
     if (!available.length) {
       setSheetProduct(product);
-      return;
+      return false;
     }
     const size = available.includes(40) ? 40 : available[0];
     cart.addItem(product.id, { [size]: 1 }, color);
     notifySuccess();
+    return true;
   };
 
   // Tugmaga to'g'ridan-to'g'ri ulansa, bu yerga bosish hodisasi tushib qoladi —
@@ -256,6 +259,17 @@ export default function App() {
   const goCatalog = (cat) => {
     setCategory(typeof cat === 'string' ? cat : 'all');
     setView('catalog');
+  };
+
+  const openTab = (key) => {
+    // Yangi bo'lim har doim boshidan ochiladi
+    window.scrollTo(0, 0);
+    if (key === 'search') {
+      setSearchFocus((n) => n + 1);
+      setView('catalog');
+      return;
+    }
+    setView(key);
   };
 
   const pickMode = (value) => {
@@ -317,7 +331,9 @@ export default function App() {
 
   // Tanlov ekrani faqat sozlama ma'lum bo'lganda va donaga savdo yoqilgan bo'lsa chiqadi
   if ((modeOpen || !mode) && config && retailOn) {
-    return <ModeSelect t={t} lang={lang || 'uz'} setLang={setLang} onPick={pickMode} />;
+    return (
+      <ModeSelect t={t} lang={lang || 'uz'} setLang={setLang} products={products} onPick={pickMode} />
+    );
   }
 
   if (status === 'loading') {
@@ -443,6 +459,7 @@ export default function App() {
           category={category}
           setCategory={setCategory}
           mode={mode}
+          focusSearch={searchFocus}
           onChangeMode={retailOn ? () => setModeOpen(true) : null}
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
@@ -475,7 +492,7 @@ export default function App() {
         />
       )}
 
-      <BottomNav view={view} setView={setView} cartCount={cart.count} t={t} />
+      <BottomNav view={view} setView={openTab} cartCount={cart.count} t={t} />
 
       {sheetProduct && (
         <ProductSheet

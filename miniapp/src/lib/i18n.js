@@ -23,6 +23,24 @@ export const dict = {
     close: 'Yopish',
     save: 'Saqlash',
 
+    // Yangi dizayn
+    addedToCart: "Savatchaga qo'shildi",
+    helloShort: 'Salom',
+    tagline: 'Sifat va ishonch',
+    modeCardWholesale: 'Komplekt',
+    modeCardRetail: '1 juft',
+    offerLabel: 'Maxsus taklif',
+    offerWholesaleTitle: 'Optom narxda\nkomplekt bilan',
+    offerWholesaleText: "Har razmerdan 1 juftdan — eng foydali narx",
+    offerRetailTitle: 'Har bir juft —\nsifat kafolati',
+    offerRetailText: "Kerakli razmerni tanlang, tez yetkazamiz",
+    offerNewTitle: 'Yangi kolleksiya\nallaqachon sotuvda',
+    offerNewText: "Eng so'nggi modellar katalogda",
+    offerSaleTitle: 'Chegirmalar\n−{n}% gacha',
+    offerSaleText: 'Tanlangan modellarga',
+    categories: "Bo'limlar",
+    modelsCount: (n) => `${n} ta model`,
+
     // Savdo turi
     modeTitle: 'Qanday xarid qilasiz?',
     modeText: 'Savdo turini tanlang. Keyin istalgan vaqt almashtirish mumkin.',
@@ -54,9 +72,10 @@ export const dict = {
     wholesaleCheaper: (n) => `Optomda 1 juft ${n} so'm arzon`,
 
     // Navigatsiya
-    navHome: 'Bosh sahifa',
+    navHome: 'Asosiy',
     navCatalog: 'Katalog',
     navCart: 'Savatcha',
+    navSearch: 'Qidiruv',
     navProfile: 'Profil',
 
     // Home
@@ -234,6 +253,24 @@ export const dict = {
     close: 'Закрыть',
     save: 'Сохранить',
 
+    // Новый дизайн
+    addedToCart: 'Добавлено в корзину',
+    helloShort: 'Привет',
+    tagline: 'Качество и доверие',
+    modeCardWholesale: 'Комплект',
+    modeCardRetail: '1 пара',
+    offerLabel: 'Спецпредложение',
+    offerWholesaleTitle: 'Оптовые цены\nкомплектами',
+    offerWholesaleText: 'По 1 паре каждого размера — самая выгодная цена',
+    offerRetailTitle: 'Каждая пара —\nгарантия качества',
+    offerRetailText: 'Выберите нужный размер, доставим быстро',
+    offerNewTitle: 'Новая коллекция\nуже в продаже',
+    offerNewText: 'Самые свежие модели в каталоге',
+    offerSaleTitle: 'Скидки\nдо −{n}%',
+    offerSaleText: 'На выбранные модели',
+    categories: 'Разделы',
+    modelsCount: (n) => `${n} моделей`,
+
     modeTitle: 'Как будете покупать?',
     modeText: 'Выберите тип покупки. Его можно сменить в любой момент.',
     modeWholesale: 'Оптом',
@@ -266,6 +303,7 @@ export const dict = {
     navHome: 'Главная',
     navCatalog: 'Каталог',
     navCart: 'Корзина',
+    navSearch: 'Поиск',
     navProfile: 'Профиль',
 
     hello: 'Здравствуйте',

@@ -11,6 +11,7 @@ import PriceTag, { OldPrice } from './PriceTag';
 import PhotoViewer from './PhotoViewer';
 import SheetClose from './SheetClose';
 import { retryImage } from '../lib/image';
+import { flyToCart } from '../lib/fly';
 
 const PACK_PRESETS = [1, 2, 3, 5, 10, 20, 50, 100];
 
@@ -141,6 +142,8 @@ export default function ProductSheet({
       );
       onAdd(product.id, capped, color);
     }
+    // Ko'rinib turgan rasm savatchaga uchadi — oyna yopilsa ham nusxa ekranda qoladi
+    flyToCart(trackRef.current?.children[photo], t.addedToCart);
     onClose();
   };
 
