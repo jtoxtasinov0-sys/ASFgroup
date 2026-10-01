@@ -2738,33 +2738,55 @@ textarea:focus {
   transition: transform 0.45s var(--ease-spring);
 }
 
-/* Optom — uchta juft yelpig'ich bo'lib turadi */
-.mode-art.pack img {
-  width: 52%;
-  height: 70%;
-  top: 26%;
-  border: 2px solid #fff;
+/* Fonsiz rasm (karobka / oyoq kiyim) — ramkasiz, ostida yumshoq soya */
+.mode-art.cutout::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 9px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(11, 34, 87, 0.38) 0%, rgba(11, 34, 87, 0) 70%);
+  transition: transform 0.45s var(--ease-spring);
 }
 
-.mode-art.pack .pack-0 { left: 4%; transform: rotate(-12deg); z-index: 1; }
-.mode-art.pack .pack-1 { left: 24%; transform: translateY(-6%) rotate(0deg); z-index: 3; }
-.mode-art.pack .pack-2 { left: 44%; transform: rotate(12deg); z-index: 2; }
-
-.mode-card2.active .mode-art.pack .pack-0 { transform: translateX(-6%) rotate(-16deg); }
-.mode-card2.active .mode-art.pack .pack-2 { transform: translateX(6%) rotate(16deg); }
-
-/* Donaga — bitta juft, katta va markazda */
-.mode-art.single img {
-  width: 66%;
-  height: 84%;
-  left: 17%;
-  top: 12%;
-  border: 2px solid #fff;
-  transform: rotate(-6deg);
+.mode-card2.active .mode-art.cutout::after {
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%);
 }
 
-.mode-card2.active .mode-art.single img {
-  transform: rotate(-2deg) scale(1.05);
+.mode-art.cutout img {
+  left: 8%;
+  top: 24px;
+  width: 84%;
+  height: calc(100% - 30px);
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 8px 10px rgba(11, 34, 87, 0.35));
+  z-index: 1;
+}
+
+/* Optom — ASF GROUP karobkalari */
+.mode-art.box img {
+  transform: rotate(-3deg);
+}
+
+.mode-card2.active .mode-art.box img {
+  transform: rotate(0deg) scale(1.07) translateY(-2px);
+}
+
+/* Donaga — bitta juft oyoq kiyim */
+.mode-art.shoe img {
+  transform: rotate(-4deg);
+}
+
+.mode-card2.active .mode-art.shoe img {
+  transform: rotate(-1deg) scale(1.07) translateY(-2px);
+}
+
+.mode-card2.active .mode-art.cutout::after {
+  transform: scaleX(1.12);
 }
 
 .mode-count {
@@ -3060,6 +3082,19 @@ textarea:focus {
   box-shadow: 0 20px 34px -12px rgba(0, 0, 0, 0.55);
   transform: rotate(8deg);
   animation: floatY 4s ease-in-out infinite;
+}
+
+/* Fonsiz rasm (karobka / oyoq kiyim) — ramkasiz, suzib turadi */
+.offer-art img.cutout {
+  right: 4px;
+  bottom: 22px;
+  width: 92%;
+  height: 84%;
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.45));
 }
 
 .offer-ring {
@@ -3963,4 +3998,10 @@ textarea:focus {
   .viewer-bar span.run {
     animation-duration: 5000ms !important;
   }
+}
+
+/* Kirish ekranida chip kattaroq joy egallaydi — rasm biroz pastroqda */
+.mode-cards.large .mode-art.cutout img {
+  top: 32px;
+  height: calc(100% - 38px);
 }

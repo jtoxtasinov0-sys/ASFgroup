@@ -57,16 +57,23 @@ export default function OfferCarousel({ t, slides, onAction }) {
                 <Icon name="arrow" size={15} stroke={2.4} />
               </button>
             </div>
-            {slide.image && (
+            {slide.cutout ? (
               <div className="offer-art">
                 <span className="offer-ring" aria-hidden="true" />
-                <img
-                  src={imageUrl(slide.image, 480)}
-                  alt=""
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  onError={retryImage}
-                />
+                <img className="cutout" src={slide.cutout} alt="" decoding="async" />
               </div>
+            ) : (
+              slide.image && (
+                <div className="offer-art">
+                  <span className="offer-ring" aria-hidden="true" />
+                  <img
+                    src={imageUrl(slide.image, 480)}
+                    alt=""
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    onError={retryImage}
+                  />
+                </div>
+              )
             )}
           </div>
         ))}

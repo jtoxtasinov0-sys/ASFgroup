@@ -3,7 +3,7 @@ import { imageUrl } from '../lib/api';
 import InstallHint from '../components/InstallHint';
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
-import ModeCards from '../components/ModeCards';
+import ModeCards, { MODE_ART } from '../components/ModeCards';
 import OfferCarousel from '../components/OfferCarousel';
 import Icon from '../components/Icon';
 import { discountPercent } from '../lib/format';
@@ -46,7 +46,8 @@ export default function Home({
         key: 'mode',
         title: isWholesale ? t.offerWholesaleTitle : t.offerRetailTitle,
         text: isWholesale ? t.offerWholesaleText : t.offerRetailText,
-        image: firstImage(products),
+        // Optomda — karobkalar, donada — bitta juft (fonsiz brend rasmlari)
+        cutout: isWholesale ? MODE_ART.wholesale : MODE_ART.retail,
       },
     ];
     if (onSale.length) {
