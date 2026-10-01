@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, imageUrl } from '../lib/api';
-import { colorImage, colorLabel, effectiveColor } from '../lib/colors';
+import { colorArticle, colorImage, colorLabel, effectiveColor } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import { money, wholesaleUnit } from '../lib/format';
 import { pick } from '../lib/i18n';
@@ -147,7 +147,7 @@ export default function Cart({
             <div>
               <div style={{ fontWeight: 600, fontSize: 14 }}>{pick(product, 'name', lang)}</div>
               <div className="card-art">
-                {product.article}
+                {colorArticle(product, color)}
                 {color && ` · 🎨 ${colorLabel(color, lang)}`}
               </div>
             </div>

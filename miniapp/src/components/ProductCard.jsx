@@ -6,6 +6,7 @@ import { haptic } from '../lib/telegram';
 import { packsLeft, pairsLeft, soldOut } from '../lib/stock';
 import PriceTag, { OldPrice } from './PriceTag';
 import { retryImage } from '../lib/image';
+import { productColors } from '../lib/colors';
 
 /** Kartochkadagi qoldiq: optomda komplekt, donada jami juftlar (hisoblanmasa — null) */
 function stockLeft(product, isWholesale) {
@@ -21,6 +22,7 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
   const unitPrice = isWholesale ? wholesaleUnit(product) : product.price;
   const out = soldOut(product, mode);
   const left = stockLeft(product, isWholesale);
+  const colors = productColors(product);
 
   return (
     <div className="card" onClick={() => onOpen(product)}>
@@ -54,7 +56,16 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
 
       <div className="card-body">
         <div className="card-name">{pick(product, 'name', lang)}</div>
-        <div className="card-art">{product.article}</div>
+        <div className="card-meta">
+          <span className="card-art">{product.article}</span>
+          {colors.length > 0 && (
+            <span className="card-colors" title={colors.map((c) => c[lang === 'ru' ? 'ru' : 'uz']).join(', ')}>
+              {colors.map((c) => (
+                <span key={c.key} className="card-color" style={{ background: c.hex }} />
+              ))}
+            </span>
+          )}
+        </div>
 
         <div className="price-row">
           <PriceTag value={unitPrice} currency={currency} sale={discount > 0} />

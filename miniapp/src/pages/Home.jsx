@@ -77,16 +77,23 @@ export default function Home({
 
         <div className="section">
           <div className="cat-grid">
-            <button className="cat-card" onClick={() => goCatalog('ready')}>
+            <button
+              className="cat-card"
+              // Donada zagatovka yo'q — tayyor oyoq kiyim kartasi to'liq enni egallaydi
+              style={isWholesale ? undefined : { gridColumn: '1 / -1' }}
+              onClick={() => goCatalog('ready')}
+            >
               <span className="cat-emoji">👞</span>
               <b>{t.catReady}</b>
               <span>{t.catReadyText}</span>
             </button>
-            <button className="cat-card" onClick={() => goCatalog('upper')}>
-              <span className="cat-emoji">🧵</span>
-              <b>{t.catUpper}</b>
-              <span>{t.catUpperText}</span>
-            </button>
+            {isWholesale && (
+              <button className="cat-card" onClick={() => goCatalog('upper')}>
+                <span className="cat-emoji">🧵</span>
+                <b>{t.catUpper}</b>
+                <span>{t.catUpperText}</span>
+              </button>
+            )}
           </div>
         </div>
 

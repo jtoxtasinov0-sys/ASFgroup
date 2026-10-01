@@ -38,4 +38,10 @@ function productColors(product) {
   return [...presets, ...custom];
 }
 
-module.exports = { cleanColor, colorInfo, productColors };
+/** Tanlangan rangning artikuli (rangga alohida artikul berilmagan bo'lsa — mahsulot artikuli) */
+function colorArticle(product, color) {
+  const art = color && product.colorArticles?.[color];
+  return typeof art === 'string' && art.trim() ? art.trim() : product.article;
+}
+
+module.exports = { cleanColor, colorInfo, productColors, colorArticle };

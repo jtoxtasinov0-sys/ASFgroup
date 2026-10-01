@@ -19,7 +19,10 @@ export default function Catalog({
   const [tag, setTag] = useState('all');
   const [search, setSearch] = useState('');
 
-  const categories = config?.categories || [];
+  // Donaga savdoda zagatovka yo'q — faqat optom
+  const categories = (config?.categories || []).filter(
+    (item) => mode !== 'retail' || item.key !== 'upper'
+  );
   const tags = config?.tags || [];
 
   const filtered = useMemo(() => {

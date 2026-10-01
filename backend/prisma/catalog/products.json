@@ -1,0 +1,1746 @@
+[
+  {
+    "article": "ASF-T1",
+    "name": "Ecco",
+    "nameRu": "Ecco",
+    "category": "ready",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-T1_1.jpg",
+      "/uploads/products/ASF-T1_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T1_1.jpg": "blue",
+      "/uploads/products/ASF-T1_2.jpg": "blue"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-T1",
+        "images": [
+          "/uploads/products/ASF-T1_1.jpg",
+          "/uploads/products/ASF-T1_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-T1"
+    }
+  },
+  {
+    "article": "ASF-T2",
+    "name": "Loafer 1 toqa",
+    "nameRu": "Лофер с пряжкой",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T2_1.jpg",
+      "/uploads/products/ASF-T2_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T2_1.jpg": "black",
+      "/uploads/products/ASF-T2_2.jpg": "black"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T2",
+        "images": [
+          "/uploads/products/ASF-T2_1.jpg",
+          "/uploads/products/ASF-T2_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T2"
+    }
+  },
+  {
+    "article": "ASF-T3",
+    "name": "Loafer relyef",
+    "nameRu": "Лофер рельеф",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T3_1.jpg",
+      "/uploads/products/ASF-T3_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T3_1.jpg": "black",
+      "/uploads/products/ASF-T3_2.jpg": "black"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T3",
+        "images": [
+          "/uploads/products/ASF-T3_1.jpg",
+          "/uploads/products/ASF-T3_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T3"
+    }
+  },
+  {
+    "article": "ASF-T4",
+    "name": "Kross Boss",
+    "nameRu": "Кроссовки Boss",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T4_1.jpg",
+      "/uploads/products/ASF-T4_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T4_1.jpg": "black",
+      "/uploads/products/ASF-T4_2.jpg": "black"
+    },
+    "price": 170000,
+    "wholesalePrice": 170000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T4",
+        "images": [
+          "/uploads/products/ASF-T4_1.jpg",
+          "/uploads/products/ASF-T4_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T4"
+    }
+  },
+  {
+    "article": "ASF-T5",
+    "name": "Boss krossovka",
+    "nameRu": "Кроссовки Boss на шнурках",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T5_1.jpg",
+      "/uploads/products/ASF-T5_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T5_1.jpg": "black",
+      "/uploads/products/ASF-T5_2.jpg": "black"
+    },
+    "price": 170000,
+    "wholesalePrice": 170000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T5",
+        "images": [
+          "/uploads/products/ASF-T5_1.jpg",
+          "/uploads/products/ASF-T5_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T5"
+    }
+  },
+  {
+    "article": "ASF-T6",
+    "name": "Gibrid Ecco-kross",
+    "nameRu": "Гибрид Ecco-кроссовки",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T6_1.jpg",
+      "/uploads/products/ASF-T6_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T6_1.jpg": "black",
+      "/uploads/products/ASF-T6_2.jpg": "black"
+    },
+    "price": 350000,
+    "wholesalePrice": 350000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T6",
+        "images": [
+          "/uploads/products/ASF-T6_1.jpg",
+          "/uploads/products/ASF-T6_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T6"
+    }
+  },
+  {
+    "article": "ASF-T7",
+    "name": "Loafer ochki",
+    "nameRu": "Лофер очки",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T7_1.jpg",
+      "/uploads/products/ASF-T7_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T7_1.jpg": "black",
+      "/uploads/products/ASF-T7_2.jpg": "black"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T7",
+        "images": [
+          "/uploads/products/ASF-T7_1.jpg",
+          "/uploads/products/ASF-T7_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T7"
+    }
+  },
+  {
+    "article": "ASF-T8",
+    "name": "Loafer chopqi",
+    "nameRu": "Лофер с хомутом",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T8_1.jpg",
+      "/uploads/products/ASF-T8_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T8_1.jpg": "black",
+      "/uploads/products/ASF-T8_2.jpg": "black"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T8",
+        "images": [
+          "/uploads/products/ASF-T8_1.jpg",
+          "/uploads/products/ASF-T8_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T8"
+    }
+  },
+  {
+    "article": "ASF-T9",
+    "name": "Ecco",
+    "nameRu": "Ecco",
+    "category": "ready",
+    "color": "to'q ko'k",
+    "colorRu": "тёмно-синий",
+    "images": [
+      "/uploads/products/ASF-T9_1.jpg",
+      "/uploads/products/ASF-T9_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T9_1.jpg": "blue",
+      "/uploads/products/ASF-T9_2.jpg": "blue"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "to'q ko'k",
+        "nameRu": "тёмно-синий",
+        "article": "ASF-T9",
+        "images": [
+          "/uploads/products/ASF-T9_1.jpg",
+          "/uploads/products/ASF-T9_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-T9"
+    }
+  },
+  {
+    "article": "ASF-T10",
+    "name": "Ecco 2-poz",
+    "nameRu": "Ecco 2 поз.",
+    "category": "ready",
+    "color": "to'q ko'k",
+    "colorRu": "тёмно-синий",
+    "images": [
+      "/uploads/products/ASF-T10_1.jpg",
+      "/uploads/products/ASF-T10_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T10_1.jpg": "blue",
+      "/uploads/products/ASF-T10_2.jpg": "blue"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "to'q ko'k",
+        "nameRu": "тёмно-синий",
+        "article": "ASF-T10",
+        "images": [
+          "/uploads/products/ASF-T10_1.jpg",
+          "/uploads/products/ASF-T10_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-T10"
+    }
+  },
+  {
+    "article": "ASF-T11",
+    "name": "Pol classic relyef",
+    "nameRu": "Pol classic рельеф",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T11_1.jpg",
+      "/uploads/products/ASF-T11_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T11_1.jpg": "black",
+      "/uploads/products/ASF-T11_2.jpg": "black"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T11",
+        "images": [
+          "/uploads/products/ASF-T11_1.jpg",
+          "/uploads/products/ASF-T11_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T11"
+    }
+  },
+  {
+    "article": "ASF-T12",
+    "name": "Loafer 2 chok",
+    "nameRu": "Лофер 2 шва",
+    "description": "Tagi poliuretan",
+    "descriptionRu": "Подошва полиуретан",
+    "category": "ready",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-T12_1.jpg",
+      "/uploads/products/ASF-T12_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T12_1.jpg": "blue",
+      "/uploads/products/ASF-T12_2.jpg": "blue"
+    },
+    "price": 140000,
+    "wholesalePrice": 140000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-T12",
+        "images": [
+          "/uploads/products/ASF-T12_1.jpg",
+          "/uploads/products/ASF-T12_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-T12"
+    }
+  },
+  {
+    "article": "ASF-T13",
+    "name": "Krossovka EVA tagli (asl charm)",
+    "nameRu": "Кроссовки на подошве EVA (натуральная кожа)",
+    "description": "Tagi EVA, asl charm",
+    "descriptionRu": "Подошва EVA, натуральная кожа",
+    "material": "Asl charm",
+    "materialRu": "Натуральная кожа",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T13_1.jpg",
+      "/uploads/products/ASF-T13_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T13_1.jpg": "black",
+      "/uploads/products/ASF-T13_2.jpg": "black"
+    },
+    "price": 170000,
+    "wholesalePrice": 170000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T13",
+        "images": [
+          "/uploads/products/ASF-T13_1.jpg",
+          "/uploads/products/ASF-T13_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T13"
+    }
+  },
+  {
+    "article": "ASF-T14",
+    "name": "Gibrid Ecco-kross",
+    "nameRu": "Гибрид Ecco-кроссовки",
+    "category": "ready",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-T14_1.jpg",
+      "/uploads/products/ASF-T14_2.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-T14_1.jpg": "black",
+      "/uploads/products/ASF-T14_2.jpg": "black"
+    },
+    "price": 170000,
+    "wholesalePrice": 170000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-T14",
+        "images": [
+          "/uploads/products/ASF-T14_1.jpg",
+          "/uploads/products/ASF-T14_2.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-T14"
+    }
+  },
+  {
+    "category": "upper",
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "article": "ASF-Z1",
+    "name": "Loafer 2 chok (zagatovka)",
+    "nameRu": "Лофер 2 шва (заготовка)",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z1",
+        "images": [
+          "/uploads/products/ASF-Z1_1.jpg"
+        ]
+      },
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z20",
+        "images": [
+          "/uploads/products/ASF-Z20_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z1",
+      "blue": "ASF-Z20"
+    },
+    "images": [
+      "/uploads/products/ASF-Z1_1.jpg",
+      "/uploads/products/ASF-Z20_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z1_1.jpg": "black",
+      "/uploads/products/ASF-Z20_1.jpg": "blue"
+    }
+  },
+  {
+    "article": "ASF-Z2",
+    "name": "Gibrid Ecco-kross (zagatovka)",
+    "nameRu": "Гибрид Ecco-кроссовки (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z2_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z2_1.jpg": "black"
+    },
+    "price": 85000,
+    "wholesalePrice": 85000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z2",
+        "images": [
+          "/uploads/products/ASF-Z2_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z2"
+    }
+  },
+  {
+    "category": "upper",
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "article": "ASF-Z3",
+    "name": "Ecco (zagatovka)",
+    "nameRu": "Ecco (заготовка)",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z3",
+        "images": [
+          "/uploads/products/ASF-Z3_1.jpg"
+        ]
+      },
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z6",
+        "images": [
+          "/uploads/products/ASF-Z6_1.jpg"
+        ]
+      },
+      {
+        "key": "brown",
+        "name": "jigarrang",
+        "nameRu": "коричневый",
+        "article": "ASF-Z22",
+        "images": [
+          "/uploads/products/ASF-Z22_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z3",
+      "black": "ASF-Z6",
+      "brown": "ASF-Z22"
+    },
+    "images": [
+      "/uploads/products/ASF-Z3_1.jpg",
+      "/uploads/products/ASF-Z6_1.jpg",
+      "/uploads/products/ASF-Z22_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z3_1.jpg": "blue",
+      "/uploads/products/ASF-Z6_1.jpg": "black",
+      "/uploads/products/ASF-Z22_1.jpg": "brown"
+    }
+  },
+  {
+    "article": "ASF-Z4",
+    "name": "Loafer ochki (zagatovka)",
+    "nameRu": "Лофер очки (заготовка)",
+    "category": "upper",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-Z4_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z4_1.jpg": "blue"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z4",
+        "images": [
+          "/uploads/products/ASF-Z4_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z4"
+    }
+  },
+  {
+    "article": "ASF-Z5",
+    "name": "Loafer 2 toqa (zagatovka)",
+    "nameRu": "Лофер 2 пряжки (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z5_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z5_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z5",
+        "images": [
+          "/uploads/products/ASF-Z5_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z5"
+    }
+  },
+  {
+    "article": "ASF-Z7",
+    "name": "Gibrid Ecco-Pol class (zagatovka)",
+    "nameRu": "Гибрид Ecco-Pol class (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z7_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z7_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z7",
+        "images": [
+          "/uploads/products/ASF-Z7_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z7"
+    }
+  },
+  {
+    "category": "upper",
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "article": "ASF-Z8",
+    "name": "Ecco drab kombinatsiya (zagatovka)",
+    "nameRu": "Ecco драп комбинация (заготовка)",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z8",
+        "images": [
+          "/uploads/products/ASF-Z8_1.jpg"
+        ]
+      },
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z31",
+        "images": [
+          "/uploads/products/ASF-Z31_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z8",
+      "black": "ASF-Z31"
+    },
+    "images": [
+      "/uploads/products/ASF-Z8_1.jpg",
+      "/uploads/products/ASF-Z31_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z8_1.jpg": "blue",
+      "/uploads/products/ASF-Z31_1.jpg": "black"
+    }
+  },
+  {
+    "article": "ASF-Z9",
+    "name": "Gibrid Ecco-Pol class drab kombinatsiya (zagatovka)",
+    "nameRu": "Гибрид Ecco-Pol class драп комбинация (заготовка)",
+    "category": "upper",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-Z9_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z9_1.jpg": "blue"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z9",
+        "images": [
+          "/uploads/products/ASF-Z9_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z9"
+    }
+  },
+  {
+    "category": "upper",
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "article": "ASF-Z10",
+    "name": "Gibrid Ecco-kross drab kombinatsiya (zagatovka)",
+    "nameRu": "Гибрид Ecco-кроссовки драп комбинация (заготовка)",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z10",
+        "images": [
+          "/uploads/products/ASF-Z10_1.jpg"
+        ]
+      },
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z21",
+        "images": [
+          "/uploads/products/ASF-Z21_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z10",
+      "black": "ASF-Z21"
+    },
+    "images": [
+      "/uploads/products/ASF-Z10_1.jpg",
+      "/uploads/products/ASF-Z21_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z10_1.jpg": "blue",
+      "/uploads/products/ASF-Z21_1.jpg": "black"
+    }
+  },
+  {
+    "article": "ASF-Z11",
+    "name": "Loafer nakat (zagatovka)",
+    "nameRu": "Лофер накат (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z11_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z11_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z11",
+        "images": [
+          "/uploads/products/ASF-Z11_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z11"
+    }
+  },
+  {
+    "article": "ASF-Z12",
+    "name": "Derby ipli (zagatovka)",
+    "nameRu": "Дерби на шнурках (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z12_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z12_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z12",
+        "images": [
+          "/uploads/products/ASF-Z12_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z12"
+    }
+  },
+  {
+    "category": "upper",
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "article": "ASF-Z13",
+    "name": "Loro Piano (zagatovka)",
+    "nameRu": "Loro Piano (заготовка)",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z13",
+        "images": [
+          "/uploads/products/ASF-Z13_1.jpg"
+        ]
+      },
+      {
+        "key": "red",
+        "name": "qizil",
+        "nameRu": "красный",
+        "article": "ASF-Z17",
+        "images": [
+          "/uploads/products/ASF-Z17_1.jpg"
+        ]
+      },
+      {
+        "key": "brown",
+        "name": "jigarrang",
+        "nameRu": "коричневый",
+        "article": "ASF-Z29",
+        "images": [
+          "/uploads/products/ASF-Z29_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z13",
+      "red": "ASF-Z17",
+      "brown": "ASF-Z29"
+    },
+    "images": [
+      "/uploads/products/ASF-Z13_1.jpg",
+      "/uploads/products/ASF-Z17_1.jpg",
+      "/uploads/products/ASF-Z29_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z13_1.jpg": "black",
+      "/uploads/products/ASF-Z17_1.jpg": "red",
+      "/uploads/products/ASF-Z29_1.jpg": "brown"
+    }
+  },
+  {
+    "article": "ASF-Z15",
+    "name": "Loafer zamsha ochki (zagatovka)",
+    "nameRu": "Лофер замша очки (заготовка)",
+    "category": "upper",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-Z15_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z15_1.jpg": "blue"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z15",
+        "images": [
+          "/uploads/products/ASF-Z15_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z15"
+    }
+  },
+  {
+    "article": "ASF-Z16",
+    "name": "Derby ipli zamsha (zagatovka)",
+    "nameRu": "Дерби на шнурках замша (заготовка)",
+    "category": "upper",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-Z16_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z16_1.jpg": "blue"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z16",
+        "images": [
+          "/uploads/products/ASF-Z16_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z16"
+    }
+  },
+  {
+    "article": "ASF-Z18",
+    "name": "Pol classic drab kombinatsiya (zagatovka)",
+    "nameRu": "Pol classic драп комбинация (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z18_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z18_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z18",
+        "images": [
+          "/uploads/products/ASF-Z18_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z18"
+    }
+  },
+  {
+    "article": "ASF-Z19",
+    "name": "Gibrid drab kombinatsiya (zagatovka)",
+    "nameRu": "Гибрид драп комбинация (заготовка)",
+    "category": "upper",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-Z19_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z19_1.jpg": "blue"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z19",
+        "images": [
+          "/uploads/products/ASF-Z19_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z19"
+    }
+  },
+  {
+    "article": "ASF-Z23",
+    "name": "Loafer zamsha chopqi (zagatovka)",
+    "nameRu": "Лофер замша с хомутом (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z23_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z23_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z23",
+        "images": [
+          "/uploads/products/ASF-Z23_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z23"
+    }
+  },
+  {
+    "article": "ASF-Z24",
+    "name": "Derby rezinkali zamsha (zagatovka)",
+    "nameRu": "Дерби на резинке замша (заготовка)",
+    "category": "upper",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "images": [
+      "/uploads/products/ASF-Z24_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z24_1.jpg": "blue"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z24",
+        "images": [
+          "/uploads/products/ASF-Z24_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z24"
+    }
+  },
+  {
+    "article": "ASF-Z25",
+    "name": "Loafer 2 chok zamsha (zagatovka)",
+    "nameRu": "Лофер 2 шва замша (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z25_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z25_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z25",
+        "images": [
+          "/uploads/products/ASF-Z25_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z25"
+    }
+  },
+  {
+    "article": "ASF-Z26",
+    "name": "Pol classic relyef (zagatovka)",
+    "nameRu": "Pol classic рельеф (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z26_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z26_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z26",
+        "images": [
+          "/uploads/products/ASF-Z26_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z26"
+    }
+  },
+  {
+    "category": "upper",
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "article": "ASF-Z27",
+    "name": "Loafer chopqi (zagatovka)",
+    "nameRu": "Лофер с хомутом (заготовка)",
+    "color": "ko'k",
+    "colorRu": "синий",
+    "colors": [
+      {
+        "key": "blue",
+        "name": "ko'k",
+        "nameRu": "синий",
+        "article": "ASF-Z27",
+        "images": [
+          "/uploads/products/ASF-Z27_1.jpg"
+        ]
+      },
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z33",
+        "images": [
+          "/uploads/products/ASF-Z33_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "blue": "ASF-Z27",
+      "black": "ASF-Z33"
+    },
+    "images": [
+      "/uploads/products/ASF-Z27_1.jpg",
+      "/uploads/products/ASF-Z33_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z27_1.jpg": "blue",
+      "/uploads/products/ASF-Z33_1.jpg": "black"
+    }
+  },
+  {
+    "article": "ASF-Z28",
+    "name": "Gibrid Ecco-kross lenta (zagatovka)",
+    "nameRu": "Гибрид Ecco-кроссовки лента (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z28_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z28_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z28",
+        "images": [
+          "/uploads/products/ASF-Z28_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z28"
+    }
+  },
+  {
+    "article": "ASF-Z30",
+    "name": "Loafer 1 toqa zamsha (zagatovka)",
+    "nameRu": "Лофер 1 пряжка замша (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z30_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z30_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z30",
+        "images": [
+          "/uploads/products/ASF-Z30_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z30"
+    }
+  },
+  {
+    "article": "ASF-Z32",
+    "name": "Gibrid lenta drab kombinatsiya (zagatovka)",
+    "nameRu": "Гибрид лента драп комбинация (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z32_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z32_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z32",
+        "images": [
+          "/uploads/products/ASF-Z32_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z32"
+    }
+  },
+  {
+    "article": "ASF-Z34",
+    "name": "Ecco 2-poz (zagatovka)",
+    "nameRu": "Ecco 2 поз. (заготовка)",
+    "category": "upper",
+    "color": "jigarrang",
+    "colorRu": "коричневый",
+    "images": [
+      "/uploads/products/ASF-Z34_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z34_1.jpg": "brown"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "brown",
+        "name": "jigarrang",
+        "nameRu": "коричневый",
+        "article": "ASF-Z34",
+        "images": [
+          "/uploads/products/ASF-Z34_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "brown": "ASF-Z34"
+    }
+  },
+  {
+    "article": "ASF-Z35",
+    "name": "Loafer broshka (zagatovka)",
+    "nameRu": "Лофер с брошью (заготовка)",
+    "category": "upper",
+    "color": "qora",
+    "colorRu": "чёрный",
+    "images": [
+      "/uploads/products/ASF-Z35_1.jpg"
+    ],
+    "imageColors": {
+      "/uploads/products/ASF-Z35_1.jpg": "black"
+    },
+    "price": 65000,
+    "wholesalePrice": 65000,
+    "wholesaleMin": 10,
+    "sizes": [
+      39,
+      40,
+      41,
+      42,
+      43
+    ],
+    "inStock": true,
+    "isActive": true,
+    "colors": [
+      {
+        "key": "black",
+        "name": "qora",
+        "nameRu": "чёрный",
+        "article": "ASF-Z35",
+        "images": [
+          "/uploads/products/ASF-Z35_1.jpg"
+        ]
+      }
+    ],
+    "colorArticles": {
+      "black": "ASF-Z35"
+    }
+  }
+]

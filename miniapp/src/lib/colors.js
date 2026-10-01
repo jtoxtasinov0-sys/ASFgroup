@@ -3,6 +3,7 @@ export const COLORS = [
   { key: 'black', uz: 'Qora', ru: 'Чёрный', hex: '#1c1c1e' },
   { key: 'brown', uz: 'Jigarrang', ru: 'Коричневый', hex: '#7a4a2b' },
   { key: 'blue', uz: "Ko'k", ru: 'Синий', hex: '#1f4fa3' },
+  { key: 'red', uz: 'Qizil', ru: 'Красный', hex: '#c62828' },
 ];
 
 // Admin qo'lda kiritgan rang: "Nomi#rrggbb" (# qismi ixtiyoriy)
@@ -45,6 +46,12 @@ export function colorImage(product, color) {
     (color && product.images.find((url) => product.imageColors?.[url] === color)) ||
     product.images[0]
   );
+}
+
+/** Tanlangan rangning artikuli (serverdagi kabi: bo'lmasa — mahsulot artikuli) */
+export function colorArticle(product, color) {
+  const art = color && product?.colorArticles?.[color];
+  return typeof art === 'string' && art.trim() ? art.trim() : product?.article;
 }
 
 export function colorLabel(key, lang) {

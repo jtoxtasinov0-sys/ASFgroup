@@ -158,9 +158,10 @@ Javob: `{"ok":true,"name":"ASF GROUP API","slogan":"SIFAT VA ISHONCH"}`
 
 ### Baza to'ldirilganmi?
 
-Build Command'da `npm run db:seed` bo'lsa, mahsulotlar har deploy'da avtomatik
-tekshiriladi va **yangilari o'zi qo'shiladi**. Bazada bor mahsulotlar tegilmaydi —
-Admin paneldagi narx va nom o'zgarishlaringiz saqlanib qoladi.
+Build Command'da `npm run db:seed` bo'lsa, katalog (`backend/prisma/catalog/`)
+bazaga deploy paytida **bir marta** yoziladi: rasmlar bazaga zaxiralanadi,
+katalogda yo'q eski mahsulotlar o'chiriladi. Keyingi deploy'larda katalog
+qayta yozilmaydi — Admin paneldagi narx va nom o'zgarishlaringiz saqlanib qoladi.
 
 Kompyuteringizdan ishga tushirish ham mumkin (`backend/.env` xuddi shu Neon
 bazasiga ulanadi):
