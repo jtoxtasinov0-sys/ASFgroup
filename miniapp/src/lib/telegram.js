@@ -9,8 +9,8 @@ export function initTelegram() {
   try {
     tg.ready();
     tg.expand();
-    tg.setHeaderColor?.('#16243F');
-    tg.setBackgroundColor?.('#FFFFFF');
+    tg.setHeaderColor?.('#F3F6FC');
+    tg.setBackgroundColor?.('#F3F6FC');
     tg.disableVerticalSwipes?.();
   } catch (_) {
     /* eski Telegram versiyalari */
