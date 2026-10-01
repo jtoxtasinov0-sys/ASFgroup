@@ -94,6 +94,7 @@ export function preloadImages({ products = [], stories = [] } = {}) {
   // Optom / donaga kartochkalaridagi fonsiz rasmlar
   preload('/mode-box.webp');
   preload('/mode-shoe.webp');
+  preload('/offer-upper.webp');
   const withImg = products.filter((p) => p.images?.length);
   // Avval birinchi ko'rinadiganlar: tanlov kartochkalari, storylar, birinchi kartochkalar
   withImg.slice(0, 4).forEach((p) => preload(imageUrl(p.images[0], 320)));
