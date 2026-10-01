@@ -5,7 +5,7 @@ import { discountPercent, money, wholesaleUnit } from '../lib/format';
 import { MAX_PACKS, cartKey } from '../lib/store';
 import { maxPacks, maxPairs, packsLeft, pairsLeft } from '../lib/stock';
 import { haptic, notifySuccess } from '../lib/telegram';
-import { colorArticle, colorLabel, effectiveColor, productColors } from '../lib/colors';
+import { colorArticle, colorImage, colorLabel, effectiveColor, productColors } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import PriceTag, { OldPrice } from './PriceTag';
 import PhotoViewer from './PhotoViewer';
@@ -146,8 +146,7 @@ export default function ProductSheet({
 
   const details = [
     [t.article, colorArticle(product, color)],
-    // Rang tugmalari bo'lsa, matndagi rang takrorlanmaydi
-    [t.color, colors.length ? null : pick(product, 'color', lang)],
+    [t.color, colors.length ? colorLabel(color, lang) : pick(product, 'color', lang)],
     [t.material, pick(product, 'material', lang)],
   ].filter(([, value]) => value);
 
@@ -195,7 +194,38 @@ export default function ProductSheet({
             )}
           </div>
 
-          {product.images.length > 1 && (
+          {/* Ranglar: rasm ostida kichik kartochkalar — bosilsa shu rangdagi rasmga o'tadi */}
+          {colors.length > 1 && (
+            <div className="color-thumbs">
+              {colors.map((c) => {
+                const src = colorImage(product, c.key);
+                return (
+                  <button
+                    key={c.key}
+                    className={`color-thumb${c.key === color ? ' active' : ''}`}
+                    onClick={() => selectColor(c.key)}
+                    aria-pressed={c.key === color}
+                  >
+                    <span className="color-thumb-img">
+                      <img
+                        src={imageUrl(src, 160)}
+                        alt=""
+                        decoding="async"
+                        onError={retryImage}
+                        style={frameStyle(frameOf(product, src), 1)}
+                      />
+                    </span>
+                    <span className="color-thumb-name">
+                      <span className="color-dot" style={{ background: c.hex }} />
+                      {c[lang === 'ru' ? 'ru' : 'uz']}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {colors.length <= 1 && product.images.length > 1 && (
             <div className="tags" style={{ padding: '10px 0 0' }}>
               {product.images.map((src, i) => (
                 <button
@@ -270,28 +300,6 @@ export default function ProductSheet({
                 </span>
               </div>
             )
-          )}
-
-          {colors.length > 0 && (
-            <div className="section" style={{ marginTop: 20 }}>
-              <h3 className="h2">
-                {t.chooseColor}: <span className="color-current">{colorLabel(color, lang)}</span>
-                {colors.length > 1 && <span className="color-art">{colorArticle(product, color)}</span>}
-              </h3>
-              <div className="color-options">
-                {colors.map((c) => (
-                  <button
-                    key={c.key}
-                    className={`color-option${c.key === color ? ' active' : ''}`}
-                    onClick={() => selectColor(c.key)}
-                    aria-pressed={c.key === color}
-                  >
-                    <span className="color-dot" style={{ background: c.hex }} />
-                    {c[lang === 'ru' ? 'ru' : 'uz']}
-                  </button>
-                ))}
-              </div>
-            </div>
           )}
 
           <div className="section" style={{ marginTop: 20 }}>

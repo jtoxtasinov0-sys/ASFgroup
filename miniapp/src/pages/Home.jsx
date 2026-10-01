@@ -24,7 +24,7 @@ export default function Home({
   const isWholesale = mode === 'wholesale';
   // Chegirmalar dona narxiga tegishli — optomda ko'rsatilmaydi
   const onSale = isWholesale ? [] : products.filter((p) => discountPercent(p) > 0);
-  const popular = products.slice(0, 4);
+  const popular = products.slice(0, 12);
 
   return (
     <div className="page">

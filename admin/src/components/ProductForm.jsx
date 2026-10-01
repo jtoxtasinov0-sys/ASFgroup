@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import ImagePicker from './ImagePicker';
 import ImageEditor from './ImageEditor';
 import { compressImages } from '../lib/image';
+import { colorOf } from '../lib/colors';
 
 const ALL_SIZES = [39, 40, 41, 42, 43];
 
@@ -66,7 +67,14 @@ export default function ProductForm({ product, onClose, onSaved }) {
   const [colors, setColors] = useState(
     () => new Map(Object.entries(product?.imageColors || {}))
   );
+  // Rang artikullari: { "red": "ASF-Z17" } — buyurtmaga shu rangning artikuli yoziladi
+  const [colorArticles, setColorArticles] = useState(() => ({ ...(product?.colorArticles || {}) }));
   const [busy, setBusy] = useState(false);
+
+  // Rasmlarda tanlangan ranglar (rasm tartibida, takrorlanmasdan)
+  const usedColors = [
+    ...new Set([...existing, ...files].map((key) => colors.get(key)).filter(Boolean)),
+  ];
   const [error, setError] = useState('');
 
   const set = (key) => (e) => {
@@ -132,6 +140,16 @@ export default function ProductForm({ product, onClose, onSaved }) {
       'imageColors',
       JSON.stringify([...existing, ...files].map((key) => colors.get(key) || null))
     );
+    data.append(
+      'colorArticles',
+      JSON.stringify(
+        Object.fromEntries(
+          usedColors
+            .map((c) => [c, String(colorArticles[c] || '').trim()])
+            .filter(([, art]) => art)
+        )
+      )
+    );
     try {
       // Og'ir rasmlar yuklashdan oldin kichraytiriladi — tez yuklanadi va tez ochiladi
       (await compressImages(files)).forEach((file) => data.append('files', file));
@@ -183,6 +201,44 @@ export default function ProductForm({ product, onClose, onSaved }) {
               ochiladi. Rang tanlanmasa, rang tugmalari chiqmaydi.
             </span>
           </div>
+
+          {usedColors.length > 0 && (
+            <div className="field full" style={{ marginBottom: 18 }}>
+              <label>Rang artikullari</label>
+              <div className="form-grid">
+                {usedColors.map((c) => {
+                  const info = colorOf(c);
+                  return (
+                    <div className="field" key={c}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span
+                          style={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: '50%',
+                            background: info?.hex || '#9aa3b2',
+                            boxShadow: '0 0 0 1px rgba(0,0,0,.15)',
+                          }}
+                        />
+                        {info?.label || c}
+                      </label>
+                      <input
+                        value={colorArticles[c] || ''}
+                        onChange={(e) =>
+                          setColorArticles((prev) => ({ ...prev, [c]: e.target.value }))
+                        }
+                        placeholder={form.article || 'ASF-…'}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <span className="hint">
+                Mijoz shu rangni tanlasa, buyurtmaga shu artikul yoziladi. Bo'sh qoldirilsa —
+                mahsulotning asosiy artikuli.
+              </span>
+            </div>
+          )}
 
           <div className="form-grid">
             <div className="field">

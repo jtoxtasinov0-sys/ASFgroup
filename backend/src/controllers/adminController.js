@@ -132,6 +132,31 @@ function buildColors(body, keepImages, uploadedUrls, existing) {
   return colors;
 }
 
+/**
+ * Rang artikullari { "red": "ASF-Z17" } — faqat mahsulot rasmlarida bor ranglar uchun.
+ * Admin panel yubormasa — undefined (bazadagi qiymat o'zgarmaydi).
+ */
+function buildColorArticles(body, imageColors) {
+  if (body.colorArticles === undefined) return undefined;
+  let raw = body.colorArticles;
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch (_) {
+      raw = {};
+    }
+  }
+  const used = new Set(Object.values(imageColors));
+  const result = {};
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    for (const [color, art] of Object.entries(raw)) {
+      const value = typeof art === 'string' ? art.trim().slice(0, 40) : '';
+      if (used.has(color) && value) result[color] = value;
+    }
+  }
+  return result;
+}
+
 /** Mahsulot maydonlarini forma ma'lumotidan yig'adi */
 function buildProductData(body, uploadedUrls, existing) {
   const keepImages = toArray(body.images).filter((u) => typeof u === 'string');
@@ -167,6 +192,9 @@ function buildProductData(body, uploadedUrls, existing) {
     isActive: toBool(body.isActive, true),
     sortOrder: toInt(body.sortOrder, 0),
   };
+
+  const colorArticles = buildColorArticles(body, imageColors);
+  if (colorArticles !== undefined) data.colorArticles = colorArticles;
 
   if (!data.sizes.length) data.sizes = config.sizes;
   return data;
