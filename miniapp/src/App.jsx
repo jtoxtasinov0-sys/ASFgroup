@@ -525,6 +525,7 @@ export default function App() {
         <StoryViewer
           stories={stories}
           startIndex={storyIndex}
+          products={shownProducts}
           lang={lang || 'uz'}
           t={t}
           onClose={() => setStoryIndex(null)}

@@ -393,14 +393,6 @@ img {
   padding: 14px 16px calc(20px + var(--safe-b));
 }
 
-.viewer-cta button {
-  width: 100%;
-  background: #fff;
-  color: var(--navy);
-  font-weight: 700;
-  padding: 15px;
-  border-radius: var(--r-md);
-}
 
 /* ---------- Hero ---------- */
 
@@ -3684,6 +3676,268 @@ textarea:focus {
   border-bottom-color: #eef1f7;
 }
 
+/* ---------- Storylar (yangi) ---------- */
+
+.stories {
+  gap: 12px;
+  padding: 4px 16px 14px;
+}
+
+.story {
+  width: 74px;
+  animation: popIn 0.5s var(--ease-spring) both;
+}
+
+.story:active .story-ring {
+  transform: scale(0.92);
+}
+
+/* Ko'rilmagan story — aylanib turuvchi ko'k halqa */
+.story-ring {
+  position: relative;
+  width: 74px;
+  height: 74px;
+  padding: 3px;
+  background: none;
+  isolation: isolate;
+  transition: transform 0.25s var(--ease-spring);
+}
+
+.story-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #0b2257, #2c5fd0, #8fb0f2, #2c5fd0, #0b2257);
+  animation: spin 3.5s linear infinite;
+}
+
+.story-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  z-index: -2;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(44, 95, 208, 0.28), rgba(44, 95, 208, 0) 70%);
+}
+
+.story-ring.seen::before {
+  background: #d3dbea;
+  animation: none;
+}
+
+.story-ring.seen::after {
+  display: none;
+}
+
+.story-ring.seen .story-img {
+  filter: saturate(0.85);
+}
+
+.story-img {
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px -6px rgba(11, 34, 87, 0.45);
+}
+
+.story-title {
+  margin-top: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ---------- Story ko'ruvchi (yangi) ---------- */
+
+.viewer {
+  background: #050b1a;
+  overflow: hidden;
+  animation: storyOpen 0.38s var(--ease-out);
+  transition: transform 0.2s, border-radius 0.2s, opacity 0.22s;
+}
+
+.viewer.closing {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+@keyframes storyOpen {
+  from { opacity: 0; transform: scale(0.86); border-radius: 40px; }
+  to { opacity: 1; transform: scale(1); border-radius: 0; }
+}
+
+/* Har story almashganda rasm yumshoq paydo bo'ladi va sekin kattalashadi */
+.viewer-body {
+  animation: fade 0.35s ease;
+}
+
+.viewer-img {
+  animation: kenBurns 6s ease-out forwards;
+}
+
+@keyframes kenBurns {
+  from { transform: scale(1.0); }
+  to { transform: scale(1.08); }
+}
+
+.viewer.paused .viewer-img,
+.viewer.paused .viewer-bar span.run {
+  animation-play-state: paused;
+}
+
+.viewer-bars {
+  gap: 5px;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 12px 10px;
+}
+
+.viewer-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.viewer-bar span {
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8fb0f2, #fff);
+}
+
+.viewer-top {
+  padding: 4px 14px 10px;
+  transition: opacity 0.2s;
+}
+
+.viewer.paused .viewer-top,
+.viewer.paused .viewer-cta {
+  opacity: 0.35;
+}
+
+.viewer-top img {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.viewer-who {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.viewer-who b {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.viewer-who span {
+  font-size: 11.5px;
+  opacity: 0.7;
+}
+
+.viewer-close {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+  font-size: 24px;
+  display: grid;
+  place-items: center;
+}
+
+.viewer-cta {
+  padding: 14px 16px calc(22px + var(--safe-b));
+  transition: opacity 0.2s;
+  animation: rise 0.5s 0.15s var(--ease-out) both;
+}
+
+/* Storyga bog'langan mahsulot — rasm, nom, narx va strelka */
+.viewer-product {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 8px;
+  border-radius: 22px;
+  text-align: left;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.viewer-product:active {
+  transform: scale(0.97);
+}
+
+.viewer-product img {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.viewer-product-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-product-text b {
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viewer-product-text span {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.viewer-product-go {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--navy);
+  flex-shrink: 0;
+  animation: nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+.viewer-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--navy);
+  font-weight: 800;
+}
+
+.viewer-caption {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
 /* ---------- Umumiy animatsiyalar ---------- */
 
 @keyframes rise {
@@ -3703,5 +3957,10 @@ textarea:focus {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* Story chizig'i vaqt hisoblagich — u qisqarsa storylar darhol o'tib ketadi */
+  .viewer-bar span.run {
+    animation-duration: 5000ms !important;
   }
 }
