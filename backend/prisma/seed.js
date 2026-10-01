@@ -1,414 +1,139 @@
 /**
- * ASF GROUP — boshlang'ich ma'lumotlar.
- * Ishga tushirish:  npm run db:seed
+ * ASF GROUP — mahsulotlar katalogi.
+ * Ishga tushirish:  npm run db:seed   (Render'da har deploy'da avtomatik)
  *
- * Narxlar: tayyor oyoq kiyim — 140 000 so'm, zagatovka — 65 000 so'm.
- * Optom narx boshida dona narxiga teng qilib qo'yilgan —
- * uni Admin paneldan har bir mahsulot uchun alohida kiritasiz.
+ * Katalog: prisma/catalog/products.json + prisma/catalog/images/*.jpg
+ *
+ * Katalog bazaga faqat BIR MARTA yoziladi (CATALOG_VERSION). Shundan keyin
+ * Admin paneldagi o'zgarishlaringiz (narx, nom, o'chirilgan mahsulotlar)
+ * keyingi deploy'larda qayta yozilib ketmaydi.
+ *
+ * Yozilganda:
+ *  - katalogda yo'q eski mahsulotlarning hammasi o'chiriladi
+ *    (buyurtmalar tarixi saqlanadi — u mahsulot nusxasini o'zida saqlaydi);
+ *  - rasmlar Admin paneldagi kabi yuklanadi: siqiladi va bazaga zaxiralanadi;
+ *  - tayyor oyoq kiyimning dona narxi — RETAIL_PRICE, optom narx — katalogdagidek;
+ *  - zagatovka donaga sotilmaydi (faqat optom).
+ *
+ * Katalogni qayta yozish kerak bo'lsa:  SEED_FORCE=1 npm run db:seed
  */
-const { PrismaClient } = require('@prisma/client');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const { prisma } = require('../src/database/connection');
+const { storeFile, fileUrl, UPLOAD_ROOT } = require('../src/utils/upload');
 
-const prisma = new PrismaClient();
+const CATALOG_VERSION = 'asf-2026-10';
+const CATALOG_KEY = 'catalogVersion';
+const RETAIL_PRICE = 350000;
 
-const READY_PRICE = 140000;
-const UPPER_PRICE = 65000;
-const SIZES = [39, 40, 41, 42, 43];
+const CATALOG_DIR = path.join(__dirname, 'catalog');
+const IMAGES_DIR = path.join(CATALOG_DIR, 'images');
 
-const img = (file) => [`/uploads/products/${file}`];
+/**
+ * Katalog rasmini Admin paneldagi kabi yuklaydi: uploads/products/custom-*.jpg
+ * ga yozadi va storeFile orqali siqib, bazaga zaxiralaydi.
+ * Nomi rasm tarkibidan olinadi — qayta ishga tushsa, xuddi shu manzil chiqadi.
+ */
+async function uploadImage(file) {
+  const src = path.join(IMAGES_DIR, file);
+  const data = fs.readFileSync(src);
+  const hash = crypto.createHash('sha1').update(data).digest('hex').slice(0, 16);
+  const ext = (path.extname(file) || '.jpg').toLowerCase();
+  const name = `custom-${hash}${ext}`;
+  const dest = path.join(UPLOAD_ROOT, 'products', name);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, data);
+  const url = fileUrl('products', name);
+  await storeFile(url);
+  const stored = await prisma.storedFile.count({ where: { path: url } });
+  if (!stored) throw new Error(`Rasm bazaga saqlanmadi: ${file}`);
+  return url;
+}
 
-/* ---------- Tayyor oyoq kiyim ---------- */
-const readyProducts = [
-  {
-    article: 'ASF-101',
-    name: 'Mokasin Klassik',
-    nameRu: 'Мокасины Классик',
-    tag: 'mokasin',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-101.jpg'),
-    description: 'Yumshoq charm mokasin, engil taglik. Kundalik kiyish uchun qulay.',
-    descriptionRu: 'Мягкие кожаные мокасины на лёгкой подошве. Удобны для повседневной носки.',
-  },
-  {
-    article: 'ASF-102',
-    name: 'Slip-on Comfort',
-    nameRu: 'Слипоны Comfort',
-    tag: 'slipon',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-102.jpg'),
-    description: 'Rezinkali slip-on model, qalin taglik. Bog\'ichsiz, tez kiyiladi.',
-    descriptionRu: 'Слипоны на резинке с толстой подошвой. Без шнурков, легко надеваются.',
-  },
-  {
-    article: 'ASF-103',
-    name: 'Derbi Ofis',
-    nameRu: 'Дерби Офис',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-103.jpg'),
-    description: 'Klassik bog\'ichli derbi. Ish va rasmiy tadbirlar uchun.',
-    descriptionRu: 'Классические дерби на шнурках. Для работы и официальных мероприятий.',
-  },
-  {
-    article: 'ASF-104',
-    name: 'Sneaker Urban',
-    nameRu: 'Кроссовки Urban',
-    tag: 'sport',
-    color: 'Qora-oq',
-    colorRu: 'Чёрно-белый',
-    images: img('asf-104.jpg'),
-    description: 'Sport uslubidagi krossovka, oq taglik. Kundalik yurish uchun.',
-    descriptionRu: 'Кроссовки в спортивном стиле на белой подошве. Для повседневной ходьбы.',
-  },
-  {
-    article: 'ASF-105',
-    name: 'Loafer Penny',
-    nameRu: 'Лоферы Penny',
-    tag: 'loafer',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-105.jpg'),
-    description: 'Klassik penny-loafer, ustki qismida charm lenta.',
-    descriptionRu: 'Классические пенни-лоферы с кожаной перемычкой.',
-  },
-  {
-    article: 'ASF-106',
-    name: 'Mokasin Navy',
-    nameRu: 'Мокасины Navy',
-    tag: 'mokasin',
-    color: "To'q ko'k",
-    colorRu: 'Тёмно-синий',
-    images: img('asf-106.jpg'),
-    description: "To'q ko'k rangli mokasin, metall belgi bilan.",
-    descriptionRu: 'Тёмно-синие мокасины с металлическим логотипом.',
-  },
-  {
-    article: 'ASF-107',
-    name: 'Derbi Trend',
-    nameRu: 'Дерби Trend',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-107.jpg'),
-    description: "Qalin tagli bog'ichli model. Zamonaviy va bardoshli.",
-    descriptionRu: 'Модель на шнурках с толстой подошвой. Современная и прочная.',
-  },
-  {
-    article: 'ASF-108',
-    name: 'Mokasin Kofe',
-    nameRu: 'Мокасины Кофе',
-    tag: 'mokasin',
-    color: 'Jigarrang',
-    colorRu: 'Коричневый',
-    images: img('asf-108.jpg'),
-    description: 'Jigarrang mokasin, protektorli taglik.',
-    descriptionRu: 'Коричневые мокасины с протекторной подошвой.',
-  },
-  {
-    article: 'ASF-109',
-    name: 'Comfort Air',
-    nameRu: 'Comfort Air',
-    tag: 'slipon',
-    color: 'Jigarrang',
-    colorRu: 'Коричневый',
-    images: img('asf-109.jpg'),
-    description: 'Yon tomoni teshikchali, havo almashinuvi yaxshi model.',
-    descriptionRu: 'Модель с перфорацией по бокам и хорошей вентиляцией.',
-  },
-  {
-    article: 'ASF-110',
-    name: 'Mokasin Zamsh',
-    nameRu: 'Мокасины Замша',
-    tag: 'mokasin',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-110.jpg'),
-    description: 'Zamsh qo\'shimchali mokasin, yumshoq ichki qism.',
-    descriptionRu: 'Мокасины с замшевой вставкой и мягкой внутренней частью.',
-  },
-  {
-    article: 'ASF-111',
-    name: 'Slip-on Sport',
-    nameRu: 'Слипоны Спорт',
-    tag: 'sport',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-111.jpg'),
-    description: 'Sport tagli slip-on. Kun bo\'yi qulay.',
-    descriptionRu: 'Слипоны на спортивной подошве. Комфортны весь день.',
-  },
-  {
-    article: 'ASF-112',
-    name: 'Velkro Klassik',
-    nameRu: 'Велькро Классик',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-112.jpg'),
-    description: 'Velkro (lipuchka) bilan mahkamlanadi. Kiyish juda oson.',
-    descriptionRu: 'Застёжка на липучке. Очень легко надевать.',
-  },
-  {
-    article: 'ASF-113',
-    name: 'Mokasin Elegant',
-    nameRu: 'Мокасины Elegant',
-    tag: 'mokasin',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-113.jpg'),
-    description: 'Nafis chokli mokasin, yupqa taglik.',
-    descriptionRu: 'Мокасины с аккуратным швом на тонкой подошве.',
-  },
-];
-
-/* ---------- Zagatovka (poyabzal ustki qismi) ---------- */
-const upperProducts = [
-  {
-    article: 'ASF-Z-01',
-    name: 'Zagatovka Sport',
-    nameRu: 'Заготовка Спорт',
-    tag: 'sport',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-01.jpg'),
-    description: 'Yon tomoni tekstil qo\'shimchali sport zagatovka.',
-    descriptionRu: 'Спортивная заготовка с текстильной вставкой по бокам.',
-  },
-  {
-    article: 'ASF-Z-02',
-    name: 'Zagatovka Velkro',
-    nameRu: 'Заготовка Велькро',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-02.jpg'),
-    description: 'Velkro bandli zagatovka, klassik shakl.',
-    descriptionRu: 'Заготовка с ремешком на липучке, классическая форма.',
-  },
-  {
-    article: 'ASF-Z-03',
-    name: 'Zagatovka Tokali',
-    nameRu: 'Заготовка с пряжкой',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-03.jpg'),
-    description: 'Metall tokali zagatovka, klassik monk uslubi.',
-    descriptionRu: 'Заготовка с металлической пряжкой в стиле монк.',
-  },
-  {
-    article: 'ASF-Z-04',
-    name: 'Zagatovka Perforatsiya',
-    nameRu: 'Заготовка Перфорация',
-    tag: 'yozgi',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-04.jpg'),
-    description: 'Teshikchali (perforatsiyali) yozgi zagatovka.',
-    descriptionRu: 'Летняя заготовка с перфорацией.',
-  },
-  {
-    article: 'ASF-Z-05',
-    name: 'Zagatovka Navy',
-    nameRu: 'Заготовка Navy',
-    tag: 'mokasin',
-    color: "To'q ko'k",
-    colorRu: 'Тёмно-синий',
-    images: img('asf-z-05.jpg'),
-    description: "To'q ko'k mokasin zagatovkasi, metall belgi bilan.",
-    descriptionRu: 'Тёмно-синяя заготовка мокасин с металлическим логотипом.',
-  },
-  {
-    article: 'ASF-Z-06',
-    name: 'Zagatovka Baland',
-    nameRu: 'Заготовка Высокая',
-    tag: 'qishki',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-06.jpg'),
-    description: "Baland bo'g'inli zagatovka, ichi issiq astarli.",
-    descriptionRu: 'Высокая заготовка с тёплой подкладкой.',
-  },
-  {
-    article: 'ASF-Z-07',
-    name: 'Zagatovka Premium',
-    nameRu: 'Заготовка Премиум',
-    tag: 'loafer',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-07.jpg'),
-    description: 'Bezakli tokali loafer zagatovkasi.',
-    descriptionRu: 'Заготовка лоферов с декоративной пряжкой.',
-  },
-  {
-    article: 'ASF-Z-08',
-    name: 'Zagatovka Perfo Mokasin',
-    nameRu: 'Заготовка Перфо Мокасины',
-    tag: 'mokasin',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-08.jpg'),
-    description: "Mayda teshikchali (perforatsiyali) mokasin zagatovkasi, metall belgi bilan. Yozda oyoq nafas oladi.",
-    descriptionRu: 'Заготовка мокасин с мелкой перфорацией и металлическим логотипом. Летом нога дышит.',
-  },
-  {
-    article: 'ASF-Z-09',
-    name: 'Zagatovka Slip-on',
-    nameRu: 'Заготовка Слипоны',
-    tag: 'slipon',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-09.jpg'),
-    description: "Silliq charm slip-on zagatovkasi, yon tomonlarida rezinka. Bog'ichsiz, tez kiyiladi.",
-    descriptionRu: 'Заготовка слипонов из гладкой кожи с резинками по бокам. Без шнурков, быстро надевается.',
-  },
-  {
-    article: 'ASF-Z-10',
-    name: 'Zagatovka Tekstil',
-    nameRu: 'Заготовка Текстиль',
-    tag: 'sport',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-10.jpg'),
-    description: 'Tekstil yuzali zagatovka, ustki qismi charm qoplamali. Yengil va shaklini saqlaydi.',
-    descriptionRu: 'Заготовка с текстильным верхом и кожаной накладкой. Лёгкая, держит форму.',
-  },
-  {
-    article: 'ASF-Z-11',
-    name: 'Zagatovka Denim',
-    nameRu: 'Заготовка Деним',
-    tag: 'slipon',
-    color: "To'q ko'k",
-    colorRu: 'Тёмно-синий',
-    images: img('asf-z-11.jpg'),
-    description: "To'q ko'k denim zagatovka, charm qoplamali va metall belgili.",
-    descriptionRu: 'Тёмно-синяя джинсовая заготовка с кожаной отделкой и металлическим логотипом.',
-  },
-  {
-    article: 'ASF-Z-12',
-    name: 'Zagatovka Zamsha',
-    nameRu: 'Заготовка Замша',
-    tag: 'slipon',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-12.jpg'),
-    description: 'Zamsha yuzali zagatovka, keng rezinka bandli. Ichi yumshoq astarli.',
-    descriptionRu: 'Заготовка из замши с широкой резинкой. Мягкая подкладка внутри.',
-  },
-  {
-    article: 'ASF-Z-13',
-    name: 'Zagatovka Derbi',
-    nameRu: 'Заготовка Дерби',
-    tag: 'klassik',
-    color: 'Qora',
-    colorRu: 'Чёрный',
-    images: img('asf-z-13.jpg'),
-    description: "Bog'ich teshiklari metall halqali derbi zagatovkasi, ichi yumshoq astarli.",
-    descriptionRu: 'Заготовка дерби с металлическими люверсами и мягкой подкладкой.',
-  },
-  {
-    article: 'ASF-Z-14',
-    name: 'Zagatovka Derbi Zamsha',
-    nameRu: 'Заготовка Дерби Замша',
-    tag: 'klassik',
-    color: "To'q ko'k",
-    colorRu: 'Тёмно-синий',
-    images: img('asf-z-14.jpg'),
-    description: "To'q ko'k zamsha derbi zagatovkasi, metall halqa va belgi bilan.",
-    descriptionRu: 'Тёмно-синяя замшевая заготовка дерби с металлическими люверсами и логотипом.',
-  },
-];
-
-/* ---------- Storylar ---------- */
-const stories = [
-  { title: 'Yangi kolleksiya', titleRu: 'Новая коллекция', image: '/uploads/products/asf-104.jpg', article: 'ASF-104', sortOrder: 1 },
-  { title: 'Optom savdo', titleRu: 'Оптом', image: '/uploads/products/asf-101.jpg', article: 'ASF-101', sortOrder: 2 },
-  { title: 'Zagatovka', titleRu: 'Заготовка', image: '/uploads/products/asf-z-01.jpg', article: 'ASF-Z-01', sortOrder: 3 },
-  { title: 'Klassika', titleRu: 'Классика', image: '/uploads/products/asf-113.jpg', article: 'ASF-113', sortOrder: 4 },
-];
-
-function expand(list, category, price) {
-  return list.map((p, index) => ({
-    ...p,
-    category,
-    material: category === 'ready' ? 'Charm' : 'Charm',
-    materialRu: 'Кожа',
-    price,
-    wholesalePrice: price, // Optom narxni Admin paneldan kiritasiz
-    wholesaleMin: 10,
-    sizes: SIZES,
-    inStock: true,
-    isActive: true,
+function toProduct(raw, index, urlOf) {
+  const images = raw.images.map(urlOf);
+  const imageColors = Object.fromEntries(
+    Object.entries(raw.imageColors || {}).map(([src, color]) => [urlOf(src), color])
+  );
+  const isReady = raw.category === 'ready';
+  return {
+    article: raw.article,
+    name: raw.name,
+    nameRu: raw.nameRu || null,
+    description: raw.description || null,
+    descriptionRu: raw.descriptionRu || null,
+    category: isReady ? 'ready' : 'upper',
+    tag: null,
+    color: raw.color || null,
+    colorRu: raw.colorRu || null,
+    material: raw.material || null,
+    materialRu: raw.materialRu || null,
+    images,
+    imageFrames: {},
+    imageColors,
+    colorArticles: raw.colorArticles || {},
+    // Zagatovka donaga sotilmaydi — dona narxi optom narxga teng turadi
+    price: isReady ? RETAIL_PRICE : raw.wholesalePrice,
+    oldPrice: null,
+    wholesalePrice: raw.wholesalePrice,
+    wholesaleMin: raw.wholesaleMin || 10,
+    sizes: raw.sizes,
+    inStock: raw.inStock !== false,
+    isActive: raw.isActive !== false,
     sortOrder: index,
-  }));
+  };
 }
 
 async function main() {
-  const products = [
-    ...expand(readyProducts, 'ready', READY_PRICE),
-    ...expand(upperProducts, 'upper', UPPER_PRICE),
-  ];
-
-  /* Bazada bor mahsulot qayta yozilmaydi — Admin paneldagi o'zgarishlaringiz
-     (narx, optom narx, nom, tavsif) saqlanib qoladi. Shu sababli bu skriptni
-     har deploy'da xavfsiz ishlatish mumkin: faqat yangi mahsulotlar qo'shiladi.
-     Hammasini boshlang'ich holatga qaytarish kerak bo'lsa:
-       SEED_FORCE=1 npm run db:seed                                          */
   const force = process.env.SEED_FORCE === '1';
-
-  console.log(force ? '🌱 Mahsulotlar QAYTA yozilmoqda...' : '🌱 Mahsulotlar tekshirilmoqda...');
-  let created = 0;
-  let kept = 0;
-
-  for (const product of products) {
-    const existing = await prisma.product.findUnique({ where: { article: product.article } });
-
-    if (existing && !force) {
-      kept += 1;
-      continue;
-    }
-
-    await prisma.product.upsert({
-      where: { article: product.article },
-      update: product,
-      create: product,
-    });
-    created += 1;
-    console.log(`   ✓ ${product.article} — ${product.name}`);
+  const marker = await prisma.setting.findUnique({ where: { key: CATALOG_KEY } });
+  if (marker?.value === CATALOG_VERSION && !force) {
+    console.log(`🌱 Katalog (${CATALOG_VERSION}) allaqachon yozilgan — tegilmadi.`);
+    return;
   }
 
-  if (kept) console.log(`   (${kept} ta mahsulot allaqachon bor — tegilmadi)`);
-  if (!created) console.log('   Yangi mahsulot yo\'q.');
+  const catalog = JSON.parse(fs.readFileSync(path.join(CATALOG_DIR, 'products.json'), 'utf8'));
 
-  console.log('\n🌱 Storylar yozilmoqda...');
-  const existingStories = await prisma.story.count();
-  if (existingStories === 0) {
-    for (const story of stories) {
-      const product = await prisma.product.findUnique({ where: { article: story.article } });
-      await prisma.story.create({
-        data: {
-          title: story.title,
-          titleRu: story.titleRu,
-          image: story.image,
-          productId: product ? product.id : null,
-          sortOrder: story.sortOrder,
-          isActive: true,
-        },
+  console.log('🖼  Rasmlar yuklanmoqda...');
+  const urls = new Map();
+  for (const raw of catalog) {
+    for (const src of raw.images) {
+      if (urls.has(src)) continue;
+      urls.set(src, await uploadImage(path.basename(src)));
+    }
+  }
+  console.log(`   ✓ ${urls.size} ta rasm bazaga saqlandi`);
+  const urlOf = (src) => urls.get(src);
+
+  const products = catalog.map((raw, i) => toProduct(raw, i, urlOf));
+  const articles = products.map((p) => p.article);
+
+  console.log('🌱 Mahsulotlar yozilmoqda...');
+  const removed = await prisma.$transaction(async (tx) => {
+    const { count } = await tx.product.deleteMany({ where: { article: { notIn: articles } } });
+    for (const product of products) {
+      await tx.product.upsert({
+        where: { article: product.article },
+        update: product,
+        create: product,
       });
-      console.log(`   ✓ ${story.title}`);
     }
-  } else {
-    console.log(`   (${existingStories} ta story allaqachon bor — o'tkazib yuborildi)`);
-  }
+    await tx.setting.upsert({
+      where: { key: CATALOG_KEY },
+      update: { value: CATALOG_VERSION },
+      create: { key: CATALOG_KEY, value: CATALOG_VERSION },
+    });
+    return count;
+  }, { timeout: 60000 });
 
   const ready = products.filter((p) => p.category === 'ready').length;
-  const upper = products.filter((p) => p.category === 'upper').length;
+  const upper = products.length - ready;
 
   console.log('\n══════════════════════════════════');
-  console.log(`✅ Tayyor oyoq kiyim : ${ready} ta  (${READY_PRICE.toLocaleString('ru-RU')} so'm)`);
-  console.log(`✅ Zagatovka         : ${upper} ta  (${UPPER_PRICE.toLocaleString('ru-RU')} so'm)`);
+  console.log(`🗑  Eski mahsulotlar o'chirildi : ${removed} ta`);
+  console.log(`✅ Tayyor oyoq kiyim         : ${ready} ta  (dona ${RETAIL_PRICE.toLocaleString('ru-RU')} so'm)`);
+  console.log(`✅ Zagatovka (faqat optom)   : ${upper} ta`);
   console.log('══════════════════════════════════\n');
 }
 

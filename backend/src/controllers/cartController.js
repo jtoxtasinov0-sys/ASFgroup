@@ -6,7 +6,7 @@ const StoryModel = require('../models/Story');
 const SettingModel = require('../models/Setting');
 const { safeSend, notifyAdminsWithPhotos } = require('../core/bot');
 const { t, adminNewOrder } = require('../utils/i18n');
-const { productColors } = require('../utils/colors');
+const { productColors, colorArticle } = require('../utils/colors');
 const { fileUrl, removeFile } = require('../utils/upload');
 const { getPublicPayment, attachReceipt } = require('../services/payment');
 const click = require('../services/click');
@@ -80,6 +80,8 @@ function buildOrderItems(cartItems, products) {
     const color = colors.includes(raw.color) ? raw.color : colors.length ? colors[0] : null;
 
     const wholesale = packs > 0;
+    // Zagatovka donaga sotilmaydi — faqat optom
+    if (!wholesale && product.category === 'upper') continue;
     const unitPrice = wholesale ? wholesaleUnit(product) : product.price;
     if (wholesale) isWholesale = true;
 
@@ -88,7 +90,7 @@ function buildOrderItems(cartItems, products) {
 
     items.push({
       productId: product.id,
-      article: product.article,
+      article: colorArticle(product, color),
       name: product.name,
       nameRu: product.nameRu,
       image: colorImage(product, color),

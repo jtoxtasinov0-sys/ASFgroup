@@ -5,7 +5,7 @@ import { discountPercent, money, wholesaleUnit } from '../lib/format';
 import { MAX_PACKS, cartKey } from '../lib/store';
 import { maxPacks, maxPairs, packsLeft, pairsLeft } from '../lib/stock';
 import { haptic, notifySuccess } from '../lib/telegram';
-import { colorLabel, effectiveColor, productColors } from '../lib/colors';
+import { colorArticle, colorLabel, effectiveColor, productColors } from '../lib/colors';
 import { frameOf, frameStyle } from '../lib/frame';
 import PriceTag, { OldPrice } from './PriceTag';
 import PhotoViewer from './PhotoViewer';
@@ -145,7 +145,7 @@ export default function ProductSheet({
   };
 
   const details = [
-    [t.article, product.article],
+    [t.article, colorArticle(product, color)],
     // Rang tugmalari bo'lsa, matndagi rang takrorlanmaydi
     [t.color, colors.length ? null : pick(product, 'color', lang)],
     [t.material, pick(product, 'material', lang)],
@@ -276,6 +276,7 @@ export default function ProductSheet({
             <div className="section" style={{ marginTop: 20 }}>
               <h3 className="h2">
                 {t.chooseColor}: <span className="color-current">{colorLabel(color, lang)}</span>
+                {colors.length > 1 && <span className="color-art">{colorArticle(product, color)}</span>}
               </h3>
               <div className="color-options">
                 {colors.map((c) => (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
@@ -160,6 +160,26 @@ export default function App() {
     cart.items.filter((item) => item.mode === 'retail').forEach((item) => cart.removeItem(item.key));
   }, [retailOn, config, savedMode, setMode, cart.items, cart.removeItem]);
 
+  /* ---------- Zagatovka faqat optomda sotiladi ---------- */
+
+  const shownProducts = useMemo(
+    () => (mode === 'retail' ? products.filter((p) => p.category !== 'upper') : products),
+    [products, mode]
+  );
+
+  useEffect(() => {
+    if (mode === 'retail' && category === 'upper') setCategory('all');
+  }, [mode, category]);
+
+  useEffect(() => {
+    if (!products.length) return;
+    const upper = new Set(products.filter((p) => p.category === 'upper').map((p) => p.id));
+    // Avval savatchaga donaga qo'shilgan zagatovkalar buyurtmada qabul qilinmaydi
+    cart.items
+      .filter((item) => item.mode === 'retail' && upper.has(item.productId))
+      .forEach((item) => cart.removeItem(item.key));
+  }, [products, cart.items, cart.removeItem]);
+
   /* ---------- Tilni serverga saqlash ---------- */
 
   useEffect(() => {
@@ -194,7 +214,7 @@ export default function App() {
   }, []);
 
   const openProductById = (id) => {
-    const product = products.find((p) => p.id === Number(id));
+    const product = shownProducts.find((p) => p.id === Number(id));
     if (product) {
       setStoryIndex(null);
       setSheetProduct(product);
@@ -396,7 +416,7 @@ export default function App() {
           stories={stories}
           seenStories={seenStories}
           onOpenStory={setStoryIndex}
-          products={products}
+          products={shownProducts}
           mode={mode}
           // Donaga savdo o'chirilgan bo'lsa — almashtirish tugmalari ko'rinmaydi
           onSetMode={
@@ -418,7 +438,7 @@ export default function App() {
         <Catalog
           t={t}
           lang={lang || 'uz'}
-          products={products}
+          products={shownProducts}
           config={config}
           category={category}
           setCategory={setCategory}

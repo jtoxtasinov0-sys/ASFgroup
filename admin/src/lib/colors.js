@@ -3,6 +3,7 @@ export const COLORS = [
   { key: 'black', label: 'Qora', hex: '#1c1c1e' },
   { key: 'brown', label: 'Jigarrang', hex: '#7a4a2b' },
   { key: 'blue', label: "Ko'k", hex: '#1f4fa3' },
+  { key: 'red', label: 'Qizil', hex: '#c62828' },
 ];
 
 // Qo'lda kiritilgan rang: "Nomi#rrggbb" (# qismi ixtiyoriy)

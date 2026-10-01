@@ -599,6 +599,27 @@ img {
   letter-spacing: 0.03em;
 }
 
+/* Artikul yonida mahsulot ranglari */
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.card-colors {
+  display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.card-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
 /* ---------- Narx yorlig'i ("sikitka") ---------- */
 
 .pricetag {
@@ -1795,6 +1816,13 @@ img {
 
 .color-current {
   font-weight: 600;
+  color: var(--muted);
+}
+
+.color-art {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
 }
 

@@ -63,6 +63,7 @@ const config = {
     { key: 'black', uz: 'Qora', ru: 'Чёрный', hex: '#1c1c1e' },
     { key: 'brown', uz: 'Jigarrang', ru: 'Коричневый', hex: '#7a4a2b' },
     { key: 'blue', uz: "Ko'k", ru: 'Синий', hex: '#1f4fa3' },
+    { key: 'red', uz: 'Qizil', ru: 'Красный', hex: '#c62828' },
   ],
 
   // Click orqali to'lov (my.click.uz). SERVICE_ID va MERCHANT_ID berilsa — mijozga
