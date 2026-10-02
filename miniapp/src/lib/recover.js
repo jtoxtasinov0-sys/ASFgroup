@@ -13,6 +13,29 @@ const RELOAD_KEY = 'asf_recover_at';
 // Fonda shuncha vaqt turgan bo'lsa — qaytganda yangi versiya bormi, tekshiramiz
 const STALE_MS = 30 * 60 * 1000;
 
+/**
+ * Sahifani yangi versiya bilan qayta yuklaydi. Ilova xotiradan (service worker)
+ * ochilayotgan bo'lsa, avval u yerdagi nusxani serverdagisi bilan almashtiramiz —
+ * aks holda qayta yuklash yana eski versiyani ochadi.
+ */
+export function hardReload() {
+  const sw = typeof navigator !== 'undefined' && navigator.serviceWorker;
+  if (!sw || !sw.controller) {
+    window.location.reload();
+    return;
+  }
+  let done = false;
+  const go = () => {
+    if (done) return;
+    done = true;
+    window.location.reload();
+  };
+  sw.addEventListener('message', (e) => e.data === 'shell-refreshed' && go());
+  sw.controller.postMessage('refresh-shell');
+  // Internet sekin bo'lsa ham uzoq kuttirmaymiz
+  setTimeout(go, 4000);
+}
+
 /** Qayta yuklaydi, lekin cheksiz aylanib qolmaslik uchun 20 soniyada ko'pi bilan bir marta */
 export function reloadOnce() {
   try {
@@ -20,8 +43,16 @@ export function reloadOnce() {
     if (Date.now() - last < 20000) return false;
     sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
   } catch (_) { /* private rejim — baribir qayta yuklaymiz */ }
-  window.location.reload();
+  hardReload();
   return true;
+}
+
+/** Ilovani telefon xotirasiga saqlaydi — keyingi ochilishlar bir zumda bo'ladi */
+export function registerServiceWorker() {
+  if (!import.meta.env.PROD || typeof navigator === 'undefined' || !navigator.serviceWorker) return;
+  const register = () => navigator.serviceWorker.register('/sw.js').catch(() => {});
+  if (document.readyState === 'complete') register();
+  else window.addEventListener('load', register);
 }
 
 const rootIsEmpty = () => {

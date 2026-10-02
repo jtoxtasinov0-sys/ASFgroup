@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { reloadOnce } from '../lib/recover';
+import { hardReload, reloadOnce } from '../lib/recover';
 
 /**
  * Ilovada kutilmagan xato bo'lsa butun ekran oq bo'lib qolmasin:
@@ -27,7 +27,7 @@ export default class ErrorBoundary extends Component {
         <button
           className="btn"
           style={{ marginTop: 12, maxWidth: 280 }}
-          onClick={() => window.location.reload()}
+          onClick={hardReload}
         >
           Qayta yuklash / Обновить
         </button>
