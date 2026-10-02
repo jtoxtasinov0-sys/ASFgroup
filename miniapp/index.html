@@ -20,19 +20,32 @@
     <link rel="preconnect" href="https://telegram.org" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Shrift sahifa chizilishini to'xtatib turmaydi: kelguncha tizim shrifti ishlatiladi -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <link rel="preload" as="image" href="/logo.png" />
+    <style>
+      /* Ilova kodi yuklanguncha oq ekran o'rniga darhol logo ko'rinadi */
+      html, body { margin: 0; background: #F3F6FC; }
+      .boot { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+      .boot img { width: 96px; height: 96px; object-fit: contain; }
+      .boot i { width: 28px; height: 28px; border-radius: 50%; border: 3px solid #d6deef; border-top-color: #0B2257; animation: boot-spin .8s linear infinite; }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+    </style>
     <script>
       // Render'dagi server uxlab qolgan bo'lsa, uni ilova kodi yuklanguncha
       // uyg'ota boshlaymiz — shu bilan bir necha soniya yutiladi
-      try { fetch('https://asfgroup.onrender.com/api/health', { mode: 'no-cors' }); } catch (_) {}
+      try { fetch('https://asfgroup.onrender.com/api/health', { mode: 'no-cors' }).catch(function () {}); } catch (_) {}
     </script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- defer: HTML chizilishini to'xtatmaydi, lekin ilova kodidan oldin bajariladi -->
+    <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot"><img src="/logo.png" alt="ASF GROUP" /><i></i></div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

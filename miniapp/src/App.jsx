@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { api, onApiWaking } from './lib/api';
 import { getDict } from './lib/i18n';
@@ -17,18 +17,33 @@ import {
 } from './lib/telegram';
 
 import BottomNav from './components/BottomNav';
-import ClickPayScreen from './components/ClickPayScreen';
-import PaymentScreen from './components/PaymentScreen';
-import ProductSheet from './components/ProductSheet';
-import StoryViewer from './components/StoryViewer';
 
 import Onboarding from './pages/Onboarding';
 import ModeSelect from './pages/ModeSelect';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Profile from './pages/Profile';
+
+// Birinchi ekranda kerak bo'lmagan qismlar alohida yuklanadi —
+// ilova tezroq ochiladi, ular esa fonda oldindan olib qo'yiladi
+const loadCart = () => import('./pages/Cart');
+const loadCheckout = () => import('./pages/Checkout');
+const loadProfile = () => import('./pages/Profile');
+const loadProductSheet = () => import('./components/ProductSheet');
+const loadStoryViewer = () => import('./components/StoryViewer');
+const loadPaymentScreen = () => import('./components/PaymentScreen');
+const loadClickPayScreen = () => import('./components/ClickPayScreen');
+
+const Cart = lazy(loadCart);
+const Checkout = lazy(loadCheckout);
+const Profile = lazy(loadProfile);
+const ProductSheet = lazy(loadProductSheet);
+const StoryViewer = lazy(loadStoryViewer);
+const PaymentScreen = lazy(loadPaymentScreen);
+const ClickPayScreen = lazy(loadClickPayScreen);
+
+const prefetchChunks = () =>
+  [loadProductSheet, loadCart, loadCheckout, loadProfile, loadStoryViewer, loadPaymentScreen, loadClickPayScreen]
+    .forEach((load) => load().catch(() => {}));
 
 const SEEN_STORIES_KEY = 'asf_seen_stories';
 
@@ -147,10 +162,15 @@ export default function App() {
     initTelegram();
     onApiWaking(setWaking);
     load();
+    // Birinchi ekran chizilgach qolgan qismlarni fonda yuklab qo'yamiz
+    const prefetchTimer = setTimeout(prefetchChunks, 1500);
     // Ekrandagi ilova fondan qaytganda — yuklanmay qolgan rasmlarni qayta so'raymiz
     const onVisible = () => document.visibilityState === 'visible' && reloadBrokenImages();
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    return () => {
+      clearTimeout(prefetchTimer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -331,8 +351,9 @@ export default function App() {
     );
   }
 
-  // Tanlov ekrani faqat sozlama ma'lum bo'lganda va donaga savdo yoqilgan bo'lsa chiqadi
-  if ((modeOpen || !mode) && config && retailOn) {
+  // Tanlov ekrani server javobini kutmasdan darhol chiqadi (katalog shu orada
+  // fonda yuklanadi). Sozlama kelib, donaga savdo o'chiq bo'lsa — yopiladi
+  if ((modeOpen || !mode) && retailOn) {
     return (
       <ModeSelect t={t} lang={lang || 'uz'} setLang={setLang} products={products} onPick={pickMode} />
     );
@@ -364,34 +385,38 @@ export default function App() {
   const successPayment = success?.payment?.enabled ? success.payment : config?.payment;
   if (success && success.paymentMethod === 'card' && successPayment?.enabled) {
     return (
-      <PaymentScreen
-        t={t}
-        order={success}
-        payment={successPayment}
-        company={config.company}
-        fresh
-        onClose={() => {
-          setSuccess(null);
-          setView('home');
-          closeApp();
-        }}
-        onUploaded={setSuccess}
-      />
+      <Suspense fallback={<div className="center" style={{ minHeight: '100vh' }}><div className="spinner" /></div>}>
+        <PaymentScreen
+          t={t}
+          order={success}
+          payment={successPayment}
+          company={config.company}
+          fresh
+          onClose={() => {
+            setSuccess(null);
+            setView('home');
+            closeApp();
+          }}
+          onUploaded={setSuccess}
+        />
+      </Suspense>
     );
   }
 
   if (success?.payUrls) {
     return (
-      <ClickPayScreen
-        t={t}
-        order={success}
-        auto={Boolean(config?.clickAuto)}
-        onClose={() => {
-          setSuccess(null);
-          setView('home');
-          closeApp();
-        }}
-      />
+      <Suspense fallback={<div className="center" style={{ minHeight: '100vh' }}><div className="spinner" /></div>}>
+        <ClickPayScreen
+          t={t}
+          order={success}
+          auto={Boolean(config?.clickAuto)}
+          onClose={() => {
+            setSuccess(null);
+            setView('home');
+            closeApp();
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -470,70 +495,80 @@ export default function App() {
       )}
 
       {view === 'cart' && (
-        <Cart
-          t={t}
-          lang={lang || 'uz'}
-          cartItems={cart.items}
-          products={products}
-          onChangeSize={cart.changeSize}
-          onChangePacks={cart.changePacks}
-          onRemove={cart.removeItem}
-          onCheckout={() => setCheckout(true)}
-          goCatalog={() => goCatalog()}
-        />
+        <Suspense fallback={<div className="center" style={{ minHeight: '60vh' }}><div className="spinner" /></div>}>
+          <Cart
+            t={t}
+            lang={lang || 'uz'}
+            cartItems={cart.items}
+            products={products}
+            onChangeSize={cart.changeSize}
+            onChangePacks={cart.changePacks}
+            onRemove={cart.removeItem}
+            onCheckout={() => setCheckout(true)}
+            goCatalog={() => goCatalog()}
+          />
+        </Suspense>
       )}
 
       {view === 'profile' && (
-        <Profile
-          t={t}
-          lang={lang || 'uz'}
-          setLang={setLang}
-          user={user}
-          config={config}
-          onReorder={reorder}
-        />
+        <Suspense fallback={<div className="center" style={{ minHeight: '60vh' }}><div className="spinner" /></div>}>
+          <Profile
+            t={t}
+            lang={lang || 'uz'}
+            setLang={setLang}
+            user={user}
+            config={config}
+            onReorder={reorder}
+          />
+        </Suspense>
       )}
 
       <BottomNav view={view} setView={openTab} cartCount={cart.count} t={t} />
 
       {sheetProduct && (
-        <ProductSheet
-          product={sheetProduct}
-          lang={lang || 'uz'}
-          t={t}
-          mode={mode}
-          cartLine={(m, color) => cart.cart[cartKey(m, sheetProduct.id, color)]}
-          cartItems={cart.items}
-          onClose={() => setSheetProduct(null)}
-          onAdd={cart.addItem}
-          onSetPacks={cart.setPacks}
-        />
+        <Suspense fallback={null}>
+          <ProductSheet
+            product={sheetProduct}
+            lang={lang || 'uz'}
+            t={t}
+            mode={mode}
+            cartLine={(m, color) => cart.cart[cartKey(m, sheetProduct.id, color)]}
+            cartItems={cart.items}
+            onClose={() => setSheetProduct(null)}
+            onAdd={cart.addItem}
+            onSetPacks={cart.setPacks}
+          />
+        </Suspense>
       )}
 
       {checkout && (
-        <Checkout
-          t={t}
-          lang={lang || 'uz'}
-          config={config}
-          user={user}
-          cartItems={cart.items}
-          onClose={() => setCheckout(false)}
-          onSuccess={onOrderSuccess}
-          onFailed={refreshProducts}
-        />
+        <Suspense fallback={null}>
+          <Checkout
+            t={t}
+            lang={lang || 'uz'}
+            config={config}
+            user={user}
+            cartItems={cart.items}
+            onClose={() => setCheckout(false)}
+            onSuccess={onOrderSuccess}
+            onFailed={refreshProducts}
+          />
+        </Suspense>
       )}
 
       {storyIndex !== null && stories.length > 0 && (
-        <StoryViewer
-          stories={stories}
-          startIndex={storyIndex}
-          products={shownProducts}
-          lang={lang || 'uz'}
-          t={t}
-          onClose={() => setStoryIndex(null)}
-          onSeen={markStorySeen}
-          onProduct={openProductById}
-        />
+        <Suspense fallback={null}>
+          <StoryViewer
+            stories={stories}
+            startIndex={storyIndex}
+            products={shownProducts}
+            lang={lang || 'uz'}
+            t={t}
+            onClose={() => setStoryIndex(null)}
+            onSeen={markStorySeen}
+            onProduct={openProductById}
+          />
+        </Suspense>
       )}
     </>
   );
