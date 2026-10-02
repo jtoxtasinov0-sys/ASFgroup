@@ -16,7 +16,7 @@ export const OFFER_ART = {
  * Optom / Donaga tanlov kartochkalari:
  * optomda — ASF GROUP karobkalari (komplekt), donada — bitta juft oyoq kiyim
  */
-export default function ModeCards({ t, products = [], mode, onPick, large = false }) {
+export default function ModeCards({ t, products = [], mode, onPick, large = false, compact = false }) {
   const packSize = products.find((p) => p.category !== 'upper')?.sizes?.length || 5;
 
   const choose = (value) => {
@@ -25,7 +25,7 @@ export default function ModeCards({ t, products = [], mode, onPick, large = fals
   };
 
   return (
-    <div className={`mode-cards${large ? ' large' : ''}`}>
+    <div className={`mode-cards${large ? ' large' : ''}${compact ? ' compact' : ''}`}>
       <button
         className={`mode-card2${mode === 'wholesale' ? ' active' : ''}`}
         onClick={() => choose('wholesale')}

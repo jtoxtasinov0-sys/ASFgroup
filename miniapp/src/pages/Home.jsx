@@ -3,8 +3,7 @@ import { imageUrl } from '../lib/api';
 import InstallHint from '../components/InstallHint';
 import Stories from '../components/Stories';
 import ProductCard from '../components/ProductCard';
-import { MODE_ART, OFFER_ART } from '../components/ModeCards';
-import CategoryCards from '../components/CategoryCards';
+import ModeCards, { MODE_ART, OFFER_ART } from '../components/ModeCards';
 import OfferCarousel from '../components/OfferCarousel';
 import Icon from '../components/Icon';
 import { discountPercent } from '../lib/format';
@@ -24,6 +23,7 @@ export default function Home({
   onOpenStory,
   products,
   mode,
+  onSetMode,
   cart,
   onOpenProduct,
   onQuickAdd,
@@ -37,6 +37,7 @@ export default function Home({
     [products, isWholesale]
   );
   const ready = products.filter((p) => p.category === 'ready');
+  const upper = products.filter((p) => p.category === 'upper');
 
   const slides = useMemo(() => {
     const list = [
@@ -85,36 +86,48 @@ export default function Home({
       <div className="wrap">
         <InstallHint t={t} />
 
-        {/* Savdo turi ilovaga kirishda tanlanadi. Optomda bu yerda — tayyor oyoq kiyim va zagatovka */}
-        {isWholesale && <CategoryCards t={t} products={products} onOpen={goCatalog} />}
+        {/* Savdo turi — kichik almashtirgich (donaga o'chirilgan bo'lsa — yo'q) */}
+        {onSetMode && <ModeCards t={t} products={products} mode={mode} onPick={onSetMode} compact />}
 
-        <OfferCarousel t={t} slides={slides} onAction={() => goCatalog()} />
-
-        {/* Donada — faqat tayyor oyoq kiyim (optomda bo'limlar yuqoridagi kartochkalarda) */}
-        {!isWholesale && (
-          <div className="section">
-            <div className="section-head">
-              <h2 className="h2">{t.categories}</h2>
-              <button className="link" onClick={() => goCatalog()}>
-                {t.seeAll} <Icon name="arrow" size={13} stroke={2.4} />
-              </button>
-            </div>
-            <div className="cat-grid single">
-              <button className="cat-card" onClick={() => goCatalog('ready')}>
+        <div className="section section-top">
+          <div className="section-head">
+            <h2 className="h2">{t.categories}</h2>
+            <button className="link" onClick={() => goCatalog()}>
+              {t.seeAll} <Icon name="arrow" size={13} stroke={2.4} />
+            </button>
+          </div>
+          <div className={`cat-grid${isWholesale ? '' : ' single'}`}>
+            <button className="cat-card" onClick={() => goCatalog('ready')}>
+              <span className="cat-art">
+                {firstImage(ready) && (
+                  <img src={imageUrl(firstImage(ready), 320)} alt="" onError={retryImage} />
+                )}
+              </span>
+              <b>{t.catReady}</b>
+              <span>{ready.length ? t.modelsCount(ready.length) : t.catReadyText}</span>
+              <i className="cat-go">
+                <Icon name="arrow" size={14} stroke={2.4} />
+              </i>
+            </button>
+            {/* Donada zagatovka yo'q — tayyor oyoq kiyim kartasi to'liq enni egallaydi */}
+            {isWholesale && (
+              <button className="cat-card" onClick={() => goCatalog('upper')}>
                 <span className="cat-art">
-                  {firstImage(ready) && (
-                    <img src={imageUrl(firstImage(ready), 320)} alt="" onError={retryImage} />
+                  {firstImage(upper) && (
+                    <img src={imageUrl(firstImage(upper), 320)} alt="" onError={retryImage} />
                   )}
                 </span>
-                <b>{t.catReady}</b>
-                <span>{ready.length ? t.modelsCount(ready.length) : t.catReadyText}</span>
+                <b>{t.catUpper}</b>
+                <span>{upper.length ? t.modelsCount(upper.length) : t.catUpperText}</span>
                 <i className="cat-go">
                   <Icon name="arrow" size={14} stroke={2.4} />
                 </i>
               </button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
+
+        <OfferCarousel t={t} slides={slides} onAction={() => goCatalog()} />
 
         {onSale.length > 0 && (
           <div className="section">
