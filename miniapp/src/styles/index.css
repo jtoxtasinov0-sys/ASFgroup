@@ -4114,3 +4114,9 @@ textarea:focus {
   background: #fff;
   transform: scale(1.08);
 }
+
+.mode-cards.large .mode-icon-shoe {
+  width: 84px;
+  height: 84px;
+  margin-top: 18px;
+}

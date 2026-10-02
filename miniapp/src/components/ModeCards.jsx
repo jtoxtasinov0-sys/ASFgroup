@@ -54,16 +54,10 @@ export default function ModeCards({ t, products = [], mode, onPick, large = fals
         onClick={() => choose('retail')}
       >
         <span className="mode-chip">{t.modeCardRetail}</span>
-        {compact ? (
-          // Bosh sahifadagi kichik tugmada — oyoq kiyim ikonkasi (rangi CSS orqali)
-          <span className="mode-art mode-icon" aria-hidden="true">
-            <span className="mode-icon-shoe" />
-          </span>
-        ) : (
-          <span className="mode-art cutout shoe">
-            <img src={MODE_ART.retail} alt="" decoding="async" />
-          </span>
-        )}
+        {/* Oyoq kiyim ikonkasi (rangi CSS orqali) */}
+        <span className="mode-art mode-icon" aria-hidden="true">
+          <span className="mode-icon-shoe" />
+        </span>
         <span className="mode-info">
           <b>{t.modeRetail}</b>
           <span>{t.modeTabRetail}</span>
