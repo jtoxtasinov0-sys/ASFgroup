@@ -9,7 +9,6 @@ import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from 
 import {
   closeApp,
   getTgUser,
-  haptic,
   initTelegram,
   isTelegram,
   notifySuccess,
@@ -461,15 +460,6 @@ export default function App() {
           onOpenStory={setStoryIndex}
           products={shownProducts}
           mode={mode}
-          // Donaga savdo o'chirilgan bo'lsa — almashtirish tugmalari ko'rinmaydi
-          onSetMode={
-            retailOn
-              ? (value) => {
-                  haptic();
-                  setMode(value);
-                }
-              : null
-          }
           cart={cart.cart}
           onOpenProduct={setSheetProduct}
           onQuickAdd={quickAdd}
