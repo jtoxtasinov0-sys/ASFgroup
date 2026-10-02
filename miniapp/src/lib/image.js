@@ -76,18 +76,30 @@ export function reloadBrokenImages() {
    URL'lar komponentlardagi bilan bir xil bo'lishi shart (eni ham).
    ---------------------------------------------------------- */
 const preloaded = new Set();
-const preloadRefs = [];
+// Yuklanayotgan rasmlar — faqat yuklanish tugaguncha ushlab turiladi.
+// Tugagach qo'yib yuboramiz: aks holda yuzlab ochilgan rasm telefon xotirasini
+// to'ldiradi va iPhone fonda turgan ilovani "o'ldiradi" (qaytganda oq ekran)
+const pending = new Set();
+// Bir ochilishda ko'pi bilan shuncha rasm oldindan yuklanadi
+const MAX_PRELOAD = 40;
 
 function preload(src) {
-  if (!src || preloaded.has(src)) return;
+  if (!src || preloaded.has(src) || preloaded.size >= MAX_PRELOAD) return;
   preloaded.add(src);
   const img = new Image();
-  img.decoding = 'async';
-  // Server uxlab yotgan bo'lsa — keyingi chaqiruvda (yangi katalog kelganda) qayta urinamiz
-  img.onerror = () => preloaded.delete(src);
+  const done = () => {
+    pending.delete(img);
+    img.onload = img.onerror = null;
+  };
+  img.onload = done;
+  img.onerror = () => {
+    done();
+    // Server uxlab yotgan bo'lsa — keyingi chaqiruvda (yangi katalog kelganda) qayta urinamiz
+    preloaded.delete(src);
+  };
   img.src = src;
   // GC rasmni yuklanish tugamasdan tashlab yubormasin
-  preloadRefs.push(img);
+  pending.add(img);
 }
 
 export function preloadImages({ products = [], stories = [] } = {}) {
@@ -96,9 +108,9 @@ export function preloadImages({ products = [], stories = [] } = {}) {
   preload('/mode-shoe.webp');
   preload('/offer-upper.webp');
   const withImg = products.filter((p) => p.images?.length);
-  // Avval birinchi ko'rinadiganlar: tanlov kartochkalari, storylar, birinchi kartochkalar
+  // Faqat birinchi ko'rinadiganlar: tanlov kartochkalari, storylar, birinchi kartochkalar.
+  // Qolganlari ekranga kelganda o'zi yuklanadi (loading="lazy")
   withImg.slice(0, 4).forEach((p) => preload(imageUrl(p.images[0], 320)));
   stories.forEach((s) => preload(imageUrl(s.image, 320)));
-  withImg.forEach((p) => preload(imageUrl(p.images[0], 480)));
-  withImg.forEach((p) => preload(imageUrl(p.images[0], 320)));
+  withImg.slice(0, 12).forEach((p) => preload(imageUrl(p.images[0], 480)));
 }
