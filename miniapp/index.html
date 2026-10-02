@@ -40,6 +40,18 @@
       // Render'dagi server uxlab qolgan bo'lsa, uni ilova kodi yuklanguncha
       // uyg'ota boshlaymiz — shu bilan bir necha soniya yutiladi
       try { fetch('https://asfgroup.onrender.com/api/health', { mode: 'no-cors' }).catch(function () {}); } catch (_) {}
+
+      // Zaxira: ilova kodi umuman yuklanmasa (eski versiya keshda qolgan bo'lsa)
+      // logo ekranida qotib qolmay, sahifa bir marta o'zi yangilanadi
+      setTimeout(function () {
+        if (!document.querySelector('#root > .boot')) return;
+        try {
+          var last = +sessionStorage.getItem('asf_recover_at') || 0;
+          if (Date.now() - last < 20000) return;
+          sessionStorage.setItem('asf_recover_at', String(Date.now()));
+        } catch (_) {}
+        location.reload();
+      }, 25000);
     </script>
     <!-- defer: HTML chizilishini to'xtatmaydi, lekin ilova kodidan oldin bajariladi -->
     <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
