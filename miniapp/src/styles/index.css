@@ -4021,3 +4021,18 @@ textarea:focus {
   top: 32px;
   height: calc(100% - 38px);
 }
+
+/* ---------- Optom: Tayyor oyoq kiyim / Zagatovka kartochkalari ---------- */
+
+.mode-art.upper {
+  display: grid;
+  place-items: center;
+}
+
+.upper-icon {
+  width: 86%;
+  height: auto;
+  margin-top: 14px;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+  transform: rotate(-4deg);
+}
