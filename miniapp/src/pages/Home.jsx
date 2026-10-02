@@ -43,10 +43,10 @@ export default function Home({
     const list = [
       {
         key: 'mode',
-        title: isWholesale ? t.offerWholesaleTitle : t.offerRetailTitle,
-        text: isWholesale ? t.offerWholesaleText : t.offerRetailText,
-        // Optomda — karobkalar, donada — bitta juft (fonsiz brend rasmlari)
-        cutout: isWholesale ? MODE_ART.wholesale : MODE_ART.retail,
+        title: t.offerRetailTitle,
+        text: t.offerRetailText,
+        // Ikkala rejimda ham — bitta juft oyoq kiyim (fonsiz brend rasmi)
+        cutout: MODE_ART.retail,
       },
     ];
     if (onSale.length) {
@@ -62,7 +62,7 @@ export default function Home({
     // Yangi kolleksiya — fonsiz zagatovka rasmi (qora, shuning uchun orqasida yorug' nur)
     list.push({ key: 'new', title: t.offerNewTitle, text: t.offerNewText, cutout: OFFER_ART.upper, dark: true });
     return list;
-  }, [products, onSale, isWholesale, t]);
+  }, [products, onSale, t]);
 
   return (
     <div className="page home">

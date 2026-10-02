@@ -4094,3 +4094,23 @@ textarea:focus {
   margin-top: 0;
   margin-bottom: 22px;
 }
+
+/* Donaga — oyoq kiyim ikonkasi (maska, rangi holatga qarab) */
+.mode-art.mode-icon {
+  display: grid;
+  place-items: center;
+}
+
+.mode-icon-shoe {
+  width: 34px;
+  height: 34px;
+  background: var(--grad);
+  -webkit-mask: url('/icon-shoe.png') center / contain no-repeat;
+  mask: url('/icon-shoe.png') center / contain no-repeat;
+  transition: transform 0.45s var(--ease-spring);
+}
+
+.mode-card2.active .mode-icon-shoe {
+  background: #fff;
+  transform: scale(1.08);
+}

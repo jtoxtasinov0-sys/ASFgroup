@@ -10,7 +10,7 @@
 const SHELL = 'asf-shell-v1';
 const ASSETS = 'asf-assets-v1';
 const TG_SCRIPT = 'https://telegram.org/js/telegram-web-app.js';
-const STATIC = ['/logo.png', '/mode-box.webp', '/mode-shoe.webp', '/offer-upper.webp'];
+const STATIC = ['/logo.png', '/mode-box.webp', '/mode-shoe.webp', '/icon-shoe.png', '/offer-upper.webp'];
 
 // index.html ichidagi /assets/ fayllarini topadi
 const assetsOf = (html) => [...new Set(html.match(/\/assets\/[^"'\s)]+/g) || [])];
