@@ -4022,17 +4022,75 @@ textarea:focus {
   height: calc(100% - 38px);
 }
 
-/* ---------- Optom: Tayyor oyoq kiyim / Zagatovka kartochkalari ---------- */
-
-.mode-art.upper {
-  display: grid;
-  place-items: center;
+/* Bosh sahifadagi kichik Optom / Donaga almashtirgich */
+.mode-cards.compact {
+  gap: 8px;
+  margin: 2px 0 14px;
 }
 
-.upper-icon {
-  width: 86%;
-  height: auto;
-  margin-top: 14px;
-  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
-  transform: rotate(-4deg);
+.mode-cards.compact .mode-card2 {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 16px;
+}
+
+.mode-cards.compact .mode-chip {
+  display: none;
+}
+
+.mode-cards.compact .mode-art {
+  flex: 0 0 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: 12px;
+}
+
+.mode-cards.compact .mode-art.cutout::after {
+  bottom: 4px;
+  height: 6px;
+}
+
+.mode-cards.compact .mode-art.cutout img {
+  left: 6%;
+  top: 6px;
+  width: 88%;
+  height: calc(100% - 10px);
+}
+
+.mode-cards.compact .mode-count {
+  right: 1px;
+  bottom: 1px;
+  padding: 1px 4px;
+  font-size: 9px;
+}
+
+.mode-cards.compact .mode-info {
+  padding: 0;
+  gap: 0;
+}
+
+.mode-cards.compact .mode-info b {
+  font-size: 14px;
+}
+
+.mode-cards.compact .mode-info span {
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mode-cards.compact .mode-sub {
+  display: none;
+}
+
+.mode-cards.compact .mode-go {
+  display: none;
+}
+
+.home .section.section-top {
+  margin-top: 0;
+  margin-bottom: 22px;
 }
