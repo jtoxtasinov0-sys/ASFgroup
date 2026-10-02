@@ -41,8 +41,9 @@ export default function ProductCard({ product, lang, t, mode, inCart, onOpen, on
           ref={imgRef}
           src={imageUrl(product.images[0], 480)}
           alt={pick(product, 'name', lang)}
-          // Rasmlar ilova ochilganda oldindan yuklanadi — kutib turmasdan ko'rsatamiz
-          loading="eager"
+          // Birinchi kartochkalar darhol, qolganlari ekranga yaqinlashganda yuklanadi
+          // (hammasi birdan yuklansa iPhone xotirasi to'lib, ilova oq bo'lib qoladi)
+          loading={index < 8 ? 'eager' : 'lazy'}
           fetchpriority={priority ? 'high' : undefined}
           decoding="async"
           onError={retryImage}
