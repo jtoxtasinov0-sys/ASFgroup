@@ -493,7 +493,9 @@ const adminController = {
   async deleteProduct(req, res, next) {
     try {
       const existing = await ProductModel.findById(req.params.id);
-      if (existing) existing.images.forEach(removeFile);
+      // Allaqachon o'chirilgan (masalan, tugma ikki marta bosilgan) — xato emas
+      if (!existing) return res.json({ ok: true });
+      existing.images.forEach(removeFile);
       await ProductModel.remove(req.params.id);
       res.json({ ok: true });
     } catch (err) {
@@ -562,7 +564,8 @@ const adminController = {
   async deleteStory(req, res, next) {
     try {
       const existing = await StoryModel.findById(req.params.id);
-      if (existing) removeFile(existing.image);
+      if (!existing) return res.json({ ok: true });
+      removeFile(existing.image);
       await StoryModel.remove(req.params.id);
       res.json({ ok: true });
     } catch (err) {

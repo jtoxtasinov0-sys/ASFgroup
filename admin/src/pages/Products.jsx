@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, imageUrl, money } from '../lib/api';
 import { frameOf, frameStyle } from '../lib/frame';
 import ProductForm from '../components/ProductForm';
+import ProductView from '../components/ProductView';
 
 const CATS = [
   { key: 'all', label: 'Hammasi' },
@@ -14,6 +15,7 @@ export default function Products({ reload }) {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState(undefined); // undefined = yopiq, null = yangi
+  const [viewing, setViewing] = useState(null); // to'liq ko'rish oynasi
   const [error, setError] = useState('');
 
   const load = useCallback(() => {
@@ -125,7 +127,12 @@ export default function Products({ reload }) {
               </thead>
               <tbody>
                 {filtered.map((product) => (
-                  <tr key={product.id}>
+                  <tr
+                    key={product.id}
+                    className="row-click"
+                    onClick={() => setViewing(product)}
+                    title="Batafsil ko'rish"
+                  >
                     <td>
                       <div className="thumb">
                         <img
@@ -181,7 +188,7 @@ export default function Products({ reload }) {
                       </span>
                     </td>
                     <td>
-                      <div className="row-actions">
+                      <div className="row-actions" onClick={(e) => e.stopPropagation()}>
                         <button className="btn btn-line btn-sm" onClick={() => setEditing(product)}>
                           Tahrirlash
                         </button>
@@ -197,6 +204,17 @@ export default function Products({ reload }) {
           </div>
         )}
       </div>
+
+      {viewing && (
+        <ProductView
+          product={viewing}
+          onClose={() => setViewing(null)}
+          onEdit={() => {
+            setEditing(viewing);
+            setViewing(null);
+          }}
+        />
+      )}
 
       {editing !== undefined && (
         <ProductForm

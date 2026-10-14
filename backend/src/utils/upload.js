@@ -237,10 +237,16 @@ function makeUploader(folder) {
     },
   });
 
-  // Diskka tushgan fayllarni bazaga ham yozib qo'yadi
-  const persist = async (req, _res, next) => {
+  // Diskka tushgan fayllarni bazaga ham yozib qo'yadi — fonda: javob kutib
+  // qolmaydi (sekin internetda "Saqlanmoqda..." da qotib qolmasin). Rasm
+  // diskda tayyor, shuning uchun darhol ko'rinadi.
+  const persist = (req, _res, next) => {
     const files = [...(req.files || []), ...(req.file ? [req.file] : [])];
-    await Promise.all(files.map((f) => storeFile(fileUrl(folder, f.filename))));
+    files.forEach((f) => {
+      storeFile(fileUrl(folder, f.filename)).catch((err) =>
+        console.error(`Rasm bazaga saqlanmadi (${f.filename}):`, err?.message)
+      );
+    });
     next();
   };
 
