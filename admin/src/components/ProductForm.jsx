@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import ImagePicker from './ImagePicker';
 import ImageEditor from './ImageEditor';
-import { compressImages } from '../lib/image';
+import { compressImages, precompressImages } from '../lib/image';
 import { colorOf } from '../lib/colors';
 
 const ALL_SIZES = [39, 40, 41, 42, 43];
@@ -70,6 +70,13 @@ export default function ProductForm({ product, onClose, onSaved }) {
   // Rang artikullari: { "red": "ASF-Z17" } — buyurtmaga shu rangning artikuli yoziladi
   const [colorArticles, setColorArticles] = useState(() => ({ ...(product?.colorArticles || {}) }));
   const [busy, setBusy] = useState(false);
+  // Yuklash bosqichi: 'compress' — rasmlar tayyorlanmoqda, raqam — yuklangan foiz
+  const [progress, setProgress] = useState(null);
+
+  // Tanlangan rasmlar darhol fonda siqila boshlaydi — saqlash tezroq bo'ladi
+  useEffect(() => {
+    precompressImages(files);
+  }, [files]);
 
   // Rasmlarda tanlangan ranglar (rasm tartibida, takrorlanmasdan)
   const usedColors = [
@@ -107,6 +114,7 @@ export default function ProductForm({ product, onClose, onSaved }) {
     }
     setBusy(true);
     setError('');
+    setProgress(files.length ? 'compress' : 0);
 
     const data = new FormData();
     const fields = {
@@ -153,12 +161,16 @@ export default function ProductForm({ product, onClose, onSaved }) {
     try {
       // Og'ir rasmlar yuklashdan oldin kichraytiriladi — tez yuklanadi va tez ochiladi
       (await compressImages(files)).forEach((file) => data.append('files', file));
-      if (product) await api.updateProduct(product.id, data);
-      else await api.createProduct(data);
+      setProgress(0);
+      if (product) await api.updateProduct(product.id, data, setProgress);
+      else await api.createProduct(data, setProgress);
       onSaved();
     } catch (err) {
       setError(err.message);
       setBusy(false);
+      setProgress(null);
+      // Xato oyna tepasida — telefonda ko'rinmay qolmasin
+      e.target.closest('.modal-back')?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -394,7 +406,13 @@ export default function ProductForm({ product, onClose, onSaved }) {
             Bekor qilish
           </button>
           <button className="btn" disabled={busy}>
-            {busy ? 'Saqlanmoqda...' : 'Saqlash'}
+            {!busy
+              ? 'Saqlash'
+              : progress === 'compress'
+                ? 'Rasmlar tayyorlanmoqda...'
+                : progress > 0 && progress < 100
+                  ? `Yuklanmoqda ${progress}%`
+                  : 'Saqlanmoqda...'}
           </button>
         </div>
       </form>

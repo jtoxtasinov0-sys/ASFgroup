@@ -40,7 +40,29 @@ export async function compressImage(file, maxSide = MAX_SIDE, quality = 0.82) {
   }
 }
 
+/*
+ * Rasm tanlangan zahoti fonda siqila boshlaydi — "Saqlash" bosilganda
+ * tayyor natija darhol olinadi. Telefon xotirasi to'lib qolmasin deb
+ * rasmlar birin-ketin siqiladi. Bir fayl ikki marta siqilmaydi.
+ */
+const compressed = new WeakMap();
+let queue = Promise.resolve();
+
+function compressOnce(file) {
+  if (!compressed.has(file)) {
+    const job = queue.then(() => compressImage(file));
+    queue = job.catch(() => {});
+    compressed.set(file, job);
+  }
+  return compressed.get(file);
+}
+
+/** Tanlangan rasmlarni oldindan (fonda) siqib qo'yadi */
+export function precompressImages(files) {
+  files.forEach((file) => compressOnce(file).catch(() => {}));
+}
+
 /** Bir nechta rasmni siqadi (tartib saqlanadi) */
 export function compressImages(files) {
-  return Promise.all(files.map((file) => compressImage(file)));
+  return Promise.all(files.map((file) => compressOnce(file)));
 }

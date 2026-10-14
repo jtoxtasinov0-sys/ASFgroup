@@ -102,6 +102,53 @@ async function upload(method, path, formData) {
   return handle(res);
 }
 
+/**
+ * Rasmli forma uchun yuklash — foizini ko'rsatadi va cheksiz kutib qolmaydi.
+ * Telefonda internet uzilsa `fetch` "Saqlanmoqda..." holatida abadiy qotib
+ * qolardi; bu yerda aniq vaqt chegarasi bor va xato aniq ko'rsatiladi.
+ */
+const UPLOAD_TIMEOUT = 120000;
+
+function xhrUpload(url, method, formData, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.setRequestHeader('Authorization', `Bearer ${getToken()}`);
+    xhr.timeout = UPLOAD_TIMEOUT;
+    if (onProgress) {
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+      };
+    }
+    xhr.onload = () =>
+      resolve(
+        new Response(xhr.responseText, {
+          status: xhr.status || 500,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+    xhr.onerror = () => reject(Object.assign(new Error("Serverga ulanib bo'lmadi"), { network: true }));
+    xhr.ontimeout = () =>
+      reject(new Error("Yuklash juda uzoq davom etdi. Internetni tekshirib, qayta urinib ko'ring"));
+    xhr.send(formData);
+  });
+}
+
+async function uploadWithProgress(method, path, formData, onProgress) {
+  let res;
+  try {
+    res = await xhrUpload(`${activeApiUrl}/api/admin${path}`, method, formData, onProgress);
+  } catch (err) {
+    if (!err.network) throw err;
+    // Server uxlab qolgan bo'lishi mumkin — uyg'otib, bir marta qayta urinamiz
+    if (onProgress) onProgress(0);
+    await apiFetch('/api/health').catch(() => {});
+    res = await xhrUpload(`${activeApiUrl}/api/admin${path}`, method, formData, onProgress);
+  }
+  if (onProgress) onProgress(100);
+  return handle(res);
+}
+
 export const api = {
   login: async (password) => {
     const res = await apiFetch('/api/admin/login', {
@@ -138,8 +185,10 @@ export const api = {
   deleteOrder: (id) => request('DELETE', `/orders/${id}`),
 
   products: () => request('GET', '/products'),
-  createProduct: (formData) => upload('POST', '/products', formData),
-  updateProduct: (id, formData) => upload('PUT', `/products/${id}`, formData),
+  createProduct: (formData, onProgress) =>
+    uploadWithProgress('POST', '/products', formData, onProgress),
+  updateProduct: (id, formData, onProgress) =>
+    uploadWithProgress('PUT', `/products/${id}`, formData, onProgress),
   deleteProduct: (id) => request('DELETE', `/products/${id}`),
   updateStock: (id, data) => request('PATCH', `/products/${id}/stock`, data),
 
