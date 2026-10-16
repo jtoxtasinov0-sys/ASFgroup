@@ -8,6 +8,7 @@ import { maxPacks, maxPairs } from './lib/stock';
 import { cartKey, hasSeenIntro, markIntroSeen, useCart, useLang, useMode } from './lib/store';
 import {
   closeApp,
+  getLinkedProductId,
   getTgUser,
   haptic,
   initTelegram,
@@ -94,6 +95,8 @@ export default function App() {
   const [searchFocus, setSearchFocus] = useState(0);
 
   const [sheetProduct, setSheetProduct] = useState(null);
+  // Ulashilgan havola orqali kirilgan bo'lsa — shu mahsulot o'zi ochiladi
+  const [linkedProduct, setLinkedProduct] = useState(getLinkedProductId);
   const [storyIndex, setStoryIndex] = useState(null);
   const [checkout, setCheckout] = useState(false);
   const [success, setSuccess] = useState(null);
@@ -244,6 +247,21 @@ export default function App() {
       setSheetProduct(product);
     }
   };
+
+  // Katalog yuklanib, savdo turi tanlangach — havoladagi mahsulotni ochamiz
+  useEffect(() => {
+    if (!linkedProduct || status !== 'ready' || !products.length) return;
+    if ((modeOpen || !mode) && retailOn) return;
+    const product = shownProducts.find((p) => p.id === linkedProduct);
+    if (product) setSheetProduct(product);
+    setLinkedProduct(null);
+    // Orqaga qaytib, sahifa yangilansa qayta ochilmasin
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('product');
+      window.history.replaceState(null, '', url);
+    } catch (_) { /* eski brauzer */ }
+  }, [linkedProduct, status, products.length, modeOpen, mode, retailOn, shownProducts]);
 
   /**
    * Tezkor qo'shish: optomda — 1 komplekt,

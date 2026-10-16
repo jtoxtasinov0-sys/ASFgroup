@@ -1,6 +1,7 @@
 const config = require('../config/default');
 const UserModel = require('../models/User');
 const OrderModel = require('../models/Order');
+const ProductModel = require('../models/Product');
 const { t, esc } = require('../utils/i18n');
 const { samePassword } = require('../utils/password');
 const { canDecide, attachReceipt, setPaymentStatus, saveTelegramFile } = require('../services/payment');
@@ -50,11 +51,63 @@ function mainKeyboard(lang, chatId, user) {
   return { inline_keyboard: rows };
 }
 
+/** Mahsulotni rasm, narx va "Mini App'da ochish" tugmasi bilan yuboradi */
+async function sendProduct(bot, chatId, id, lang) {
+  const product = await ProductModel.findById(id).catch(() => null);
+  if (!product || !product.isActive || !isHttps()) return false;
+
+  const ru = lang === 'ru';
+  const money = (v) => new Intl.NumberFormat('ru-RU').format(Number(v) || 0);
+  const name = (ru && product.nameRu) || product.name;
+  const lines = [
+    `<b>${esc(product.article)} — ${esc(name)}</b>`,
+    `💰 ${money(product.price)} ${ru ? 'сум' : "so'm"}` +
+      (product.oldPrice > product.price ? ` <s>${money(product.oldPrice)}</s>` : ''),
+  ];
+  if (product.wholesalePrice < product.price) {
+    lines.push(`📦 ${ru ? 'Опт' : 'Optom'}: ${money(product.wholesalePrice)} ${ru ? 'сум' : "so'm"}`);
+  }
+  if (product.sizes?.length) lines.push(`📏 ${ru ? 'Размеры' : 'Razmerlar'}: ${product.sizes.join(', ')}`);
+  const desc = (ru && product.descriptionRu) || product.description;
+  if (desc) lines.push('', esc(desc.slice(0, 600)));
+
+  const options = {
+    caption: lines.join('\n'),
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: ru ? '🛍 Открыть и заказать' : "🛍 Ko'rish va buyurtma berish",
+            web_app: { url: `${config.miniappUrl}/?product=${product.id}` },
+          },
+        ],
+      ],
+    },
+  };
+
+  const image = product.images?.[0];
+  const photo = image && (/^https?:\/\//.test(image) ? image : `${config.publicUrl}${image}`);
+  try {
+    if (photo) await bot.sendPhoto(chatId, photo, options);
+    else throw new Error('rasm yo\'q');
+  } catch (_) {
+    // Rasm yuborilmasa ham ma'lumot va tugma yetib borsin
+    const { caption, ...rest } = options;
+    await bot.sendMessage(chatId, caption, rest);
+  }
+  return true;
+}
+
 const botController = {
   /** /start */
   async onStart(bot, msg) {
     const user = await UserModel.findOrCreate(msg.from);
     const L = t(user.lang);
+
+    // Ulashilgan mahsulot havolasi: t.me/<bot>?start=p12 — shu mahsulot ko'rsatiladi
+    const productId = (msg.text || '').match(/^\/start\s+p(\d+)$/)?.[1];
+    if (productId && (await sendProduct(bot, msg.chat.id, productId, user.lang))) return;
     const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'mijoz';
 
     await bot.sendMessage(msg.chat.id, L.welcome(name), {

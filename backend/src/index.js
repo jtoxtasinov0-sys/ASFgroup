@@ -17,6 +17,7 @@ const registerBotHandlers = require('./routes/bot.routes');
 const clientRoutes = require('./routes/client.routes');
 const clickRoutes = require('./routes/click.routes');
 const adminRoutes = require('./routes/admin.routes');
+const shareRoutes = require('./routes/share.routes');
 
 const app = express();
 
@@ -65,6 +66,9 @@ app.get('/api/health', (_req, res) => {
 if (config.bot.token) {
   app.post(webhookPath(), handleWebhookUpdate);
 }
+
+// Ulashiladigan mahsulot havolasi: /p/12 (Telegram'da rasm va narx bilan ko'rinadi)
+app.use(shareRoutes);
 
 app.use('/api/admin', adminRoutes);
 // Click serveridan keladigan Prepare / Complete so'rovlari

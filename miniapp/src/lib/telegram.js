@@ -21,6 +21,21 @@ export function getInitData() {
   return tg?.initData || '';
 }
 
+/**
+ * Ulashilgan havola orqali ochilgan mahsulot ID'si:
+ * `?product=12` (bot tugmasi, sayt) yoki Telegram `startapp=p12`.
+ */
+export function getLinkedProductId() {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('product');
+    const fromStart = String(tg?.initDataUnsafe?.start_param || '').match(/^p(\d+)$/)?.[1];
+    const id = Number(fromUrl || fromStart);
+    return Number.isInteger(id) && id > 0 ? id : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 export function getTgUser() {
   return tg?.initDataUnsafe?.user || null;
 }

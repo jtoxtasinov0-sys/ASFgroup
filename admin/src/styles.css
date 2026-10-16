@@ -2079,3 +2079,35 @@ tbody tr.row-click {
     height: 52vh;
   }
 }
+
+.pv-share {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: var(--navy-50, #eef2fb);
+}
+
+.pv-share label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.pv-share-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pv-share-row input {
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: 13px;
+  background: #fff;
+}
+
+.pv-share-row .btn-line {
+  flex: 1 1 auto;
+}

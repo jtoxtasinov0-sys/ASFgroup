@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { date, imageUrl, money } from '../lib/api';
+import { date, getApiUrl, imageUrl, money } from '../lib/api';
 import { colorOf } from '../lib/colors';
 
 const TAG_LABELS = {
@@ -12,6 +12,84 @@ const TAG_LABELS = {
   yozgi: 'Yozgi',
   qishki: 'Qishki',
 };
+
+const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : undefined;
+
+/** Havolani ochadi — admin panel Telegram ichida bo'lsa, Telegram usulida */
+function openUrl(url) {
+  try {
+    if (/^https:\/\/t\.me\//.test(url) && tg?.openTelegramLink) return tg.openTelegramLink(url);
+    if (tg?.openLink && tg.initData) return tg.openLink(url);
+  } catch (_) {
+    /* oddiy usulga o'tamiz */
+  }
+  window.open(url, '_blank', 'noopener');
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (_) {
+    // Eski brauzerlar / Telegram WebView
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    const ok = document.execCommand('copy');
+    el.remove();
+    return ok;
+  }
+}
+
+/**
+ * Mahsulot havolasi: Telegram yoki boshqa joyga tashlansa rasm, nom va narx
+ * bilan chiqadi, bosilganda mahsulot sahifasi ochiladi.
+ */
+function ShareLink({ product }) {
+  const link = `${getApiUrl()}/p/${product.id}`;
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    if (await copyText(link)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
+  };
+
+  const share = () => {
+    const text = `${product.article} — ${product.name}`;
+    openUrl(
+      `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,
+    );
+  };
+
+  return (
+    <div className="pv-share">
+      <label>Mahsulot havolasi</label>
+      <div className="pv-share-row">
+        <input readOnly value={link} onFocus={(e) => e.target.select()} />
+        <button type="button" className="btn btn-sm" onClick={copy}>
+          {copied ? '✓ Nusxalandi' : 'Nusxalash'}
+        </button>
+      </div>
+      <div className="pv-share-row">
+        <button type="button" className="btn btn-line btn-sm" onClick={share}>
+          ✈️ Telegramda ulashish
+        </button>
+        <button type="button" className="btn btn-line btn-sm" onClick={() => openUrl(link)}>
+          Ochib ko'rish
+        </button>
+      </div>
+      <span className="hint">
+        Havola Telegramga tashlansa — rasm, nom va narx bilan chiqadi. Mijoz bosganda mahsulot
+        to'liq ochiladi va buyurtma berishi mumkin.
+      </span>
+    </div>
+  );
+}
 
 /** Rangli doiracha + nomi */
 function ColorDot({ value }) {
@@ -220,6 +298,13 @@ export default function ProductView({ product, onClose, onEdit }) {
         )}
 
         <div className="modal-body">
+          {product.isActive ? (
+            <ShareLink product={product} />
+          ) : (
+            <div className="alert" style={{ marginBottom: 16 }}>
+              Mahsulot Mini Appda yashirilgan — havolasi mijozlarga ochilmaydi
+            </div>
+          )}
           <dl className="pv-info">
             {rows.map(([label, value]) => (
               <div key={label}>
