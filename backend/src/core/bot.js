@@ -75,6 +75,52 @@ function warnIfPublicUrlMismatch() {
   }
 }
 
+/**
+ * Bot havolasi (t.me/...) yuborilganda chiqadigan qisqa tavsif va bot
+ * ochilganda ko'rinadigan "Bu bot nima qila oladi?" matni.
+ * Faqat bo'sh bo'lsa qo'yiladi — BotFather'da qo'lda yozilgani o'chib ketmaydi.
+ */
+const BOT_TEXTS = [
+  {
+    lang: '',
+    short:
+      "ASF GROUP — poyabzal va zagatovka ishlab chiqaruvchi. Donaga va optomga, O'zbekiston bo'ylab yetkazib berish 👞",
+    long:
+      "👞 ASF GROUP — poyabzal ishlab chiqarish korxonasi.\n\n" +
+      "• Tayyor oyoq kiyim va zagatovka\n" +
+      "• Donaga va optomga\n" +
+      "• O'zbekiston bo'ylab yetkazib berish\n\n" +
+      'Katalogni ko\'rish va buyurtma berish uchun "Start" tugmasini bosing.',
+  },
+  {
+    lang: 'ru',
+    short:
+      'ASF GROUP — производство обуви и заготовок. В розницу и оптом, доставка по всему Узбекистану 👞',
+    long:
+      '👞 ASF GROUP — обувное производство.\n\n' +
+      '• Готовая обувь и заготовки\n' +
+      '• В розницу и оптом\n' +
+      '• Доставка по всему Узбекистану\n\n' +
+      'Нажмите «Start», чтобы открыть каталог и оформить заказ.',
+  },
+];
+
+async function ensureBotTexts() {
+  for (const { lang, short, long } of BOT_TEXTS) {
+    const form = lang ? { language_code: lang } : {};
+    try {
+      const cur = await bot.getMyShortDescription(form);
+      if (!cur?.short_description) {
+        await bot.setMyShortDescription({ ...form, short_description: short });
+      }
+      const curLong = await bot.getMyDescription(form);
+      if (!curLong?.description) await bot.setMyDescription({ ...form, description: long });
+    } catch (err) {
+      console.error(`Bot tavsifi qo'yilmadi (${lang || 'uz'}):`, err?.message);
+    }
+  }
+}
+
 /** Botni yangilanishlarni qabul qilishga tayyorlaydi */
 async function startBot() {
   if (!bot) return;
@@ -86,6 +132,9 @@ async function startBot() {
     .getMe()
     .then((me) => { config.bot.username = me.username || ''; })
     .catch(() => {});
+
+  // Bot havolasi yuborilganda nomi bilan birga tavsifi ham chiqsin
+  ensureBotTexts().catch(() => {});
 
   if (canUseWebhook()) {
     try {
