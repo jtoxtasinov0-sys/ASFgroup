@@ -385,6 +385,15 @@ build yiqiladi va yangi o'zgarishlar jonli saytga chiqmaydi.
 Servis uyquda bo'lsa, ilova darrov xato ko'rsatmaydi: ulanish uzilsa 3 marta
 qayta urinadi va ekranda "Server uyg'onmoqda, biroz kuting..." yoziladi.
 
+### Admin panelda mahsulot saqlashda "Serverga ulanib bo'lmadi" (iPhone)
+
+Server ishlayotgan bo'lsa ham chiqardi. Sabab: iPhone (Safari, Telegram) galereyadan
+tanlangan rasmga ~1 daqiqadan keyin ruxsatni yopib qo'yadi. Forma to'ldirilguncha
+shu vaqt o'tadi va "Saqlash" bosilganda rasmni yuborib bo'lmaydi — brauzer buni
+ulanish xatosi deb ko'rsatadi. Endi rasm tanlangan zahoti xotiraga ko'chiriladi
+(`admin/src/lib/image.js` → `toMemoryFile`). Rasm baribir o'qilmasa, "Rasmni o'qib
+bo'lmadi... qayta tanlang" degan aniq xabar chiqadi.
+
 ---
 
 ## Keyingi deploy'lar

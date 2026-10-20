@@ -40,6 +40,25 @@ export async function compressImage(file, maxSide = MAX_SIDE, quality = 0.82) {
   }
 }
 
+/**
+ * iPhone (Safari, Telegram) galereyadan tanlangan faylga taxminan 1 daqiqadan
+ * keyin ruxsatni yopib qo'yadi. Forma to'ldirilguncha shu vaqt o'tib ketadi va
+ * "Saqlash" bosilganda rasmni yuborib bo'lmaydi — brauzer buni ulanish xatosi
+ * deb ko'rsatadi ("Serverga ulanib bo'lmadi"). Shuning uchun fayl tanlangan
+ * zahoti xotiraga ko'chirib olinadi. O'qib bo'lmasa — asl fayl qaytariladi.
+ */
+export async function toMemoryFile(file) {
+  try {
+    const data = await file.arrayBuffer();
+    return new File([data], file.name || 'photo.jpg', {
+      type: file.type,
+      lastModified: file.lastModified,
+    });
+  } catch (_) {
+    return file;
+  }
+}
+
 /*
  * Rasm tanlangan zahoti fonda siqila boshlaydi — "Saqlash" bosilganda
  * tayyor natija darhol olinadi. Telefon xotirasi to'lib qolmasin deb

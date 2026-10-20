@@ -134,12 +134,29 @@ function xhrUpload(url, method, formData, onProgress) {
   });
 }
 
+/** Formadagi rasmlardan biri o'qilmayaptimi (iPhone faylga ruxsatni yopgan bo'lsa) */
+async function hasUnreadableFile(formData) {
+  for (const value of formData.values()) {
+    if (!(value instanceof Blob)) continue;
+    try {
+      await value.slice(0, 1).arrayBuffer();
+    } catch (_) {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function uploadWithProgress(method, path, formData, onProgress) {
   let res;
   try {
     res = await xhrUpload(`${activeApiUrl}/api/admin${path}`, method, formData, onProgress);
   } catch (err) {
     if (!err.network) throw err;
+    // Aybdor server emas, rasm fayli bo'lsa — qayta urinish foyda bermaydi
+    if (await hasUnreadableFile(formData)) {
+      throw new Error("Rasmni o'qib bo'lmadi. Rasmni o'chirib (×), galereyadan qayta tanlang");
+    }
     // Server uxlab qolgan bo'lishi mumkin — uyg'otib, bir marta qayta urinamiz
     if (onProgress) onProgress(0);
     await apiFetch('/api/health').catch(() => {});

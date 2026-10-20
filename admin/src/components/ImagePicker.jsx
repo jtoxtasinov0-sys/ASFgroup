@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { frameStyle } from '../lib/frame';
 import { COLORS, colorOf, customColor } from '../lib/colors';
+import { toMemoryFile } from '../lib/image';
 
 // Har bir fayl uchun bitta vaqtinchalik manzil (har renderda yangisi yaratilmasin)
 const objectUrls = new WeakMap();
@@ -96,10 +97,12 @@ export default function ImagePicker({
     );
   };
 
-  const addFiles = (list) => {
+  const addFiles = async (list) => {
     const picked = Array.from(list || []).filter((f) => f.type.startsWith('image/'));
     if (!picked.length) return;
-    onFiles([...files, ...picked].slice(0, Math.max(0, max - existing.length)));
+    // iPhone'da fayl keyinroq o'qilmay qolmasin — darhol xotiraga olamiz
+    const copies = await Promise.all(picked.map(toMemoryFile));
+    onFiles([...files, ...copies].slice(0, Math.max(0, max - existing.length)));
   };
 
   return (
