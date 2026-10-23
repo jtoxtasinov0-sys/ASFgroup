@@ -6,12 +6,28 @@
  */
 const MAX_SIDE = 1600;
 const MIN_BYTES = 300 * 1024;
+/** Bitta rasmni siqish shundan uzoq cho'zilsa — asl rasm olinadi */
+const COMPRESS_TIMEOUT = 15000;
+/** "Saqlash" bosilgach siqilishni ko'pi bilan shuncha kutamiz, qolgani asl holida ketadi */
+const SUBMIT_WAIT = 30000;
+
+/** Promise `ms` ichida tugamasa — `fallback` qaytadi (hech narsa cheksiz kutmasin) */
+export function withTimeout(promise, ms, fallback) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
 
 export async function compressImage(file, maxSide = MAX_SIDE, quality = 0.82) {
   const convertible = /^image\/(jpeg|jpg|png|webp|heic|heif)$/.test(file.type);
   const mustConvert = /^image\/hei[cf]$/.test(file.type); // server HEIC qabul qilmaydi
   if (!convertible || (file.size < MIN_BYTES && !mustConvert)) return file;
 
+  let canvas;
   try {
     const url = URL.createObjectURL(file);
     const img = await new Promise((resolve, reject) => {
@@ -22,7 +38,7 @@ export async function compressImage(file, maxSide = MAX_SIDE, quality = 0.82) {
     }).finally(() => URL.revokeObjectURL(url));
 
     const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
-    const canvas = document.createElement('canvas');
+    canvas = document.createElement('canvas');
     canvas.width = Math.round(img.naturalWidth * scale);
     canvas.height = Math.round(img.naturalHeight * scale);
     const ctx = canvas.getContext('2d');
@@ -35,6 +51,33 @@ export async function compressImage(file, maxSide = MAX_SIDE, quality = 0.82) {
     if (!blob || (blob.size >= file.size && !mustConvert)) return file;
     const name = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
     return new File([blob], name, { type: 'image/jpeg' });
+  } catch (_) {
+    return file;
+  } finally {
+    // iPhone'da canvas xotirasi cheklangan va o'zi kech bo'shaydi — bir necha
+    // mahsulotdan keyin yangi rasmlar siqilmay qotib qolardi. Darhol bo'shatamiz.
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+}
+
+/**
+ * iPhone (Safari, Telegram) galereyadan tanlangan faylga taxminan 1 daqiqadan
+ * keyin ruxsatni yopib qo'yadi. Forma to'ldirilguncha shu vaqt o'tib ketadi va
+ * "Saqlash" bosilganda rasmni yuborib bo'lmaydi — brauzer buni ulanish xatosi
+ * deb ko'rsatadi ("Serverga ulanib bo'lmadi"). Shuning uchun fayl tanlangan
+ * zahoti xotiraga ko'chirib olinadi. O'qib bo'lmasa — asl fayl qaytariladi.
+ */
+export async function toMemoryFile(file) {
+  try {
+    const data = await withTimeout(file.arrayBuffer(), 10000, null);
+    if (!data) return file;
+    return new File([data], file.name || 'photo.jpg', {
+      type: file.type,
+      lastModified: file.lastModified,
+    });
   } catch (_) {
     return file;
   }
@@ -50,19 +93,34 @@ let queue = Promise.resolve();
 
 function compressOnce(file) {
   if (!compressed.has(file)) {
-    const job = queue.then(() => compressImage(file));
+    // Bitta rasm qotib qolsa ham navbat to'xtamaydi: vaqt tugasa asl rasm olinadi.
+    // Aks holda keyingi barcha mahsulotlar ham "Saqlanmoqda..." da qolib ketardi.
+    const job = queue.then(() => withTimeout(compressImage(file), COMPRESS_TIMEOUT, file));
     queue = job.catch(() => {});
-    compressed.set(file, job);
+    compressed.set(file, job.catch(() => file));
   }
   return compressed.get(file);
 }
 
 /** Tanlangan rasmlarni oldindan (fonda) siqib qo'yadi */
 export function precompressImages(files) {
-  files.forEach((file) => compressOnce(file).catch(() => {}));
+  files.forEach((file) => compressOnce(file));
 }
 
-/** Bir nechta rasmni siqadi (tartib saqlanadi) */
-export function compressImages(files) {
-  return Promise.all(files.map((file) => compressOnce(file)));
+/**
+ * Bir nechta rasmni siqadi (tartib saqlanadi). `onEach(tayyor, jami)` — har bir
+ * rasm tayyor bo'lganda. Hammasi `SUBMIT_WAIT` ichida ulgurmasa — ulgurmaganlari
+ * asl holida yuboriladi (server o'zi kichraytiradi), forma kutib qolmaydi.
+ */
+export function compressImages(files, onEach) {
+  let done = 0;
+  return Promise.all(
+    files.map((file) =>
+      withTimeout(compressOnce(file), SUBMIT_WAIT, file).then((out) => {
+        done += 1;
+        if (onEach) onEach(done, files.length);
+        return out;
+      })
+    )
+  );
 }

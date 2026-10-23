@@ -9,6 +9,8 @@ let sharp = null;
 try {
   sharp = require('sharp');
   sharp.cache(false);
+  // Render'ning bepul rejasida xotira 512 MB — bitta rasm bitta oqimda ishlansin
+  sharp.concurrency(1);
 } catch (_) {
   console.warn('⚠️  sharp topilmadi — rasmlar siqilmasdan saqlanadi');
 }
@@ -97,6 +99,33 @@ async function storeFile(url) {
   } catch (err) {
     console.error(`Rasm bazaga saqlanmadi (${url}):`, err?.message);
   }
+}
+
+/*
+ * Rasmlarni bazaga yozish navbati — birin-ketin, bittadan. Avval har bir rasm
+ * darhol yozilardi: bir necha mahsulot ketma-ket qo'shilsa, o'nlab og'ir yozuvlar
+ * bir vaqtda ketib, server xotirasi va baza ulanishlari to'lib qolardi — keyingi
+ * mahsulotni saqlash "Saqlanmoqda..." da qotib qolardi. Endi qancha rasm
+ * yuklansa ham yuk bir xil. Rasm diskda darhol tayyor, navbat faqat zaxira uchun.
+ */
+const STORE_TIMEOUT = 60000;
+let storeQueue = Promise.resolve();
+
+/** Promise `ms` ichida tugamasa — navbat uni kutmay davom etadi */
+function withTimeout(promise, ms) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      timer = setTimeout(resolve, ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
+function queueStore(url) {
+  const job = storeQueue.then(() => withTimeout(storeFile(url), STORE_TIMEOUT));
+  storeQueue = job.catch(() => {});
+  return job;
 }
 
 // Bir rasm bir vaqtda ko'p so'ralsa — bazaga faqat bitta so'rov ketadi
@@ -237,13 +266,13 @@ function makeUploader(folder) {
     },
   });
 
-  // Diskka tushgan fayllarni bazaga ham yozib qo'yadi — fonda: javob kutib
-  // qolmaydi (sekin internetda "Saqlanmoqda..." da qotib qolmasin). Rasm
-  // diskda tayyor, shuning uchun darhol ko'rinadi.
+  // Diskka tushgan fayllarni bazaga ham yozib qo'yadi — fonda, navbat bilan:
+  // javob kutib qolmaydi (sekin internetda "Saqlanmoqda..." da qotib qolmasin).
+  // Rasm diskda tayyor, shuning uchun darhol ko'rinadi.
   const persist = (req, _res, next) => {
     const files = [...(req.files || []), ...(req.file ? [req.file] : [])];
     files.forEach((f) => {
-      storeFile(fileUrl(folder, f.filename)).catch((err) =>
+      queueStore(fileUrl(folder, f.filename)).catch((err) =>
         console.error(`Rasm bazaga saqlanmadi (${f.filename}):`, err?.message)
       );
     });

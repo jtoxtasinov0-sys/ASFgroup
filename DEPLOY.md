@@ -385,6 +385,28 @@ build yiqiladi va yangi o'zgarishlar jonli saytga chiqmaydi.
 Servis uyquda bo'lsa, ilova darrov xato ko'rsatmaydi: ulanish uzilsa 3 marta
 qayta urinadi va ekranda "Server uyg'onmoqda, biroz kuting..." yoziladi.
 
+### Admin panelda mahsulot saqlashda "Serverga ulanib bo'lmadi" (iPhone)
+
+Server ishlayotgan bo'lsa ham chiqardi. Sabab: iPhone (Safari, Telegram) galereyadan
+tanlangan rasmga ~1 daqiqadan keyin ruxsatni yopib qo'yadi. Forma to'ldirilguncha
+shu vaqt o'tadi va "Saqlash" bosilganda rasmni yuborib bo'lmaydi — brauzer buni
+ulanish xatosi deb ko'rsatadi. Endi rasm tanlangan zahoti xotiraga ko'chiriladi
+(`admin/src/lib/image.js` → `toMemoryFile`). Rasm baribir o'qilmasa, "Rasmni o'qib
+bo'lmadi... qayta tanlang" degan aniq xabar chiqadi.
+
+### Bir necha mahsulotdan keyin "Saqlanmoqda..." da qotib qolish
+
+Sabablar: iPhone'da rasm siqish (canvas) xotirasi bo'shamay, bitta rasm siqilmay
+qotib qolardi — rasmlar navbatda turgani uchun keyingi barcha saqlashlar ham
+to'xtardi; tanlangan rasmlar xotirada qolib ketardi; server esa har bir rasmni
+bazaga bir vaqtda yozardi. Endi:
+
+- har bir rasmni siqish ko'pi bilan 15 soniya, hammasi 30 soniya kutiladi —
+  ulgurmagani asl holida yuboriladi (server o'zi kichraytiradi);
+- yuklash 60 soniya siljimasa yoki server 60 soniya javob bermasa — aniq xato
+  chiqadi va "Saqlash"ni qayta bosish mumkin; "Bekor qilish" yuklashni to'xtatadi;
+- serverda rasmlar bazaga birin-ketin yoziladi (qancha rasm bo'lsa ham yuk bir xil).
+
 ---
 
 ## Keyingi deploy'lar
