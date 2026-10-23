@@ -1,3 +1,5 @@
+import { withTimeout } from './image';
+
 /**
  * Backend manzili build paytida `VITE_API_URL` dan olinadi va kodga yozilib qoladi.
  * Jonli saytda (https) u berilmagan yoki `localhost` bo'lib qolgan bo'lsa,
@@ -41,19 +43,42 @@ export function imageUrl(path) {
    uchun ulanish xatosida bir necha marta qayta urinamiz.
    ---------------------------------------------------------- */
 const RETRY_DELAYS = [3000, 8000, 15000];
+/** Bitta so'rov shundan ortiq javobsiz qolsa — to'xtatiladi (uxlagan server uyg'onishiga yetadi) */
+const REQUEST_TIMEOUT = 90000;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** `fetch`, lekin cheksiz kutib qolmaydi */
+async function fetchWithTimeout(url, options, ms = REQUEST_TIMEOUT) {
+  const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctrl && setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, ctrl ? { ...options, signal: ctrl.signal } : options);
+  } catch (err) {
+    if (ctrl?.signal.aborted) {
+      throw Object.assign(
+        new Error("Server javob bermadi. Internetni tekshirib, qayta urinib ko'ring"),
+        { timeout: true }
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 async function apiFetch(path, options) {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      return await fetch(`${activeApiUrl}${path}`, options);
-    } catch (_) {
+      return await fetchWithTimeout(`${activeApiUrl}${path}`, options);
+    } catch (err) {
+      // So'rov serverga yetib, javob kechikkan — qayta yuborsak ikki marta bajarilishi mumkin
+      if (err.timeout) throw err;
       // Sozlangan manzil butunlay noto'g'ri bo'lishi mumkin — ma'lum
       // ishlaydigan manzilni sinab ko'ramiz va ishlasa o'shanga o'tamiz
       if (activeApiUrl !== PROD_API_URL) {
         try {
-          const res = await fetch(`${PROD_API_URL}${path}`, options);
+          const res = await fetchWithTimeout(`${PROD_API_URL}${path}`, options);
           activeApiUrl = PROD_API_URL;
           return res;
         } catch (_) { /* u ham javob bermadi */ }
@@ -103,33 +128,69 @@ async function upload(method, path, formData) {
 }
 
 /**
- * Rasmli forma uchun yuklash — foizini ko'rsatadi va cheksiz kutib qolmaydi.
- * Telefonda internet uzilsa `fetch` "Saqlanmoqda..." holatida abadiy qotib
- * qolardi; bu yerda aniq vaqt chegarasi bor va xato aniq ko'rsatiladi.
+ * Rasmli forma uchun yuklash — foizini ko'rsatadi va hech qachon cheksiz kutib qolmaydi.
+ * Umumiy vaqt chegarasi yo'q: ko'p rasm sekin internetda ham oxirigacha yuklanadi.
+ * Lekin yuklash `UPLOAD_IDLE` davomida bir bayt ham siljimasa yoki rasmlar yetib
+ * borgach server `RESPONSE_TIMEOUT` ichida javob bermasa — to'xtatiladi va xato
+ * aniq ko'rsatiladi (avval "Saqlanmoqda..." da qotib qolardi).
  */
-const UPLOAD_TIMEOUT = 120000;
+const UPLOAD_IDLE = 60000;
+const RESPONSE_TIMEOUT = 60000;
 
-function xhrUpload(url, method, formData, onProgress) {
+/** Foydalanuvchi oynani yopib, yuklashni bekor qildi */
+export const isCancelled = (err) => Boolean(err && err.cancelled);
+
+function xhrUpload(url, method, formData, { onProgress, signal } = {}) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    let timer;
+    const finish = (fn, value) => {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', cancel);
+      fn(value);
+    };
+    // Har safar oldinga siljiganda soat qaytadan boshlanadi
+    const watch = (ms, message) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        finish(reject, new Error(message));
+        xhr.abort();
+      }, ms);
+    };
+    function cancel() {
+      finish(reject, Object.assign(new Error('Bekor qilindi'), { cancelled: true }));
+      xhr.abort();
+    }
+    if (signal?.aborted) return cancel();
+    signal?.addEventListener('abort', cancel);
+
     xhr.open(method, url);
     xhr.setRequestHeader('Authorization', `Bearer ${getToken()}`);
-    xhr.timeout = UPLOAD_TIMEOUT;
-    if (onProgress) {
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) onProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
-      };
-    }
+    xhr.upload.onprogress = (e) => {
+      watch(UPLOAD_IDLE, "Internet juda sekin yoki uzildi — rasmlar yuklanmadi. Qayta urinib ko'ring");
+      if (onProgress && e.lengthComputable) {
+        onProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+      }
+    };
+    // Rasmlar serverga yetib bordi — endi faqat server javobini kutamiz
+    xhr.upload.onload = () => {
+      watch(
+        RESPONSE_TIMEOUT,
+        "Server javob bermadi. Mahsulotlar ro'yxatini yangilab tekshiring, keyin qayta urinib ko'ring"
+      );
+      if (onProgress) onProgress(100);
+    };
     xhr.onload = () =>
-      resolve(
+      finish(
+        resolve,
         new Response(xhr.responseText, {
           status: xhr.status || 500,
           headers: { 'Content-Type': 'application/json' },
         })
       );
-    xhr.onerror = () => reject(Object.assign(new Error("Serverga ulanib bo'lmadi"), { network: true }));
-    xhr.ontimeout = () =>
-      reject(new Error("Yuklash juda uzoq davom etdi. Internetni tekshirib, qayta urinib ko'ring"));
+    xhr.onerror = () =>
+      finish(reject, Object.assign(new Error("Serverga ulanib bo'lmadi"), { network: true }));
+    watch(UPLOAD_IDLE, "Server javob bermadi. Internetni tekshirib, qayta urinib ko'ring");
     xhr.send(formData);
   });
 }
@@ -139,7 +200,8 @@ async function hasUnreadableFile(formData) {
   for (const value of formData.values()) {
     if (!(value instanceof Blob)) continue;
     try {
-      await value.slice(0, 1).arrayBuffer();
+      const ok = await withTimeout(value.slice(0, 1).arrayBuffer(), 5000, null);
+      if (!ok) return true;
     } catch (_) {
       return true;
     }
@@ -147,10 +209,16 @@ async function hasUnreadableFile(formData) {
   return false;
 }
 
-async function uploadWithProgress(method, path, formData, onProgress) {
+/**
+ * `onProgress` — yuklangan foiz (0-100) yoki 'retry' (qayta urinilmoqda).
+ * `signal` — oyna yopilsa yuklash to'xtatiladi.
+ */
+async function uploadWithProgress(method, path, formData, onProgress, signal) {
+  const send = () =>
+    xhrUpload(`${activeApiUrl}/api/admin${path}`, method, formData, { onProgress, signal });
   let res;
   try {
-    res = await xhrUpload(`${activeApiUrl}/api/admin${path}`, method, formData, onProgress);
+    res = await send();
   } catch (err) {
     if (!err.network) throw err;
     // Aybdor server emas, rasm fayli bo'lsa — qayta urinish foyda bermaydi
@@ -158,9 +226,10 @@ async function uploadWithProgress(method, path, formData, onProgress) {
       throw new Error("Rasmni o'qib bo'lmadi. Rasmni o'chirib (×), galereyadan qayta tanlang");
     }
     // Server uxlab qolgan bo'lishi mumkin — uyg'otib, bir marta qayta urinamiz
-    if (onProgress) onProgress(0);
+    if (onProgress) onProgress('retry');
     await apiFetch('/api/health').catch(() => {});
-    res = await xhrUpload(`${activeApiUrl}/api/admin${path}`, method, formData, onProgress);
+    if (signal?.aborted) throw Object.assign(new Error('Bekor qilindi'), { cancelled: true });
+    res = await send();
   }
   if (onProgress) onProgress(100);
   return handle(res);
@@ -202,10 +271,10 @@ export const api = {
   deleteOrder: (id) => request('DELETE', `/orders/${id}`),
 
   products: () => request('GET', '/products'),
-  createProduct: (formData, onProgress) =>
-    uploadWithProgress('POST', '/products', formData, onProgress),
-  updateProduct: (id, formData, onProgress) =>
-    uploadWithProgress('PUT', `/products/${id}`, formData, onProgress),
+  createProduct: (formData, onProgress, signal) =>
+    uploadWithProgress('POST', '/products', formData, onProgress, signal),
+  updateProduct: (id, formData, onProgress, signal) =>
+    uploadWithProgress('PUT', `/products/${id}`, formData, onProgress, signal),
   deleteProduct: (id) => request('DELETE', `/products/${id}`),
   updateStock: (id, data) => request('PATCH', `/products/${id}/stock`, data),
 

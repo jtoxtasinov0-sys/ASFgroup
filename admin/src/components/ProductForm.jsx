@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
+import { useEffect, useRef, useState } from 'react';
+import { api, isCancelled } from '../lib/api';
 import ImagePicker from './ImagePicker';
 import ImageEditor from './ImageEditor';
 import { compressImages, precompressImages } from '../lib/image';
@@ -70,13 +70,25 @@ export default function ProductForm({ product, onClose, onSaved }) {
   // Rang artikullari: { "red": "ASF-Z17" } — buyurtmaga shu rangning artikuli yoziladi
   const [colorArticles, setColorArticles] = useState(() => ({ ...(product?.colorArticles || {}) }));
   const [busy, setBusy] = useState(false);
-  // Yuklash bosqichi: 'compress' — rasmlar tayyorlanmoqda, raqam — yuklangan foiz
+  // Yuklash bosqichi: 'compress' — rasmlar tayyorlanmoqda, 'retry' — qayta urinilmoqda,
+  // raqam — yuklangan foiz
   const [progress, setProgress] = useState(null);
+  // Nechta rasm tayyor bo'ldi: "Rasmlar tayyorlanmoqda 3/8"
+  const [prepared, setPrepared] = useState(null);
+  // Oyna yopilsa — yuklash to'xtatiladi
+  const abortRef = useRef(null);
 
   // Tanlangan rasmlar darhol fonda siqila boshlaydi — saqlash tezroq bo'ladi
   useEffect(() => {
     precompressImages(files);
   }, [files]);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  const close = () => {
+    abortRef.current?.abort();
+    onClose();
+  };
 
   // Rasmlarda tanlangan ranglar (rasm tartibida, takrorlanmasdan)
   const usedColors = [
@@ -115,6 +127,9 @@ export default function ProductForm({ product, onClose, onSaved }) {
     setBusy(true);
     setError('');
     setProgress(files.length ? 'compress' : 0);
+    setPrepared(null);
+    const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    abortRef.current = ctrl;
 
     const data = new FormData();
     const fields = {
@@ -160,12 +175,15 @@ export default function ProductForm({ product, onClose, onSaved }) {
     );
     try {
       // Og'ir rasmlar yuklashdan oldin kichraytiriladi — tez yuklanadi va tez ochiladi
-      (await compressImages(files)).forEach((file) => data.append('files', file));
+      const ready = await compressImages(files, (done, total) => setPrepared(`${done}/${total}`));
+      ready.forEach((file) => data.append('files', file));
+      if (ctrl?.signal.aborted) return;
       setProgress(0);
-      if (product) await api.updateProduct(product.id, data, setProgress);
-      else await api.createProduct(data, setProgress);
+      if (product) await api.updateProduct(product.id, data, setProgress, ctrl?.signal);
+      else await api.createProduct(data, setProgress, ctrl?.signal);
       onSaved();
     } catch (err) {
+      if (isCancelled(err)) return;
       setError(err.message);
       setBusy(false);
       setProgress(null);
@@ -175,11 +193,11 @@ export default function ProductForm({ product, onClose, onSaved }) {
   };
 
   return (
-    <div className="modal-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="modal-back" onClick={(e) => e.target === e.currentTarget && close()}>
       <form className="modal" onSubmit={submit}>
         <div className="modal-head">
           <h2>{product ? `Tahrirlash — ${product.article}` : "Yangi mahsulot qo'shish"}</h2>
-          <button type="button" onClick={onClose}>
+          <button type="button" onClick={close}>
             ×
           </button>
         </div>
@@ -402,17 +420,19 @@ export default function ProductForm({ product, onClose, onSaved }) {
         </div>
 
         <div className="modal-foot">
-          <button type="button" className="btn btn-line" onClick={onClose}>
+          <button type="button" className="btn btn-line" onClick={close}>
             Bekor qilish
           </button>
           <button className="btn" disabled={busy}>
             {!busy
               ? 'Saqlash'
               : progress === 'compress'
-                ? 'Rasmlar tayyorlanmoqda...'
-                : progress > 0 && progress < 100
-                  ? `Yuklanmoqda ${progress}%`
-                  : 'Saqlanmoqda...'}
+                ? `Rasmlar tayyorlanmoqda${prepared ? ` ${prepared}` : '...'}`
+                : progress === 'retry'
+                  ? 'Qayta urinilmoqda...'
+                  : progress > 0 && progress < 100
+                    ? `Yuklanmoqda ${progress}%`
+                    : 'Saqlanmoqda...'}
           </button>
         </div>
       </form>

@@ -394,6 +394,19 @@ ulanish xatosi deb ko'rsatadi. Endi rasm tanlangan zahoti xotiraga ko'chiriladi
 (`admin/src/lib/image.js` → `toMemoryFile`). Rasm baribir o'qilmasa, "Rasmni o'qib
 bo'lmadi... qayta tanlang" degan aniq xabar chiqadi.
 
+### Bir necha mahsulotdan keyin "Saqlanmoqda..." da qotib qolish
+
+Sabablar: iPhone'da rasm siqish (canvas) xotirasi bo'shamay, bitta rasm siqilmay
+qotib qolardi — rasmlar navbatda turgani uchun keyingi barcha saqlashlar ham
+to'xtardi; tanlangan rasmlar xotirada qolib ketardi; server esa har bir rasmni
+bazaga bir vaqtda yozardi. Endi:
+
+- har bir rasmni siqish ko'pi bilan 15 soniya, hammasi 30 soniya kutiladi —
+  ulgurmagani asl holida yuboriladi (server o'zi kichraytiradi);
+- yuklash 60 soniya siljimasa yoki server 60 soniya javob bermasa — aniq xato
+  chiqadi va "Saqlash"ni qayta bosish mumkin; "Bekor qilish" yuklashni to'xtatadi;
+- serverda rasmlar bazaga birin-ketin yoziladi (qancha rasm bo'lsa ham yuk bir xil).
+
 ---
 
 ## Keyingi deploy'lar

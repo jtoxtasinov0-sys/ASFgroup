@@ -219,7 +219,11 @@ export default function Products({ reload }) {
       {editing !== undefined && (
         <ProductForm
           product={editing}
-          onClose={() => setEditing(undefined)}
+          onClose={() => {
+            setEditing(undefined);
+            // Javob kelmay qolgan bo'lsa ham mahsulot saqlangan bo'lishi mumkin — ro'yxatda ko'rinsin
+            load();
+          }}
           onSaved={() => {
             setEditing(undefined);
             load();

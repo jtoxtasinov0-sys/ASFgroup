@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { imageUrl } from '../lib/api';
 import { frameStyle } from '../lib/frame';
 import { COLORS, colorOf, customColor } from '../lib/colors';
@@ -9,6 +9,13 @@ const objectUrls = new WeakMap();
 export const fileSrc = (file) => {
   if (!objectUrls.has(file)) objectUrls.set(file, URL.createObjectURL(file));
   return objectUrls.get(file);
+};
+
+/** Vaqtinchalik manzilni bo'shatadi — rasm telefon xotirasida qolib ketmasin */
+const releaseFileSrc = (file) => {
+  const url = objectUrls.get(file);
+  if (url) URL.revokeObjectURL(url);
+  objectUrls.delete(file);
 };
 
 /**
@@ -29,6 +36,27 @@ export default function ImagePicker({
 }) {
   const inputRef = useRef(null);
   const [drag, setDrag] = useState(false);
+  // Rasmlar xotiraga ko'chirilguncha ro'yxat o'zgargan bo'lishi mumkin — eng so'nggisi
+  const filesRef = useRef(files);
+  filesRef.current = files;
+
+  // Olib tashlangan rasmlar va oyna yopilganda vaqtinchalik manzillar bo'shatiladi.
+  // Aks holda har bir mahsulot rasmlari xotirada qolib, bir necha mahsulotdan
+  // keyin telefon sekinlashib, saqlash qotib qolardi.
+  const shown = useRef(new Set());
+  useEffect(() => {
+    shown.current.forEach((file) => {
+      if (!files.includes(file)) {
+        releaseFileSrc(file);
+        shown.current.delete(file);
+      }
+    });
+    files.forEach((file) => shown.current.add(file));
+  }, [files]);
+  useEffect(() => {
+    const list = shown.current;
+    return () => list.forEach(releaseFileSrc);
+  }, []);
 
   const total = existing.length + files.length;
   // Qo'lda rang kiritish oynasi: { key, name, hex }
@@ -98,11 +126,14 @@ export default function ImagePicker({
   };
 
   const addFiles = async (list) => {
-    const picked = Array.from(list || []).filter((f) => f.type.startsWith('image/'));
+    const room = max - existing.length - files.length;
+    const picked = Array.from(list || [])
+      .filter((f) => f.type.startsWith('image/'))
+      .slice(0, Math.max(0, room)); // sig'maydiganlarini xotiraga olib o'tirmaymiz
     if (!picked.length) return;
     // iPhone'da fayl keyinroq o'qilmay qolmasin — darhol xotiraga olamiz
     const copies = await Promise.all(picked.map(toMemoryFile));
-    onFiles([...files, ...copies].slice(0, Math.max(0, max - existing.length)));
+    onFiles([...filesRef.current, ...copies].slice(0, Math.max(0, max - existing.length)));
   };
 
   return (
