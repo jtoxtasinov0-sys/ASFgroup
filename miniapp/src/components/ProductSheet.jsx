@@ -12,6 +12,7 @@ import PhotoViewer from './PhotoViewer';
 import SheetClose from './SheetClose';
 import { retryImage } from '../lib/image';
 import { flyToCart } from '../lib/fly';
+import { useScrollLock } from '../lib/scrollLock';
 
 const PACK_PRESETS = [1, 2, 3, 5, 10, 20, 50, 100];
 
@@ -26,6 +27,7 @@ export default function ProductSheet({
   onAdd,
   onSetPacks,
 }) {
+  useScrollLock();
   const isWholesale = mode === 'wholesale';
   const colors = productColors(product);
   const imageColorOf = (i) => product.imageColors?.[product.images[i]] || null;

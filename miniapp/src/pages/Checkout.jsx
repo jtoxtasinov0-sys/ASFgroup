@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { isPhoneValid, phoneMask } from '../lib/format';
 import { haptic, notifySuccess } from '../lib/telegram';
+import { useScrollLock } from '../lib/scrollLock';
 import SheetClose from '../components/SheetClose';
 
 export default function Checkout({ t, lang, config, user, cartItems, onClose, onSuccess, onFailed }) {
+  useScrollLock();
   const initialName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
   const [form, setForm] = useState({
     customerName: initialName,
