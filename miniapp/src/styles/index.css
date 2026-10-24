@@ -717,6 +717,7 @@ img {
   z-index: 90;
   background: rgba(12, 17, 28, 0.45);
   animation: fade 0.2s ease;
+  touch-action: none;
 }
 
 @keyframes fade {
@@ -783,8 +784,15 @@ img {
   align-items: center;
 }
 
+/* O'z qatlami (position + z-index): iPhone'da rasm ustidan surilganda ham
+   oyna suriladi, orqadagi sahifa emas. Chetiga yetganda ham orqaga o'tmaydi. */
 .sheet-scroll {
+  position: relative;
+  z-index: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: 0 18px 12px;
 }
@@ -1750,6 +1758,8 @@ img {
 /* ---------- Mahsulot rasmlari karuseli (surib almashtirish) ---------- */
 
 .photo-track {
+  position: relative;
+  z-index: 0;
   display: flex;
   width: 100%;
   height: 100%;
